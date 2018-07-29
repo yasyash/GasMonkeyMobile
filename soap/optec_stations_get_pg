@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w
+use POSIX qw(strftime);
+
+
+#sudo apt-get install  libsoap-lite-perl
+#sudo apt-get install libdbd-mysql-perl
+#sudo apt-get install libdbi-perl
+#sudo apt-get install  libxml-simple-perl
+#sudo apt-get install libdbd-pg-perl
+
+
+use SOAP::Lite; #(+trace =>"all", readable => 1);
+#( +trace => , maptype => {} );;
+use DBI;
+use MIME::Base64;
+use XML::Simple;
+ 
+$db = DBI->connect("DBI:Pg:host=localhost;dbname=weather","weather","31415") or die "No access to database: $!";
+
+#$insert
+$insert = "INSERT INTO stations (id,  idd, code, namestation, updateperiod, useraccessright, login, password_soap, date_time_in, date_time_out, is_present)  VALUES(?,?,?,?,?,?,?,?,?,?,?)"; #stations list
+
+$query_ins = $db->prepare("$insert");
+$start = 0;
+
+$select = "SELECT * FROM stations ORDER BY id DESC";
+$query_id = $db->prepare("$select");
+	$query_id->execute();
+
+	if ($query_id->rows >0){
+	@row = $query_id->fetchrow_array;
+	$start = $row[11];
+	}
+
+
+$wsdl = 'http://84.204.102.4/SkatApiService/Service.asmx';
+
+
+$xmlns="http://skat.ru/";
+$method_getstations = "GetStations";
+
+$password = $user = 'shklyar';
+$prefix =  undef;
+
+$client = SOAP::Lite->service($wsdl . '?wsdl'); 
+		$client->proxy( $wsdl);
+		$client->ns($xmlns, $prefix);
+		$client->uri($xmlns);
+
+
+#$client->outputxml('true');
+$client->readable(1);
+$client->on_action( sub {  join '', '"'.$xmlns,qq($_[1]")} );
+
+
+
+ $Username = SOAP::Header->name('login' => $user);
+ $Password = SOAP::Header->name('password' => $password);
+         
+ $UsernameToken = SOAP::Header->value($Username, $Password);
+ $security = SOAP::Header->name('AuthHeaderInfo')->attr({'xmlns' => $xmlns})->value(\$UsernameToken);
+
+
+# make the call
+#$som = $client->GetStations(  $security);
+#print ($result . "\n\n");
+
+$som = $client->call($method_getstations,$security );
+die $som->faultstring if ($som->fault);
+
+#$elm = SOAP::Deserializer->deserialize(XMLout($som->body));
+
+$i=0;
+
+for  $t ($som->valueof('//GetStationsResponse/GetStationsResult/StationInfo')) {
+      print $t->{ID} . " - " . $t->{Code} . " - " . $t->{Name} . " - " . $t->{UpdatePeriod} ." - " . $t->{UserAccessRight} ."\n";
+	$select = "SELECT * FROM stations WHERE idd = '" . $t->{ID} . "'";
+	#print ("Select is " .  localtime() . "\n");
+	$query = $db->prepare("$select");
+	$query->execute();
+
+		if ($query->rows <1)
+	{	
+
+		$query_ins->execute($statt+1, $t->{ID}, $t->{Code}, $t->{Name}, $t->{UpdatePeriod}, $t->{UserAccessRight}, $user, NULL ,  strftime ("%F %X", localtime()),strftime ("%F %X", localtime()), 1);
+		$i++;
+
+	};
+
+    }
+$query->finish;
+$query_ins ->finish;
+$query_id -> finish;
+#
+
+print ("\nthere are " . $i . " records added\n");
+$db->disconnect;
+#print "Result is: ". XMLout($elm)."\n\n";
+#print "Result is: ". $som->dataof('//GetStationsResponse/GetStationsResult/StationInfo/*'). "...\n\n";
+

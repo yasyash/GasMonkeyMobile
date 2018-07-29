@@ -1,0 +1,128 @@
+#!/usr/bin/perl -w
+use POSIX qw(strftime);
+
+
+#sudo apt-get install  libsoap-lite-perl
+#sudo apt-get install libdbd-mysql-perl
+#sudo apt-get install libdbi-perl
+#sudo apt-get install  libxml-simple-perl
+
+
+use SOAP::Lite; #(+trace =>"all", readable => 1);
+#( +trace => , maptype => {} );;
+use DBI;
+use MIME::Base64;
+use XML::Simple;
+ 
+$db = DBI->connect("DBI:Pg:host=localhost;dbname=weather","weather","31415") or die "No access to database: $!";
+$start = $i = $j = 0;
+#$insert
+$insert = "INSERT INTO equipments ( id, idd, serialnum, typemeasure, average_period, unit_name, measure_class, is_wind_sensor, max_consentration, max_day_consentration, def_colour, date_time_in, date_time_out, is_present)  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+$select = "SELECT * FROM equipments ORDER BY id DESC";
+$query_id = $db->prepare("$select");
+	$query_id->execute();
+
+	if ($query_id->rows >0){
+	@row = $query_id->fetchrow_array;
+	$start = $row[13];
+	}
+
+$query_ins = $db->prepare("$insert");
+
+#$wsdl = 'http://84.204.102.4/SkatApiService/Service.asmx';
+
+
+$xmlns="http://skat.ru/";
+$method_get = "GetSensors";
+
+#$password = $user = 'shklyar';
+#$prefix =  undef;
+
+
+
+
+ 
+
+	$select = "SELECT * FROM stations WHERE is_present = true";
+	#print ("Select is " .  localtime() . "\n");
+	$query = $db->prepare("$select");
+	$query->execute();
+	
+
+	if ($query->rows >0)
+	{	
+		while (@row = $query->fetchrow_array)
+			{
+				$wsdl = $row[10];
+					print ('Address is ' . $wsdl .'\n');
+
+				$client = SOAP::Lite->service($wsdl . '?wsdl'); 
+				$client->proxy( $wsdl);
+				#$client->ns($xmlns, $prefix);
+				$client->uri($xmlns);
+
+
+				#$client->outputxml('true');
+				$client->readable(1);
+     			$client->on_action( sub {  join '', '"'.$xmlns,qq($_[1]")} );
+
+
+				$Username = SOAP::Header->name('login' => $row[5]);#user
+ 				$Password = SOAP::Header->name('password' =>  $row[6]);#password
+         					#print ('user is ' . $Username);
+         					#print ('pwd is ' . $Password);
+
+ 				$UsernameToken = SOAP::Header->value($Username, $Password);
+ 				$security = SOAP::Header->name('AuthHeaderInfo')->attr({'xmlns' => $xmlns})->value(\$UsernameToken);
+
+
+			 $_ = $row[8];
+			 m{^\s*(\d{1,4})\W*0*(\d{2})\W*0*(\d{2})\W*0*
+        	         (\d{2})\W*0*(\d{2})\W*0*(\d{2})}x;
+		
+ 			 #print "@row[8]\n==================\n\n $1 - $2 - $3 $4 : $5 : $6 \n";
+			 $id = SOAP::Data->name('StationID' => $row[0]);
+			 $from  = SOAP::Data->name('From' => "$1-$2-$3T$4:$5:$6");
+			 $to  = SOAP::Data->name('To' => strftime ("%Y-%m-%dT%H:%M:%S", localtime));
+			 $som = $client->call($method_get,$id,$from, $to,$security );
+			 die $som->faultstring if ($som->fault);
+				#print "INFO=======".$som->valueof('//GetSensorsResponse/GetSensorsResult/SensorInfo');
+				for  $t ($som->valueof('//GetSensorsResponse/GetSensorsResult/SensorInfo')) {
+					$j++;
+      					print $t->{ID} . " - " .  $t->{Name} ."\n";
+					$select = "SELECT * FROM equipments WHERE idd = '". $row[0] ."' AND serialnum ='" . $t->{ID} . "'";
+
+					$query_sensors = $db->prepare("$select");
+					$query_sensors->execute();
+					#print ("COLOURS	 = " .  $t->{DefaultColor} . "\n");
+					if ($query_sensors->rows <1)
+					{	
+
+						$i++;
+						$query_ins->execute($start + $i, $row[0], $t->{ID}, $t->{Name}, $t->{AveragePeriod}, $t->{Unit}->{Name},
+						 $t->{MeasurClass}, 
+						($t->{IsWeathercock} eq 'true' ? '1':'0') ,$t->{PDKValue}, $t->{PDKDayValue}, $t->{DefaultColor},
+						strftime ("%F %X", localtime()),strftime ("%F %X", localtime()),'1');
+
+
+					}
+
+    				}
+			
+
+			}
+	}
+	
+
+
+$query->finish;
+$query_sensors ->finish;
+$query_ins ->finish;
+$query_id ->finish;
+
+print ("\nThere are ".$j." sensors in SOAP queries and " . $i . " new sensors added\n");
+$db->disconnect;
+#print "Result is: ". XMLout($elm)."\n\n";
+#print "Result is: ". $som->dataof('//GetStationsResponse/GetStationsResult/StationInfo/*'). "...\n\n";
+

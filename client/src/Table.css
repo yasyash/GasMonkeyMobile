@@ -1,0 +1,18 @@
+table {
+table-layout: auto !important;
+}
+
+
+tr {
+    height: 20px !important;
+    table-layout: auto !important;
+
+
+
+}
+
+td {
+    height: 20px !important;
+
+
+}

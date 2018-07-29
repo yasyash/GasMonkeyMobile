@@ -1,0 +1,8 @@
+{
+	"development" : {                                   // configuration name
+		"url" : "http://admin:admin@localhost:15478"    // deploy server url
+	},
+	"production" : {                                       // other configuration name
+		"url" : "http://admin:admin@192.168.0.104:15478"  // other deploy server url
+	}
+}

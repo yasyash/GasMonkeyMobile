@@ -1,0 +1,107 @@
+#!/usr/bin/perl -w
+
+
+use DBI;
+ 
+$db = DBI->connect("DBI:Pg:host=localhost;dbname=weather","weather","31415") or die "No access to database: $!";
+
+#$insert
+$insert = "INSERT INTO meteo (  station,date_time,temp_out,temp_hi,temp_low, hum_out ,dew_pt,speed_wind,dir_wind,run_wind,
+  speed_wind_hi,  dir_wind_hi,  chill_wind,  heat_indx,  thw_indx,thsw_indx, bar, rain, rain_rate,rad_solar ,
+  enrg_solar,rad_solar_hi , uv_indx, uv_dose, uv_hi, heat_dd,coll_dd, temp_in, hum_in , dew_in, heat_in, emc_in, density_air_in,
+  et, samp_wind , tx_wind , recept_iss, int_arc )  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+$update = "UPDATE meteostations SET date_time_out = ? WHERE idd = ?"; 
+
+$query_ins = $db->prepare("$insert");
+$query_update = $db->prepare("$update");
+
+$select = "SELECT * FROM ftp WHERE isdeleted = false"
+$query_sel = $db->prepare($select);
+$query_sel->execute();
+
+	if ($query_sel->rows >0){
+		while (@row = $query->fetchrow_array)
+			{
+
+			}
+
+
+	}
+
+#print $insert;
+die "You should add name of input file and name of station..."  if ((@ARGV < 2));
+chomp (@ARGV);
+
+open(FILE,$ARGV[0]) or die "Can't access to text file: $!";
+#$_ = <FILE>;
+
+#seek (FILE,-length($_),2); 				#positioning to last record which consists from lenght of $_
+
+#foreach (<FILE>)
+
+#$_ = <FILE>;
+#$_ = <FILE>;
+
+#$_ = <FILE>;
+#$_ = <FILE>;
+$i = 0;
+$station_id = lc($ARGV[1]);
+
+foreach  (<FILE>) 
+{ 
+   if (m/^\d+/)
+      {
+	#print $_;
+	s/---/NULL/g;					#replace --- to NULL
+	#split /\r\n|\n/;				#trancate last /n/r or /n symbols
+	@data = split /\s+/ ;
+	#print((@data[0] . "\n"));
+	$_ = $data[0];
+	#$data[0] = join('-', reverse split /\./); 	#convert dd.mm.yy to sql friendly view like yy-mm-dd
+	$data[0] = join('-',  split /\./); 	#convert dd.mm.yy to sql friendly view like yy-mm-dd
+	$data[0] = $data[0] .'T'.$data[1];
+	splice @data, 1, 1; # convert date and time to datetime
+
+	#print((@data[0] . "\n"));
+
+	#foreach $i (0 .. $#data)
+	#{
+		#$data = @data[];
+		#print($data . "\n");
+	#	print(@data[$i] . "\n");
+	#}
+
+$select = "SELECT * FROM meteo WHERE station = '" . $station_id ."' AND date_time = '" . $data[0] . "'";
+
+print ("=");
+#print ($select . "\n");
+
+$query = $db->prepare("$select");
+$query->execute;
+
+#print (@data );
+
+
+	if ($query->rows < 1)
+	{	
+		unshift @data, $station_id;
+		$query_ins->execute((@data));
+		$i++;
+		$query_update->execute($data[1], $station_id);
+	#print ($data[0]."/n");
+	}
+     } #end if
+}
+
+close (FILE);
+#
+
+print ("\nThe " . $i . " records have been added\n");
+
+
+$query->finish;
+$query_update->finish;
+$query_ins ->finish;
+$db->disconnect;
+
+
