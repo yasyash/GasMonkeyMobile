@@ -288,13 +288,13 @@ class ReportForm extends React.Component {
                     </Tab>
                     <Tab label="Ежемесячный">
                         <MonthlyReport {...this.state}
-                            dateTimeBegin={new Date().format('Y-MM-ddT') + '00:00'}
+                            dateTimeBegin={new Date(new Date().getFullYear(), new Date().getMonth(), 1, '0', '0').format('Y-MM-ddTHH:mm')}
                             dateTimeEnd={new Date().format('Y-MM-ddT') + '23:59:59'}
                         />
                     </Tab>
                     <Tab label="ТЗА-4" >
                     <Tza4Report {...this.state}
-                            dateTimeBegin={new Date().format('Y-MM-ddT') + '00:00'}
+                            dateTimeBegin={new Date(new Date().getFullYear(), new Date().getMonth(), 1, '0', '0').format('Y-MM-ddTHH:mm')}
                             dateTimeEnd={new Date().format('Y-MM-ddT') + '23:59:59'}
                         />
                     </Tab>

@@ -25,3 +25,5 @@ export const FIRST_STATION_LIST = 'FIRST_STATION_LIST';
 export const SET_MACS_LIST = 'SET_MACS_LIST';
 
 export const SET_DATE = 'SET_DATE';
+
+export const SET_REPORT_DATE = 'SET_REPORT_DATE';

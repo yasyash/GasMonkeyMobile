@@ -51,7 +51,7 @@ import { saveAs } from 'file-saver'
 //import * as fs from 'level-filesystem';
 import canvas2pdf from 'canvas2pdf/src/canvas2pdf';
 
-import { dateAddAction } from './actions/dateAddAction';
+import { dateAddReportAction } from './actions/dateAddAction';
 
 
 
@@ -204,8 +204,8 @@ class MenuReport extends Component {
             value,
             options,
             meteoOptions,
-            dateTimeBegin,
-            dateTimeEnd,
+            dateReportBegin,
+            dateReportEnd,
             station_actual,
             stationsList,
             sensorsList,
@@ -230,8 +230,8 @@ class MenuReport extends Component {
             meteoOptions,
             checked: [],
 
-            dateTimeBegin,
-            dateTimeEnd,
+            dateReportBegin,
+            dateReportEnd,
             station_actual,
             stationsList,
             sensorsList,
@@ -314,7 +314,7 @@ canvas.height = 210;
 canvas.width= 290;
 canvas.style= {width: 290, height: 210};
 
-const {dateTimeEnd} = this.state;
+const {dateReportEnd} = this.state;
 //canvas.pdf = doc;
 
 html2canvas(_html).then(function(_canvas) {
@@ -326,19 +326,19 @@ html2canvas(_html).then(function(_canvas) {
    //iframe.setAttribute('style','position:absolute;right:0; top:0; bottom:0; height:100%; width:500px');
    //document.body.appendChild(iframe);
    //iframe.src = _canvas;
-   //  doc.output('save', 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
-    //doc.save('OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
+   //  doc.output('save', 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
+    //doc.save('OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
 
 
    ////// _canvas.toBlob((blob)=>{
-   //////     saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.png');
+   //////     saveAs(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.png');
    ///// });
 
   /* var stream = blobStream();
     var ctx = canvas2pdf.PdfContext(stream);
    ctx.stream.on('finish', function () {
         var blob = ctx.stream.toBlob('application/pdf');
-        saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf', true);
+        saveAs(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf', true);
     });
 ctx.end();*/
 
@@ -351,16 +351,16 @@ var opt = {
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
   };
   if (this.props.report_type =='operative')
-     var worker = html2pdf().from(_html.innerHTML).set(opt).save('OperativeReport_Station_'+this.props.station_name+'_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
+     var worker = html2pdf().from(_html.innerHTML).set(opt).save('OperativeReport_Station_'+this.props.station_name+'_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
 
   if (this.props.report_type =='daily')
-    var worker = html2pdf().from(_html.innerHTML).set(opt).save('DailyReport_Station_'+this.props.station_name+'_'+new Date(dateTimeEnd).format('dd-MM-Y')+'.pdf');
+    var worker = html2pdf().from(_html.innerHTML).set(opt).save('DailyReport_Station_'+this.props.station_name+'_'+new Date(dateReportEnd).format('dd-MM-Y')+'.pdf');
 
     if (this.props.report_type =='monthly')
-    var worker = html2pdf().from(_html.innerHTML).set(opt).save('MonthlyReport_Station_'+this.props.station_name+'_'+new Date(dateTimeEnd).format('MM-Y')+'.pdf');
+    var worker = html2pdf().from(_html.innerHTML).set(opt).save('MonthlyReport_Station_'+this.props.station_name+'_'+new Date(dateReportEnd).format('MM-Y')+'.pdf');
 
     if (this.props.report_type =='tza4')
-    var worker = html2pdf().from(_html.innerHTML).set(opt).save('TZA4_Report_Station_'+this.props.station_name+'_Substance_'+this.state.chemical+'_'+new Date(dateTimeEnd).format('MM-Y')+'.pdf');
+    var worker = html2pdf().from(_html.innerHTML).set(opt).save('TZA4_Report_Station_'+this.props.station_name+'_Substance_'+this.state.chemical+'_'+new Date(dateReportEnd).format('MM-Y')+'.pdf');
 
 
 /*doc.fromHTML(pdfHTML,1,1,null,(obj)=>{
@@ -368,12 +368,12 @@ var opt = {
     iframe.setAttribute('style','position:absolute;right:0; top:0; bottom:0; height:100%; width:500px');
     document.body.appendChild(iframe);
     iframe.src = doc.output ('datauristring');
-    doc.output('save', 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
-    //doc.save('OperativeReport_'+new Date(this.state.dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
+    doc.output('save', 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
+    //doc.save('OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
 });*/
 //html2pdf(pdfHTML[0], doc, (obj) =>{
   //doc.fromHTML(pdfHTML);      
- //   doc.save('OperativeReport_'+new Date(this.state.dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
+ //   doc.save('OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
 //});
     
 /*html2pdf(_html.innerHTML,doc,(doc)=>{
@@ -381,20 +381,20 @@ var opt = {
     iframe.setAttribute('style','position:absolute;right:0; top:0; bottom:0; height:100%; width:500px');
     document.body.appendChild(iframe);
     iframe.src = doc.output ('datauristring');
-    doc.output('save', 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
-    //doc.save('OperativeReport_'+new Date(this.state.dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
+    doc.output('save', 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
+    //doc.save('OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
 });*/
 
 /*doc.addHTML (document.body).then((canvas)=>{
     doc.canvas = canvas;
  //this.createPDF(doc.innerHTML);
- doc.save('OperativeReport_'+new Date(this.state.dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
+ doc.save('OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');
 });*/
 
  
 //html2canvas(dom).then((canv) =>{
         
-  //  doc.save('OperativeReport_'+new Date(this.state.dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');});
+  //  doc.save('OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'.pdf');});
 
   // doc.addHTML (_html).then((canvas)=>{
     //   doc.canvas = canvas;
@@ -410,21 +410,21 @@ return response;
 handleWordClick = (name) => {
     const _html =  document.getElementById('operative_report');
 const text ="12345465465";
-const {dateTimeEnd} = this.props;
+const {dateReportEnd} = this.props;
 var date ='';
 var chemical = this.state.chemical;
 
 if (this.props.report_type =='operative')
-    date =new Date(dateTimeEnd).format('dd-MM-Y_H:mm');
+    date =new Date(dateReportEnd).format('dd-MM-Y_H:mm');
 
 if (this.props.report_type =='daily')
-    date =new Date(dateTimeEnd).format('dd-MM-Y');
+    date =new Date(dateReportEnd).format('dd-MM-Y');
 
 if (this.props.report_type =='monthly')
-    date =new Date(dateTimeEnd).format('MM-Y');
+    date =new Date(dateReportEnd).format('MM-Y');
 
 if (this.props.report_type =='tza4')
-    date =new Date(dateTimeEnd).format('MM-Y');
+    date =new Date(dateReportEnd).format('MM-Y');
 
 
 if (!isEmpty(this.props.data_4_report)) {
@@ -455,17 +455,17 @@ if (!isEmpty(this.props.data_4_report)) {
         
       //  }
       //  var blob = new Blob([byteNumbers], {type: 'text/html'});
-       // saveAs(response, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.docx', false);
+       // saveAs(response, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
     });
 }
 //var docx = htmlDocx.asBlob(text, {orientation: 'landscape'});
-//saveAs(docx, 'OperativeReport_'+new Date(this.state.dateTimeEnd).format('dd-MM-Y_H:mm')+'.docx');
+//saveAs(docx, 'OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'.docx');
 
 /*htmlTo(_html.innerHTML, (err, file) => {
     if (err) return console.error(err);
     
     file.saveAs()
-    .pipe(fs.createWriteStream('OperativeReport_'+new Date(this.state.dateTimeEnd).format('dd-MM-Y_H:mm')+'xlsx'))
+    .pipe(fs.createWriteStream('OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'xlsx'))
     .on('finish', () => console.log('Done.'));
 
   });*/
@@ -487,7 +487,7 @@ if (!isEmpty(this.props.data_4_report)) {
           var blob = new Blob([tab_text], {
               type: "application/csv;charset=utf-8;"
           });
-          navigator.msSaveBlob(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.docx');
+          navigator.msSaveBlob(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx');
 
       }
   } else {
@@ -495,7 +495,7 @@ if (!isEmpty(this.props.data_4_report)) {
         type: "application/csv;charset=utf-8;"});
         
        // var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(tab_text);
-        saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.docx', false);
+        saveAs(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
 
        // jQuery(this).attr({ 'download': 'test.csv', 'href': csvData, 'target': '_blank' }); 
 
@@ -574,7 +574,7 @@ if (!isEmpty(this.props.data_4_report)) {
             console.log ( 'error: ' + err );
         } // Endif.
     });*/
-//saveAs(pObj, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.docx', false);
+//saveAs(pObj, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
 //out.close();
 /*
 var html1 = '<!DOCTYPE html><html><head><title>hello!</title></head><body><h1>Hello!</h1></body></html>';
@@ -586,7 +586,7 @@ byteNumbers[i] = html1.charCodeAt(i);
 
 }
 var blob = new Blob([byteNumbers], {type: 'text/html'});
-saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.docx', false);
+saveAs(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
 */
 
 
@@ -659,43 +659,50 @@ saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.d
         const value = event.target.value;
         const id = event.target.id;
         if (this.props.report_type=='daily'){
-            dateAddAction({ 'dateTimeBegin': value + 'T00:00' });
-            dateAddAction({ 'dateTimeEnd': value + 'T23:59' });
+            dateAddReportAction({ 'dateReportBegin': value + 'T00:00' });
+            dateAddReportAction({ 'dateReportEnd': value + 'T23:59' });
             if (!isEmpty(this.props.station_name)){
             this.props.handleReportChange({station_name: this.props.station_name,station_actual: this.props.station_actual,
-                'dateTimeBegin': value + 'T00:00', 'dateTimeEnd': value + 'T23:59', chemical: this.state.chemical});
+                'dateReportBegin': value + 'T00:00', 'dateReportEnd': value + 'T23:59', chemical: this.state.chemical});
 
         }
        }
 
        if (this.props.report_type=='monthly'){
-           var dateTimeBegin =new Date( new Date(value).getFullYear(), new Date(value).getMonth(), '1','0','0').format('Y-MM-ddTHH:mm');
-           var dateTimeEnd = new Date(new Date(value).getFullYear(), new Date(value).getMonth(), this.daysInMonth(new Date(value).getMonth()), '23','59').format('Y-MM-ddTHH:mm');
-            dateAddAction({ 'dateTimeBegin': dateTimeBegin });
-            dateAddAction({ 'dateTimeEnd': dateTimeEnd });
+           var dateReportBegin =new Date( new Date(value).getFullYear(), new Date(value).getMonth(), '1','0','0').format('Y-MM-ddTHH:mm');
+           var dateReportEnd = new Date(new Date(value).getFullYear(), new Date(value).getMonth(), this.daysInMonth(new Date(value).getMonth()), '23','59').format('Y-MM-ddTHH:mm');
+            dateAddReportAction({ 'dateReportBegin': dateReportBegin });
+            dateAddReportAction({ 'dateReportEnd': dateReportEnd });
 
             if (!isEmpty(this.props.station_name)){
                 this.props.handleReportChange({station_name: this.props.station_name,station_actual: this.props.station_actual,
-                'dateTimeBegin': dateTimeBegin, 'dateTimeEnd': dateTimeEnd});
+                'dateReportBegin': dateReportBegin, 'dateReportEnd': dateReportEnd});
 
             }
          
         }
 
         if (this.props.report_type=='tza4'){
-            var dateTimeBegin =new Date( new Date(value).getFullYear(), new Date(value).getMonth(), '1','0','0').format('Y-MM-ddTHH:mm');
-            var dateTimeEnd = new Date(new Date(value).getFullYear(), new Date(value).getMonth(), this.daysInMonth(new Date(value).getMonth()), '23','59','59').format('Y-MM-ddTHH:mm:SS');
-             dateAddAction({ 'dateTimeBegin': dateTimeBegin });
-             dateAddAction({ 'dateTimeEnd': dateTimeEnd });
+            var dateReportBegin =new Date( new Date(value).getFullYear(), new Date(value).getMonth(), '1','0','0').format('Y-MM-ddTHH:mm');
+            var dateReportEnd = new Date(new Date(value).getFullYear(), new Date(value).getMonth(), this.daysInMonth(new Date(value).getMonth()), '23','59','59').format('Y-MM-ddTHH:mm:SS');
+             dateAddReportAction({ 'dateReportBegin': dateReportBegin });
+             dateAddReportAction({ 'dateReportEnd': dateReportEnd });
  
              if (!isEmpty(this.props.station_name)&&!isEmpty(this.state.chemical)){
                 this.props.handleReportChange({station_name: this.props.station_name, station_actual: this.props.station_actual,
-                'dateTimeBegin': dateTimeBegin, 'dateTimeEnd': dateTimeEnd, chemical: this.state.chemical});
+                'dateReportBegin': dateReportBegin, 'dateReportEnd': dateReportEnd, chemical: this.state.chemical});
 
               }
           
          }
 
+    };
+
+    componentWillMount() {
+        var dateReportBegin =new Date().format('Y-MM-ddT00:00');
+        var dateReportEnd = new Date().format('Y-MM-ddTHH:mm');
+         dateAddReportAction({ 'dateReportBegin': dateReportBegin });
+         dateAddReportAction({ 'dateReportEnd': dateReportEnd });
     };
 
     render() {
@@ -759,12 +766,12 @@ saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.d
                         </div>
                         {(this.state.report_type =='daily') && 
                         <TextField
-                        id="dateTimeBegin"
+                        id="dateReportBegin"
                         label="дата отчета"
                         type="date"
                         defaultValue= {new Date().format('Y-MM-dd')}
                         className={classes.textField}
-                        // selectProps={this.state.dateTimeBegin}
+                        // selectProps={this.state.dateReportBegin}
                         onChange={(event) => { this.handlePickerChange(event) }}
                         InputLabelProps={{
                             shrink: true,
@@ -772,12 +779,12 @@ saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.d
                     />}
 
                     {(this.state.report_type =='monthly') && <TextField
-                        id="dateTimeBegin"
+                        id="dateReportBegin"
                         label="дата отчета"
                         type="month"
                         defaultValue= {new Date().format('Y-MM')}
                         className={classes.textFieldWide}
-                        // selectProps={this.state.dateTimeBegin}
+                        // selectProps={this.state.dateReportBegin}
                         onChange={(event) => { this.handlePickerChange(event) }}
                         InputLabelProps={{
                             shrink: true,
@@ -787,12 +794,12 @@ saveAs(blob, 'OperativeReport_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.d
                     />}
 
                     {(this.state.report_type =='tza4') && <TextField
-                        id="dateTimeBegin"
+                        id="dateReportBegin"
                         label="дата отчета"
                         type="month"
                         defaultValue= {new Date().format('Y-MM')}
                         className={classes.textFieldWide}
-                        // selectProps={this.state.dateTimeBegin}
+                        // selectProps={this.state.dateReportBegin}
                         onChange={(event) => { this.handlePickerChange(event) }}
                         InputLabelProps={{
                             shrink: true,

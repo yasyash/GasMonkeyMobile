@@ -72,7 +72,8 @@ class MonthlyReport extends React.Component {
             stationsList,
             sensorsList,
             dataList,
-            sensors_actual
+            sensors_actual,
+
 
 
 
@@ -85,8 +86,8 @@ class MonthlyReport extends React.Component {
             snack_msg: '',
             errors: {},
             isLoading: false,
-            dateTimeBegin: new Date(new Date().getFullYear(), new Date().getMonth(), 1, '0', '0').format('Y-MM-ddTHH:mm'),
-            dateTimeEnd: new Date().format('Y-MM-ddT') + '23:59',
+            dateReportBegin: new Date(new Date().getFullYear(), new Date().getMonth(), 1, '0', '0').format('Y-MM-ddTHH:mm'),
+            dateReportEnd: new Date().format('Y-MM-ddT') + '23:59',
             station_actual,
             station_name: '',
             sensors_actual,
@@ -122,8 +123,8 @@ class MonthlyReport extends React.Component {
         };
 
         //first init
-       // dateAddAction({ 'dateTimeBegin': this.state.dateTimeBegin });
-        //dateAddAction({ 'dateTimeEnd': this.state.dateTimeEnd });
+       // dateAddAction({ 'dateReportBegin': this.state.dateReportBegin });
+        //dateAddAction({ 'dateReportEnd': this.state.dateReportEnd });
         // this.onClick = this.onSubmit.bind(this);
         // this.onClose= this.handleClose.bind(this);
         //this.onExited= this.handleClose.bind(this);
@@ -178,17 +179,17 @@ class MonthlyReport extends React.Component {
 
         let params = {};
 
-        // this.setState({ dateTimeBegin: this.props.dateTimeBegin, dateTimeEnd: this.props.dateTimeEnd });
+        // this.setState({ dateReportBegin: this.props.dateReportBegin, dateReportEnd: this.props.dateReportEnd });
         //this.loadData().then(data => this.setState({ sensorsList: data }));
 
         //const template_chemical = ['NO', 'NO2', 'SO2', 'H2S', 'O3', 'CO', 'PM2.5', 'PM10'];
-        if (isEmpty(state.dateTimeBegin)) {
-            params.period_from = this.props.dateTimeBegin;
-            params.period_to = this.props.dateTimeEnd;
+        if (isEmpty(state.dateReportBegin)) {
+            params.period_from = this.state.dateReportBegin;
+            params.period_to = this.state.dateReportEnd;
         }
         else {
-            params.period_from = state.dateTimeBegin;
-            params.period_to = state.dateTimeEnd;
+            params.period_from = state.dateReportBegin;
+            params.period_to = state.dateReportEnd;
         };
         params.station = state.station_actual;
         params.station_name = state.station_name;
@@ -300,7 +301,7 @@ class MonthlyReport extends React.Component {
                     {...this.props} snack_msg={snack_msg} isLoading={isLoading}
                     station_name={this.state.station_name}
                     station_actual={this.state.station_actual}
-                    //dateTimeBegin={this.state.dateTimeBegin}
+                    //dateReportBegin={this.state.dateReportBegin}
                     report_type='monthly'
                     data_4_report={this.state.data_4_report}
                     handleReportChange={this.handleReportChange.bind(this)}
@@ -315,7 +316,7 @@ class MonthlyReport extends React.Component {
                             <tr>
                                 <td style={{ 'width': '45%' }}>Станция: {this.state.station_name}</td>
 
-                                <td style={{ 'width': '45%', 'textAlign': 'right' }}>год {new Date(this.props.dateTimeBegin).format('Y')} месяц {new Date(this.props.dateTimeBegin).format('MM')} </td>
+                                <td style={{ 'width': '45%', 'textAlign': 'right' }}>год {new Date(this.props.dateReportBegin).format('Y')} месяц {new Date(this.props.dateReportBegin).format('MM')} </td>
                                 <td style={{ 'width': '5%' }}>&nbsp;</td>
                             </tr>
                         </tbody>
@@ -409,8 +410,8 @@ function mapStateToProps(state) {
 
 
     return {
-        dateTimeBegin: state.datePickers.dateTimeBegin,
-        dateTimeEnd: state.datePickers.dateTimeEnd
+        dateReportBegin: state.datePickers.dateReportBegin,
+        dateReportEnd: state.datePickers.dateReportEnd
 
     };
 }

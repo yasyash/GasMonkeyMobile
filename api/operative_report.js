@@ -226,6 +226,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
             time_frame.push(date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'));
             // console.log('date ', date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'));
+            data_raw.push({ 'time': date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY') });
 
         }
         //  console.log('macs', macsList.length);
@@ -265,9 +266,8 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 if (!isEmpty(filter)) {
 
 
-                    time_frame.forEach((item, indx) => {
+                    time_frame.forEach((item, ind) => {
                         //         console.log('item ', item);
-
                         // let tmp = item.split(':');
                         //let up_sec = tmp[0] * 3600 + tmp[1] * 60;
 
@@ -285,7 +285,8 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
                         let sum = 0;
                         let local_cnt = 0;
-                        if (!isEmpty(obj)) {
+                        if (!isEmpty(obj)) {  //hour's list in day frame
+
                             obj.forEach((unit => {
                                 //               console.log('unit ', unit);
 
@@ -310,14 +311,14 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                             }))
                             sum = sum / local_cnt;
 
-                            if (times == 0) {
-                                data_raw.push({ 'time': item, [element.chemical]: sum.toFixed(8) });
 
-                            }
-                            else {
-                                data_raw[indx] = { ...data_raw[indx], [element.chemical]: sum.toFixed(8) };
+                            let dt = data_raw[ind];
+                            dt[element.chemical] = sum.toFixed(8);
 
-                            }
+
+                            data_raw[ind] = dt;
+                            // console.log('index out', ind, 'raw ', data_raw[ind]);
+
 
                             if (sum < min_sum) {
                                 min_sum = sum;
@@ -336,6 +337,10 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                             if ((sum / 10) >= element.max_d)
                                 counter_macs10++;
 
+                        } else {
+                            let dt = data_raw[ind];
+                            dt[element.chemical] = 0;
+                            data_raw[ind] = dt;
                         };
 
 
