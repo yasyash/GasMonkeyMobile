@@ -202,7 +202,9 @@ class DailyReport extends React.Component {
                 for (var h = 0; h < 24; h++) {
                     for (var m = 19; m < 60; m += 20) {
 
-                        time_frame.push(h.toString()+':'+m.toString());
+                        time_frame.push(h.toString() + ':' + m.toString());
+
+                        data_raw.push({ 'time': h.toString() + ':' + m.toString() });
                     };
                 };
                 // addActiveSensorsList(this.state.selection);
@@ -238,7 +240,7 @@ class DailyReport extends React.Component {
                         if (!isEmpty(filter)) {
 
 
-                            time_frame.forEach((item, indx) => {
+                            time_frame.forEach((item, ind) => {
 
                                 let tmp = item.split(':');
                                 let up_sec = tmp[0] * 3600 + tmp[1] * 60;
@@ -280,14 +282,12 @@ class DailyReport extends React.Component {
                                     }))
                                     sum = sum / local_cnt;
 
-                                    if (times == 0) {
-                                        data_raw.push({ 'time': item, [element.chemical]: sum.toFixed(8) });
+                                    let dt = data_raw[ind];
+                                    dt[element.chemical] = sum.toFixed(8);
 
-                                    }
-                                    else {
-                                        data_raw[indx] = { ...data_raw[indx], [element.chemical]: sum.toFixed(8) };
+                                    data_raw[ind] = dt;
 
-                                    }
+
 
 
                                     if (sum > element.max_m)
@@ -297,6 +297,10 @@ class DailyReport extends React.Component {
                                     if ((sum / 10) >= element.max_m)
                                         counter_macs10++;
 
+                                } else {
+                                    let dt = data_raw[ind];
+                                    dt[element.chemical] = 0;
+                                    data_raw[ind] = dt;
                                 };
 
 
