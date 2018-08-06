@@ -209,7 +209,7 @@ class ChartPage extends React.Component {
 
     render() {
         return (
-            <div className="container">
+            <div >
 
                 <ChartForm  {...this.state} />
 

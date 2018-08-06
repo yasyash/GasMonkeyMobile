@@ -39,7 +39,7 @@ class MeteoPage extends React.Component {
 
     render() {
         return (
-            <div className="container">
+            <div >
 
                 <MeteoForm queryMeteoEvent={queryMeteoEvent} {...this.state} />
 

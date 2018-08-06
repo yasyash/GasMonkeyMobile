@@ -37,7 +37,7 @@ class TablePage extends React.Component {
 
     render() {
         return (
-            <div className="container">
+            <div >
 
                 <TableForm queryEvent={queryEvent} {...this.state} />
 

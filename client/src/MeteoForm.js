@@ -468,14 +468,7 @@ class MeteoForm extends React.Component {
 
 
                 </Tabs>
-                <IconButton
-                    iconStyle={styles.smallIcon}
-                    style={styles.small} tooltip={'Обновить'}
-                    onClick={this.onSubmit}
-                >
-                    <Renew />
-
-                </IconButton>
+                
 
 
             </div >

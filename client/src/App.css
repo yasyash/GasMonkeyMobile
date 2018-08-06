@@ -1,3 +1,6 @@
+
+
+
 .App {
   text-align: center;
 }
@@ -9,8 +12,8 @@
 
 .App-header {
   background-color: rgb(11, 109, 148);
-  height: 110px;
-  padding: 20px;
+  height: 90px;
+  padding: 0px;
   color: white;
   border-radius: 0.25rem;
 
@@ -31,7 +34,9 @@
   font-size: large;
 }
 .App-navbar {
-  height: 20px;
+  height: auto;
+    padding: 0px;
+
 }
 
 @keyframes App-logo-spin {

@@ -4,8 +4,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import logo from './logo.svg';
+
 import './App.css';
-import '../../node_modules/bootstrap/dist/css/bootstrap.css';
+import CssBaseline from '@material-ui/core/CssBaseline';
+
+//import '../../node_modules/bootstrap/dist/css/bootstrap.css';
 import { logout } from './actions/loginActions';
 
 import isEmpty from 'lodash.isempty';
@@ -63,7 +66,8 @@ class NavigationBar extends React.Component {
       </ul>
     );
     return (
-      <div className="form-control">
+      <div>
+      <CssBaseline />
         <div className="App App-header">
           <img src={logo} className="App-logo" alt="Data visualizer" />
           <h3 className="">Визуализация газоаналитических данных </h3>

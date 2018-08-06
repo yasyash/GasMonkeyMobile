@@ -82,7 +82,7 @@ for  $t ($som->valueof('//GetStationsResponse/GetStationsResult/StationInfo')) {
 		if ($query->rows <1)
 	{	
 
-		$query_ins->execute($statt+1, $t->{ID}, $t->{Code}, $t->{Name}, $t->{UpdatePeriod}, $t->{UserAccessRight}, $user, NULL ,  strftime ("%F %X", localtime()),strftime ("%F %X", localtime()), 1);
+		$query_ins->execute($start+1, $t->{ID}, $t->{Code}, $t->{Name}, $t->{UpdatePeriod}, $t->{UserAccessRight}, $user, NULL ,  strftime ("%F %X", localtime()),strftime ("%F %X", localtime()), 1);
 		$i++;
 
 	};
