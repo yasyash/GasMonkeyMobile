@@ -3,13 +3,13 @@
 
 use DBI;
  
-$db = DBI->connect("DBI:Pg:host=localhost;dbname=weather","weather","31415") or die "No access to database: $!";
+$db = DBI->connect("DBI:Pg:host=localhost;dbname=weather1","weather","31415") or die "No access to database: $!";
 
 #$insert
-$insert = "INSERT INTO meteo (  station,date_time,temp_out,temp_hi,temp_low, hum_out ,dew_pt,speed_wind,dir_wind,run_wind,
-  speed_wind_hi,  dir_wind_hi,  chill_wind,  heat_indx,  thw_indx,thsw_indx, bar, rain, rain_rate,rad_solar ,
-  enrg_solar,rad_solar_hi , uv_indx, uv_dose, uv_hi, heat_dd,coll_dd, temp_in, hum_in , dew_in, heat_in, emc_in, density_air_in,
-  et, samp_wind , tx_wind , recept_iss, int_arc )  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+$insert = "INSERT INTO meteo (  station, date_time, temp_out, temp_hi, temp_low, hum_out, dew_pt, speed_wind, dir_wind, run_wind,
+  speed_wind_hi,  dir_wind_hi,  chill_wind,  heat_indx,  thw_indx, thsw_indx, bar, rain, rain_rate, rad_solar,
+  enrg_solar, rad_solar_hi, uv_indx, uv_dose, uv_hi, heat_dd, coll_dd, temp_in, hum_in , dew_in, heat_in, emc_in, density_air_in,
+  et, samp_wind, tx_wind, recept_iss, int_arc )  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 $update = "UPDATE meteostations SET date_time_out = ? WHERE idd = ?"; 
 
 $query_ins = $db->prepare("$insert");
@@ -39,6 +39,8 @@ $query_stations = $db->prepare("$select");
 
 		foreach  (<FILE>) 
 			{ 
+			 s/^\s+//;
+			 #print $_;
   			 if (m/^\d+/)
    			   {
 				#print $_;

@@ -58,6 +58,7 @@
     "pg": "^7.4.3",
     "react": "^16.3.1",
     "react-chartjs-2": "^2.7.2",
+    "react-color": "^2.14.1",
     "react-dom": "^16.3.1",
     "react-html-table-to-excel": "^2.0.0",
     "react-redux": "^5.0.7",
@@ -98,5 +99,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ILIT.RU",
+
   "license": "ISC"
 }

@@ -580,6 +580,7 @@ class EquipmentForm extends React.Component {
 
             <Paper className={classes.root}>
                 <br />
+               
                 <MenuAdmin
                     {...this.props} snack_msg={snack_msg} isLoading={isLoading}
 

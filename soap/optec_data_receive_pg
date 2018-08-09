@@ -1,4 +1,6 @@
 #!/usr/bin/perl -w
+#use strict;
+#use warnings;
 use POSIX qw(strftime);
 
 
@@ -8,9 +10,11 @@ use POSIX qw(strftime);
 #sudo apt-get install  libxml-simple-perl
 #sudo apt-get install libdatetime-perl
 #sudo apt-get install libdatetime-format-strptime-perl
+#types of errors 0 - soap problem
 
+use SOAP::Lite;
+#(+trace =>"all", readable => 1)
 
-use SOAP::Lite;# (+trace =>"all", readable => 1);
 #( +trace => , maptype => {} );;
 use DBI;
 use MIME::Base64;
@@ -19,39 +23,66 @@ use DateTime;
 use DateTime::Format::Strptime;
 
  
-$db = DBI->connect("DBI:Pg:host=localhost;dbname=weather","weather","31415") or die "No access to database: $!";
-$i = $j = 0;
-$period = 5; # average period is 20 minutes
+my $db = DBI->connect("DBI:Pg:host=localhost;dbname=weather1","weather","31415") or die "No access to database: $!";
+my $i=0;
+my $j = 0;
+my $period = 5; # average period is 20 minutes
 #$insert
-$insert = "INSERT INTO sensors_data (  idd, serialnum, date_time, typemeasure, measure, is_alert)  VALUES(?,?,?,?,?,?)";
-$update = "UPDATE equipments SET date_time_out = ? WHERE serialnum = ?"; 
+my $insert = "INSERT INTO sensors_data (  idd, serialnum, date_time, typemeasure, measure, is_alert)  VALUES (?,?,?,?,?,?)";
+my $insert_err = "INSERT INTO logs (  date_time, type, descr)  VALUES (?,?,?)";
+my $update = "UPDATE equipments SET date_time_out = ? WHERE serialnum = ?"; 
 
-$query_ins = $db->prepare("$insert");
-$query_update = $db->prepare("$update");
-$select_st = "SELECT * FROM stations WHERE is_present = true";
+my $query_ins = $db->prepare("$insert");
+my $query_err = $db->prepare("$insert_err");
+my $query_update = $db->prepare("$update");
+
+my $select_st = "SELECT * FROM stations WHERE is_present = true";
 	#print ("Select is " .  localtime() . "\n");
-	$query_sel = $db->prepare("$select_st");
-	$query_sel->execute();
-
+	my $query_sel = $db->prepare("$select_st");
+	 $query_sel->execute();
+my @row_sel;
+my 	@row;
 #$wsdl = 'http://84.204.102.4/SkatApiService/Service.asmx';
 
 
-$xmlns="http://skat.ru/";
-$method_get = "GetHistoricalDataBrief";
+my $xmlns="http://skat.ru/";
+my $method_get = "GetHistoricalDataBrief";
+my $client = new SOAP::Lite();
+my $date;
+my $time;
+my $y;
+my $mns; 
+my $d;
+my $h;
+my $m;
+my $s;
+my $query;
+my $t;
+my $H;
+my $loctime;
+our @SOAP_ERRORS = ();
+my $last_update;
 
 #$password = $user = 'shklyar';
 #$prefix =  undef;
-$GMT_ADD_ZONE = 5; #because soap service retreives data in UTC format.
+my $GMT_ADD_ZONE = 5; #because soap service retreives data in UTC format.
 
 	if ($query_sel->rows >0)
 	{	
 		while (@row_sel = $query_sel->fetchrow_array)
 			{
-				$wsdl = $row_sel[10];
-		    if ( $wsdl ne ''){
+	   			
+
+				my $wsdl = $row_sel[10];
+		   	 if ( $wsdl ne ''){
 					print ('Address is ' . $wsdl ." \n");
 
-				$client = SOAP::Lite->service($wsdl . '?wsdl'); 
+				$client ->on_fault(\&soapGetBad);
+				#$client ->service($wsdl . '?wsdl')->on_fault(\&soapGetBad); 
+				
+				eval { $client->service($wsdl . '?wsdl'); 
+
+
 				$client->proxy( $wsdl);
 				#$client->ns($xmlns, $prefix);
 				$client->uri($xmlns);
@@ -59,18 +90,19 @@ $GMT_ADD_ZONE = 5; #because soap service retreives data in UTC format.
 
 				#$client->outputxml('true');
 				$client->readable(1);
-     			$client->on_action( sub {  join '', '"'.$xmlns,qq($_[1]")} );
+
+     				$client->on_action( sub {  join '', '"'.$xmlns,qq($_[1]")} );
 
 
-				$Username = SOAP::Header->name('login' => $row_sel[5]);#user
- 				$Password = SOAP::Header->name('password' =>  $row_sel[6]);#password
+				my $Username = SOAP::Header->name('login' => $row_sel[5]);#user
+ 				my $Password = SOAP::Header->name('password' =>  $row_sel[6]);#password
          					#print ('user is ' . $Username);
          					#print ('pwd is ' . $Password);
 
- 				$UsernameToken = SOAP::Header->value($Username, $Password);
- 				$security = SOAP::Header->name('AuthHeaderInfo')->attr({'xmlns' => $xmlns})->value(\$UsernameToken);
+ 				my $UsernameToken = SOAP::Header->value($Username, $Password);
+ 				my $security = SOAP::Header->name('AuthHeaderInfo')->attr({'xmlns' => $xmlns})->value(\$UsernameToken);
 
-				$select = "SELECT * FROM equipments WHERE idd='". $row_sel[0] ."' AND measure_class = 'data'    AND is_present = true";
+				my $select = "SELECT * FROM equipments WHERE idd='". $row_sel[0] ."' AND measure_class = 'data'    AND is_present = true";
 				print ("Select = " . $select . " \n");
 				$query = $db->prepare("$select");
 				$query->execute();
@@ -89,22 +121,25 @@ $GMT_ADD_ZONE = 5; #because soap service retreives data in UTC format.
 							 $j++;
  						 print "Query === $j === for sensor === $row[1] === \n Serial num. === $row[2]\n Time period is from $row[4] to ".
 							 strftime ("%Y-%m-%d %H:%M:%S", localtime)."\n";
-						 $avrg_period = SOAP::Data->name('AveragePeriod' => $period);
-						 $id = SOAP::Data->name('string' => $row[2]); #sensor ID
-						 $sensor = SOAP::Data->name('sSensors')->value(\$id);
-			 			 $from  = SOAP::Data->name('From' => "$1-$2-$3T$4:$5:$6");
-						 $to  = SOAP::Data->name('To' => strftime ("%Y-%m-%dT%H:%M:%S", localtime));
+						my $avrg_period = SOAP::Data->name('AveragePeriod' => $period);
+						my $id = SOAP::Data->name('string' => $row[2]); #sensor ID
+						my $sensor = SOAP::Data->name('sSensors')->value(\$id);
+			 			my $from  = SOAP::Data->name('From' => "$1-$2-$3T$4:$5:$6");
+						my $to  = SOAP::Data->name('To' => strftime ("%Y-%m-%dT%H:%M:%S", localtime));
 			 
 
-						 $som = $client->call($method_get,$avrg_period, $sensor,$from, $to, $security );
+						my $som = $client->call($method_get,$avrg_period, $sensor,$from, $to, $security );
 
-						 die $som->faultstring if ($som->fault);
+						if ($som->fault){
+						print ("An error have been occured: \n", $som->faultstring);
+						$query_err->execute(strftime ("%Y-%m-%dT%H:%M:%S", localtime), 0, $som->faultstring);
+						} else{
 
 							for  $t ($som->valueof('//GetHistoricalDataBriefResponse/GetHistoricalDataBriefResult/SensorData/Data/BriefData')) 								{
 								$i++;
 			      					#print $t->{Time} . " - " .  $t->{Value} ."\n";
 								$_ = $t->{Time};
-								$utc = $t->{Time};
+								my $utc = $t->{Time};
 								#print ("real time ====== ".$utc);
 								($date, $time) =split("T", $utc);
 								($y, $mns, $d) = split("-",$date);
@@ -141,26 +176,76 @@ $GMT_ADD_ZONE = 5; #because soap service retreives data in UTC format.
 								#print "last updt".$last_update;
 
     							}
-				
-						$query_update->execute($last_update, $row[2]) if (defined($last_update));
-						print "================================================================\n";
-
+					
+							$query_update->execute($last_update, $row[2]) if (defined($last_update));
+							print "================================================================\n";
+						};
 					}
 				}
+				$query->finish;
+				$query_update->finish;
+				$query_ins ->finish;
+				$query_sel->finish;
+				}  or (&error_print())
 			}
 		}
 	}
 	
+$query_err->finish;
 
 
-$query->finish;
-$query_update->finish;
-$query_ins ->finish;
-$query_sel->finish;
 
 
 print ("\nThere are ".$j." sensors in the database and " . $i . " records added from SOAP query\n");
 $db->disconnect;
+#end of main procedure
+
+
+
+sub soapGetBad () {
+        my $soap = shift;
+        my $res = shift;
+	my $err;
+
+        if( ref( $res ) ) {
+            chomp(  $err = $res->faultstring );
+            push( @SOAP_ERRORS, "SOAP FAULT: $err" );
+			$_ = $err;
+
+			s/n't/n not/g;
+			s/\'+//g;
+	
+ 			$query_err->execute(strftime ("%Y-%m-%dT%H:%M:%S", localtime), 0, "SOAP FAULT: $_");
+			print "SOAP FAULT: $err";
+
+        }
+        if (ref($soap)) {
+            chomp(  $err = $soap->transport->status );
+            push( @SOAP_ERRORS, "TRANSPORT ERROR: $err" );
+			$_ = $err;
+
+			s/n't/n not/g;
+			s/\'+//g;
+	
+ 			$query_err->execute(strftime ("%Y-%m-%dT%H:%M:%S", localtime), 0, "TRANSPORT ERROR: $_");
+			print "TRANSPORT ERROR: $err";
+
+        }
+
+
+        return new SOAP::SOM;
+}
+
+sub error_print(){
+	$_ = $@;
+
+	s/n't/n not/g;
+	s/\'+//g;
+	
+ 	$query_err->execute(strftime ("%Y-%m-%dT%H:%M:%S", localtime), 0, "CONNECTION ERROR: $_");
+	print "BAD STATUS: ", $_;
+	return 0;
+}
 #print "Result is: ". XMLout($elm)."\n\n";
 #print "Result is: ". $som->dataof('//GetStationsResponse/GetStationsResult/StationInfo/*'). "...\n\n";
 
