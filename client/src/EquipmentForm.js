@@ -126,8 +126,8 @@ class EquipmentForm extends React.Component {
             max_day_consentration: 0,
             def_colour: 0,
             is_meteo: false,
-            meteo_field: ''
-
+            meteo_field: '',
+            displayColorPicker: false
 
         };
 
@@ -408,9 +408,21 @@ class EquipmentForm extends React.Component {
 
 
         }
-        this.setState({
-            [name]: event.target.value,
-        });
+        if (name == 'def_colour') {
+            if (event.rgb) {
+                this.setState({
+                    [name]: (event.rgb.r*65536 + event.rgb.g*256 + event.rgb.b)
+                });
+            } else {
+                this.setState({
+                    [name]: event.target.value
+                });
+            }
+        } else {
+            this.setState({
+                [name]: event.target.value
+            });
+        };
     };
 
     handleAdd() {
@@ -437,6 +449,19 @@ class EquipmentForm extends React.Component {
             });;
 
 
+    };
+
+    handleColourClose = () => {
+        this.setState({ displayColorPicker: false })
+    };
+
+    handleColourChange(color, event) {
+        console.log(color);
+        this.setState({ def_colour: color });
+    }
+
+    handleColourClick = () => {
+        this.setState({ displayColorPicker: !this.state.displayColorPicker })
     };
 
     componentWillMount() {
@@ -580,7 +605,7 @@ class EquipmentForm extends React.Component {
 
             <Paper className={classes.root}>
                 <br />
-               
+
                 <MenuAdmin
                     {...this.props} snack_msg={snack_msg} isLoading={isLoading}
 
@@ -599,7 +624,11 @@ class EquipmentForm extends React.Component {
                     idd={this.state.idd}
                     serialnum={this.state.serialnum}
                     typemeasure={this.state.typemeasure}
+                    def_colour ={this.state.def_colour}
+
                 />
+
+
 
                 <div >
                     <CheckboxTable

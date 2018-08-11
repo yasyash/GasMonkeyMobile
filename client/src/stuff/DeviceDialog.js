@@ -18,7 +18,6 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { SketchPicker } from 'react-color';
 import { EditableInput } from 'react-color/lib/components/common';
-
 import $ from "jquery";
 
 
@@ -64,7 +63,7 @@ export default class DeviceDialog extends React.Component {
         this.state = {
             openDialog,
             title: 'Введите характеристики датчика:',
-            def_colour: 7799999,
+            def_colour: 6446654,
             max_consentration,
             max_day_consentration,
             displayColorPicker: false
@@ -82,8 +81,9 @@ export default class DeviceDialog extends React.Component {
     };
 
     handleChange(color, event) {
-        console.log(color);
-        this.setState({ def_colour: color });
+        // console.log(color);
+        // this.setState({ def_colour: (color.rgb.r*65536 + color.rgb.g*256 + color.rgb.b) });
+
     }
 
     render() {
@@ -94,7 +94,7 @@ export default class DeviceDialog extends React.Component {
                     width: '36px',
                     height: '14px',
                     borderRadius: '2px',
-                    background: this.state.def_colour
+                    background: `rgb(${Math.floor(this.props.def_colour / 65536)},${Math.floor(this.props.def_colour / 256) % 256},${(this.props.def_colour % 256)})`
                 },
                 swatch: {
                     padding: '5px',
@@ -106,14 +106,18 @@ export default class DeviceDialog extends React.Component {
                 },
                 popover: {
                     position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    bottom: '0px',
+                    left: '300px',
                     zIndex: '2',
                 },
                 cover: {
-                    position: 'relative',
-                    top: '170px',
-                    right: '-90px',
-                    bottom: '-70px',
-                    left: '10px',
+                    position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    bottom: '0px',
+                    left: '-300px',
                 },
             },
         });
@@ -214,7 +218,7 @@ export default class DeviceDialog extends React.Component {
                             id="def_colour"
                             label="Цвет линии на графике"
                             type="text"
-                            value={this.state.def_colour}
+                            value={this.props.def_colour}
                             fullWidth
                             onChange={this.props.handleChange('def_colour')}
 
@@ -225,7 +229,7 @@ export default class DeviceDialog extends React.Component {
                             </div>
                             {this.state.displayColorPicker ? <div style={styleP.popover}>
                                 <div style={styleP.cover} onClick={this.handleClose} />
-                                <SketchPicker color={this.state.def_colour} onChange={this.handleChange} />
+                                <SketchPicker color={{r: (Math.floor(this.props.def_colour/65536)), g:(Math.floor(this.props.def_colour/256)%256),b:(this.props.def_colour % 256)}} onChange={this.props.handleChange('def_colour')} />
                             </div> : null}
 
                         </div>
