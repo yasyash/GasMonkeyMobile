@@ -4,9 +4,12 @@ import bcrypt from 'bcrypt';
 import isEmpty from 'lodash.isempty';
 import jsonWT from 'jsonwebtoken';
 import config from './config';
+import date from 'date-and-time';
 
 import commonValidations from './shared/validations';
 import User from '../models/user';
+import LOGS from '../models/logs';
+
 
 let router = express.Router();
 
@@ -25,19 +28,46 @@ router.post('/', (req, resp) => {
                         full: user.get('is_admin')
                     },
                         config.jwtSecret);
+                    let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+                    //console.log('date ', date_time);
+                    //type = 100 is successful authorized.
+                    LOGS.forge({
+                        date_time,
+                        type: 200, descr: ('User - ' + user.get('username') + ' - logged in.')
+                    }).save()
+                        .then(result => resp.json({ token }))
+                        .catch(err => resp.status(500).json({ error: err }));
+                    //                       resp.json({ token });
 
-                    resp.json({ token });
                 } else {
-                    resp.status(401).json({ errors: { form: 'Недействительные полномочия...' } });
+                    let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+                    //console.log('date ', date_time);
+                    //type = 100 is successful authorized.
+                    LOGS.forge({
+                        date_time,
+                        type: 401, descr: ('User - ' + user.get('username') + ' - invalid password.')
+                    }).save().then(result =>
+                        resp.status(401).json({ errors: { form: 'Недействительные полномочия...' } }));
                     // there is invalid password
                 }
             }
             else {
-                resp.status(401).json({ errors: { form: 'Пользователь заблокирован...' } });
+                let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+
+                LOGS.forge({
+                    date_time,
+                    type: 401, descr: ('User - ' + user.get('username') + ' - blocked.')
+                }).save().then(result =>
+                    resp.status(401).json({ errors: { form: 'Пользователь заблокирован...' } }));
 
             }
         } else {
-            resp.status(401).json({ errors: { form: 'Недействительные полномочия...' } });
+            let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+            LOGS.forge({
+                date_time,
+                type: 401, descr: ('User - ' + identifier + ' - illegal authority.')
+            }).save().then(result =>
+                resp.status(401).json({ errors: { form: 'Недействительные полномочия...' } }));
             //user doesn't exist
         }
     });
