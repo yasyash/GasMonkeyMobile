@@ -28,7 +28,7 @@ router.post('/', (req, resp) => {
                         full: user.get('is_admin')
                     },
                         config.jwtSecret);
-                    let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+                    let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
                     //console.log('date ', date_time);
                     //type = 100 is successful authorized.
                     LOGS.forge({
@@ -40,7 +40,7 @@ router.post('/', (req, resp) => {
                     //                       resp.json({ token });
 
                 } else {
-                    let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+                    let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
                     //console.log('date ', date_time);
                     //type = 100 is successful authorized.
                     LOGS.forge({
@@ -52,7 +52,7 @@ router.post('/', (req, resp) => {
                 }
             }
             else {
-                let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+                let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
 
                 LOGS.forge({
                     date_time,
@@ -62,7 +62,7 @@ router.post('/', (req, resp) => {
 
             }
         } else {
-            let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDay(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
+            let date_time = date.format(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()), 'YYYY-MM-DD HH:mm:ss');
             LOGS.forge({
                 date_time,
                 type: 401, descr: ('User - ' + identifier + ' - illegal authority.')
