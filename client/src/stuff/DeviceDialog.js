@@ -16,9 +16,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import { SketchPicker } from 'react-color';
-import { EditableInput } from 'react-color/lib/components/common';
-import $ from "jquery";
+import { ChromePicker } from 'react-color';
 
 
 import isEmpty from 'lodash.isempty';
@@ -229,7 +227,7 @@ export default class DeviceDialog extends React.Component {
                             </div>
                             {this.state.displayColorPicker ? <div style={styleP.popover}>
                                 <div style={styleP.cover} onClick={this.handleClose} />
-                                <SketchPicker color={{r: (Math.floor(this.props.def_colour/65536)), g:(Math.floor(this.props.def_colour/256)%256),b:(this.props.def_colour % 256)}} onChange={this.props.handleChange('def_colour')} />
+                                <ChromePicker color={{r: (Math.floor(this.props.def_colour/65536)), g:(Math.floor(this.props.def_colour/256)%256),b:(this.props.def_colour % 256)}} onChange={this.props.handleChange('def_colour')} />
                             </div> : null}
 
                         </div>

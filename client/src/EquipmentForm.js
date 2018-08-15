@@ -34,7 +34,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { SketchPicker } from 'react-color';
+import { ChromePicker } from 'react-color';
 
 
 import shortid from 'shortid';
@@ -344,7 +344,7 @@ class EquipmentForm extends React.Component {
                     </div>
                     {this.state.displayColorPicker ? <div style={styleP.popover}>
                         <div style={styleP.cover} onClick={(e) => { this.handleColourClose() }} />
-                        <SketchPicker color={{ r: (Math.floor( data[this.state.selected_index]['def_colour'] / 65536)), g: (Math.floor( data[this.state.selected_index]['def_colour'] / 256) % 256), b: ( data[this.state.selected_index]['def_colour'] % 256) }}  onChange={(color, e) => {
+                        <ChromePicker color={{ r: (Math.floor(data[this.state.selected_index]['def_colour'] / 65536)), g: (Math.floor(data[this.state.selected_index]['def_colour'] / 256) % 256), b: (data[this.state.selected_index]['def_colour'] % 256) }} onChange={(color, e) => {
                             data[this.state.selected_index]['def_colour'] = color.rgb.r * 65536 + color.rgb.g * 256 + color.rgb.b;
                             this.setState({ dev_list: data });
                         }} />
@@ -582,7 +582,7 @@ class EquipmentForm extends React.Component {
 
     handleColourClick = (index) => {
         this.setState({ displayColorPicker: !this.state.displayColorPicker });
-        this.setState({selected_index: index});
+        this.setState({ selected_index: index });
     };
 
     componentWillMount() {

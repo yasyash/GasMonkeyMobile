@@ -598,22 +598,16 @@ router.post('/dev_del', authenticate, (req, resp) => {
 })
 
 router.post('/dev_insert', authenticate, (req, resp) => {
-    //  
-
-    // let query = url.parse(req.url).query;
-    // let obj = qs.parse(query);
-    //let data = JSON.parse(obj.data);
+   
     let data = req.body;
-    //console.log(data.address);
 
-    //  console.log(req.body);
 
     DEV.query('where', 'id', '>', '0').orderBy('id', 'DESC').fetchAll()
         .then(result => {
             var result_parse0 = JSON.stringify(result);
             var arr = JSON.parse(result_parse0);
             let id = 1;
-            //    console.log(String(Number(arr[0].id) + 1))
+
             if (!isEmpty(arr[0]))
                 id = String(Number(arr[0].id) + 1);
             let typemeasure = data.typemeasure;
@@ -627,17 +621,11 @@ router.post('/dev_insert', authenticate, (req, resp) => {
             let measure_class = 'data';
             if (data.is_meteo == 'true') measure_class = data.meteo_field;
 
-            // let meteo_field = data.meteo_field;
             let is_wind_sensor = false;
             let date_time_in = new Date().format('Y-MM-dd HH:mm:SS');
             let date_time_out = date_time_in;
             let is_present = true;
-            //let id = Number(arr[0].idd) + 1;
-            /*    console.log({
-                    id, idd, typemeasure, serialnum, unit_name, average_period, unit_name,
-                    measure_class, is_wind_sensor, max_consentration, max_day_consentration,
-                    date_time_in, date_time_out, def_colour, is_present
-                })*/
+        
             DEV.forge({ id }).save({
                 idd, typemeasure, serialnum, unit_name, average_period,
                 measure_class, is_wind_sensor, max_consentration, max_day_consentration,
@@ -647,9 +635,6 @@ router.post('/dev_insert', authenticate, (req, resp) => {
                 .catch(err => resp.status(500).json({ error: err }));
 
         }).catch(err => resp.status(500).json({ error: err }));
-    //      console.log(arr[0].idd);
-
-
 
     // write the result
 

@@ -349,8 +349,7 @@ export function deleteDev(paramstr) {
 
 export function insertDev(paramstr) {
 
-    // const data = JSON.stringify(paramstr);
-    //  console.log('parameters is ', data);
+
     return dispatch => {
         return Axios.post('/api/admin/dev_insert', paramstr)
             .then(resp => resp)
