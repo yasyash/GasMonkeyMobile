@@ -34,9 +34,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { SketchPicker } from 'react-color';
 
 
 import shortid from 'shortid';
+import reactCSS from 'reactcss'
+
 //import './Table.css';
 //import './css/rwd-table.css';
 
@@ -127,7 +130,8 @@ class EquipmentForm extends React.Component {
             def_colour: 0,
             is_meteo: false,
             meteo_field: '',
-            displayColorPicker: false
+            displayColorPicker: false,
+            selected_index: null
 
         };
 
@@ -269,22 +273,138 @@ class EquipmentForm extends React.Component {
 
 
     renderEditable(cellInfo) {
-        return (
-            <div
-                style={{ backgroundColor: "#fafafa" }}
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={e => {
-                    const data = [...this.state.dev_list];
-                    data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-                    this.setState({ dev_list: data });
-                }}
-                dangerouslySetInnerHTML={{
-                    __html: this.state.dev_list[cellInfo.index][cellInfo.column.id]
-                }}
-            />
-        );
+        const data = [...this.state.dev_list];
+        const colour = data[cellInfo.index]['def_colour'];
+        const styleP = reactCSS({
+            'default': {
+                color: {
+                    width: '36px',
+                    height: '14px',
+                    borderRadius: '2px',
+                    background: `rgb(${Math.floor(colour / 65536)},${Math.floor(colour / 256) % 256},${(colour % 256)})`
+                },
+
+                swatch: {
+                    padding: '5px',
+                    background: '#fff',
+                    borderRadius: '1px',
+                    boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+                    display: 'inline-block',
+                    cursor: 'pointer',
+                },
+                popover: {
+                    position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    bottom: '0px',
+                    left: '300px',
+                    zIndex: '2',
+                },
+                cover: {
+                    position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    bottom: '0px',
+                    left: '-300px',
+                },
+            },
+        });
+
+        if (cellInfo.column.id != 'def_colour') {
+            return (
+                <div
+                    style={{ backgroundColor: "#fafafa" }}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={e => {
+                        const data = [...this.state.dev_list];
+                        data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+                        this.setState({ dev_list: data });
+
+                    }}
+
+                    /*  onClick={e => {
+                          if (cellInfo.column.id == 'def_colour') {
+                              this.setState({ displayColorPicker: !this.state.displayColorPicker })
+                          }
+                      }}*/
+
+                    dangerouslySetInnerHTML={{
+                        __html: this.state.dev_list[cellInfo.index][cellInfo.column.id]
+                    }}
+                >
+                </div>)
+        } else {
+            return (
+
+
+                <div>
+                    <div style={styleP.swatch} onClick={(e) => { this.handleColourClick(cellInfo.index) }}>
+                        <div style={styleP.color} />
+                    </div>
+                    {this.state.displayColorPicker ? <div style={styleP.popover}>
+                        <div style={styleP.cover} onClick={(e) => { this.handleColourClose() }} />
+                        <SketchPicker color={{ r: (Math.floor( data[this.state.selected_index]['def_colour'] / 65536)), g: (Math.floor( data[this.state.selected_index]['def_colour'] / 256) % 256), b: ( data[this.state.selected_index]['def_colour'] % 256) }}  onChange={(color, e) => {
+                            data[this.state.selected_index]['def_colour'] = color.rgb.r * 65536 + color.rgb.g * 256 + color.rgb.b;
+                            this.setState({ dev_list: data });
+                        }} />
+                    </div> : null}
+                </div>)
+        }
     } I
+
+    renderClick(cellInfo) {
+        const cell_in = cellInfo;
+        const data = [...this.state.dev_list];
+        const colour = data[cellInfo.index]['def_colour'];
+        const styleP = reactCSS({
+            'default': {
+                color: {
+                    width: '36px',
+                    height: '14px',
+                    borderRadius: '2px',
+                    background: `rgb(${Math.floor(colour / 65536)},${Math.floor(colour / 256) % 256},${(colour % 256)})`
+                },
+
+                swatch: {
+                    padding: '5px',
+                    background: '#fff',
+                    borderRadius: '1px',
+                    boxShadow: '0 0 0 1px rgba(0,0,0,.1)',
+                    display: 'inline-block',
+                    cursor: 'pointer',
+                },
+                popover: {
+                    position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    bottom: '0px',
+                    left: '300px',
+                    zIndex: '2',
+                },
+                cover: {
+                    position: 'absolute',
+                    top: '0px',
+                    right: '0px',
+                    bottom: '0px',
+                    left: '-300px',
+                },
+            },
+        });
+        return (<div>
+            <div style={styleP.swatch} onClick={(e) => { this.handleColourClick() }}>
+                <div style={styleP.color} />
+            </div>
+            {this.state.displayColorPicker ? <div style={styleP.popover}>
+                <div style={styleP.cover} onClick={(e) => { this.handleColourClose() }} />
+                <SketchPicker color={{ r: (Math.floor(colour / 65536)), g: (Math.floor(colour / 256) % 256), b: (colour % 256) }} onChange={(color, e, cell_in) => {
+                    data[cell_in.index]['def_colour'] = color.rgb.r * 65536 + color.rgb.g * 256 + color.rgb.b;
+                    this.setState({ dev_list: data });
+                }} />
+            </div> : null}
+        </div>)
+    }
+
 
     async    load_user() {
         let params = {};
@@ -411,7 +531,7 @@ class EquipmentForm extends React.Component {
         if (name == 'def_colour') {
             if (event.rgb) {
                 this.setState({
-                    [name]: (event.rgb.r*65536 + event.rgb.g*256 + event.rgb.b)
+                    [name]: (event.rgb.r * 65536 + event.rgb.g * 256 + event.rgb.b)
                 });
             } else {
                 this.setState({
@@ -455,13 +575,14 @@ class EquipmentForm extends React.Component {
         this.setState({ displayColorPicker: false })
     };
 
-    handleColourChange(color, event) {
+    handleColourChange(color_new, event, cellInfo) {
         console.log(color);
-        this.setState({ def_colour: color });
+        this.setState({ def_colour: color_new });
     }
 
-    handleColourClick = () => {
-        this.setState({ displayColorPicker: !this.state.displayColorPicker })
+    handleColourClick = (index) => {
+        this.setState({ displayColorPicker: !this.state.displayColorPicker });
+        this.setState({selected_index: index});
     };
 
     componentWillMount() {
@@ -487,6 +608,8 @@ class EquipmentForm extends React.Component {
         const { selection, selectAll, height } = this.state;
         const { loadData } = this.props;
         const { classes } = this.props;
+
+
         // var tableData = this.state.stationsList;
         // const { title, errors, isLoading } = this.state;
         //const {handleChange, handleToggle} = this.props;
@@ -532,7 +655,12 @@ class EquipmentForm extends React.Component {
                 Header: "Перечень опрашиваемого оборудования станций",
                 columns: [
 
+                    {
+                        Header: "Наименование станции",
+                        id: "namestation",
+                        accessor: "namestation",
 
+                    },
                     {
                         Header: "ID станции наблюдения",
                         id: "idd",
@@ -566,7 +694,7 @@ class EquipmentForm extends React.Component {
                         id: "def_colour",
                         accessor: "def_colour",
                         Cell: this.renderEditable
-
+                        //Cell: this.renderClick
                     },
 
                     {
@@ -624,16 +752,19 @@ class EquipmentForm extends React.Component {
                     idd={this.state.idd}
                     serialnum={this.state.serialnum}
                     typemeasure={this.state.typemeasure}
-                    def_colour ={this.state.def_colour}
+                    def_colour={this.state.def_colour}
 
                 />
 
 
 
                 <div >
+
+
                     <CheckboxTable
                         ref={r => (this.checkboxTable = r)}
                         {...checkboxProps}
+
                         data={dev_list}
                         columns={Title}
                         defaultPageSize={7}

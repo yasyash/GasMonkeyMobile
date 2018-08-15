@@ -291,12 +291,22 @@ export function getDev() {
     return dispatch => {
         return Axios.get('/api/admin/dev_get')
             .then(resp => {
-                let list = [];
-                let data = resp.data.userlist;
+                var list = [];
+                const stns = resp.data.stations_list;
+                const devs = resp.data.dev_list;
+                var idd_old = '';
+                var filter = [];
 
-                data.forEach(element => {
+                devs.forEach(element => {
+                    if (idd_old != element.idd) {
+                        filter = stns.filter((item, i, arr) => {
+                            return item.idd == element.idd;
+                        });
+                        idd_old = filter[0].idd;
+                    }
                     list.push({
                         id: String(element.id),
+                        namestation: filter[0].namestation,
                         idd: element.idd,
                         typemeasure: element.typemeasure,
                         serialnum: element.serialnum,

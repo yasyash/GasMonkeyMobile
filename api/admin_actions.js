@@ -18,6 +18,7 @@ import SOAP from '../models/soap';
 import USERS from '../models/user';
 import METEO from '../models/meteostations';
 import DEV from '../models/devices';
+import Stations from '../models/stations'
 
 let router = express.Router();
 
@@ -527,10 +528,14 @@ router.get('/dev_get', authenticate, (req, resp) => {
     // let query = url.parse(req.url).query;
     //let obj = qs.parse(query);
     //let data = JSON.parse(obj.data);
+    Promise.join(Stations.query({
+        where: ({ is_present: true })
+    }).fetchAll().catch(err => resp.status(500).json({ error: err })),
+        DEV.where({ is_present: true }).fetchAll().catch(err => resp.status(500).json({ error: err })),
+        ((stations_list, dev_list) => {
+            resp.json({ stations_list, dev_list });
+        })).catch(err => resp.status(500).json({ error: err }));
 
-    DEV.where({ is_present: true }).fetchAll().then(userlist => {
-        resp.json({ userlist });
-    }).catch(err => resp.status(500).json({ error: err }));
     // write the result
 
 });
