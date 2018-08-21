@@ -123,7 +123,10 @@ class SoapForm extends React.Component {
             password_soap: '',
             updateperiod: 300,
             idd: shortid.generate(),
-            namestation: ''
+            namestation: '',
+            place:'',
+            latitude:0,
+            longitude:0
 
         };
 
@@ -389,9 +392,9 @@ class SoapForm extends React.Component {
 
     handleAdd() {
         //insert action station
-        let { idd, namestation, address, login, password_soap, updateperiod } = this.state;
+        let { idd, namestation, address, login, password_soap, updateperiod, place, latitude, longitude } = this.state;
         if (!isEmpty(this.state.namestation)) {
-            this.props.insertSoap({ idd, namestation, address, login, password_soap, updateperiod })
+            this.props.insertSoap({ idd, namestation, address, login, password_soap, updateperiod,  place, latitude, longitude })
                 .then(resp => {
                     //this.setState({ openDialog: false });
 
@@ -489,13 +492,35 @@ class SoapForm extends React.Component {
 
                     },
                     {
+                        Header: "Адрес станции",
+                        id: "place",
+                        accessor: "place",
+                        Cell: this.renderEditable
+
+                    },
+                    {
                         Header: "Ункальный код станции",
                         id: "idd",
                         accessor: "idd",
                         Cell: this.renderEditable
 
                     },
+                    
+                    {
+                        Header: "Широта",
+                        id: "latitude",
+                        accessor: "latitude",
+                        Cell: this.renderEditable
 
+                    },
+                    
+                    {
+                        Header: "Долгота",
+                        id: "longitude",
+                        accessor: "longitude",
+                        Cell: this.renderEditable
+
+                    },
                     {
                         Header: "Станция в работе",
                         id: "is_present",

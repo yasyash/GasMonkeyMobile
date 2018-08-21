@@ -56,6 +56,36 @@ export default class FormDialog extends React.Component {
                             onChange={this.props.handleChange('namestation')}
 
                         />
+                         <TextField
+                            autoFocus
+                            margin="dense"
+                            id="place"
+                            label="Адрес расположения станции"
+                            type="text"
+                            fullWidth
+                            onChange={this.props.handleChange('place')}
+
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="latitude"
+                            label="Широта"
+                            type="text"
+                            fullWidth
+                            onChange={this.props.handleChange('latitude')}
+
+                        />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="longitude"
+                            label="Долгота"
+                            type="text"
+                            fullWidth
+                            onChange={this.props.handleChange('longitude')}
+
+                        />
                         <TextField
                             autoFocus
                             margin="dense"

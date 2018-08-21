@@ -100,7 +100,10 @@ export function getSoap() {
                         namestation: element.namestation,
                         useraccessright: element.useraccessright,
                         date_time_in: new Date(element.date_time_in).format('dd-MM-Y HH:mm:SS'),
-                        idd: element.idd
+                        idd: element.idd,
+                        place: element.place,
+                        latitude: element.latitude,
+                        longitude: element.longitude
                     })
 
                 });

@@ -171,6 +171,9 @@ router.post('/soap_update', authenticate, (req, resp) => {
             password_soap: data.password_soap,
             updateperiod: data.updateperiod,
             namestation: data.namestation,
+            place: data.place,
+            latitude: data.latitude,
+            longitude: data.longitude,
             date_time_out: new Date().format('Y-MM-dd HH:mm:SS')
         }, { patch: true })
         .then(result => {
@@ -256,11 +259,14 @@ router.post('/soap_insert', authenticate, (req, resp) => {
             let useraccessright = 'view';
             let code = 0;
             let idd = data.idd;
+            let place = data.place;
+            let latitude = data.latitude;
+            let longitude = data.longitude;
             //let id = Number(arr[0].idd) + 1;
             //   console.log({ "idd": idd, "address": address, "username": username, "pwd": pwd, "periods": periods, "date_time": date_time, "isdeleted": false })
             SOAP.forge({ id }).save({
                 idd, namestation, code, updateperiod, useraccessright, address, login, password_soap,
-                date_time_in, date_time_out, is_present
+                date_time_in, date_time_out, place, latitude, longitude, is_present
 
             }, { method: 'insert' })
                 .then(result => resp.json({ success: true }))
@@ -598,7 +604,7 @@ router.post('/dev_del', authenticate, (req, resp) => {
 })
 
 router.post('/dev_insert', authenticate, (req, resp) => {
-   
+
     let data = req.body;
 
 
@@ -625,7 +631,7 @@ router.post('/dev_insert', authenticate, (req, resp) => {
             let date_time_in = new Date().format('Y-MM-dd HH:mm:SS');
             let date_time_out = date_time_in;
             let is_present = true;
-        
+
             DEV.forge({ id }).save({
                 idd, typemeasure, serialnum, unit_name, average_period,
                 measure_class, is_wind_sensor, max_consentration, max_day_consentration,
