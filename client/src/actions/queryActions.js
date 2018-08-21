@@ -300,6 +300,59 @@ export function queryOperativeEvent(paramstr) {
     };
 };
 
+export function queryAllDataOperativeEvent(paramstr) {
+    return dispatch => {
+        const data = JSON.stringify(paramstr);
+        //  console.log('parameters is ', data);
+
+        return Axios.get('/api/operative_query/all', { params: { data } })
+            .then(resp => resp.data)
+            .then(data => {
+                if (data.response) {
+                    let data_list = data.response[0];
+                    let sensors_list = data.response[1];
+                    var macsTable = data.response[2];
+                    let unit_name = '';
+                    let prev = '';
+                    let i = 0;
+                    var dataTable = [];
+                    var sensorsTable = [];
+                   // let macsTable = [];
+
+                    data_list.forEach(element => {
+                        dataTable.push({
+                            id: element.idd,
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            date_time: new Date(element.date_time).format('dd-mm-YY HH:mm:SS'),
+                            unit_name: unit_name,
+                            measure: element.measure,
+                            is_alert: element.is_alert 
+                        });
+                    });
+
+                    sensors_list.forEach(element => {
+                        sensorsTable.push({
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            unit_name: element.unit_name,
+                            is_wind_sensor: element.is_wind_sensor,
+                        });
+                    });
+
+
+
+
+                }
+                return {dataTable, sensorsTable, macsTable};
+            });
+
+
+
+
+    };
+};
+
 /* export function queryEvent(params) {
     return dispatch => {
         return Axios.get('/api/query', params).then(resp => {

@@ -62,6 +62,47 @@ router.get('/', authenticate, (req, resp) => {
 
 
 });
+
+router.get('/all', authenticate, (req, resp) => {
+    //  
+
+    let query = url.parse(req.url).query;
+    let obj = qs.parse(query);
+    let data = JSON.parse(obj.data);
+    //  if (query) {
+    //    obj = JSON.parse(decodeURIComponent(query))
+    //}
+    const between_date = [data.period_from, data.period_to];
+         console.log('data ', between_date);
+
+
+    Promise.join(
+        Data.query('whereBetween', 'date_time', between_date)
+            .orderBy('date_time', 'ASC').fetchAll()
+            .catch(err => resp.status(500).json({ error: err })),
+        Sensors.query({
+            select: ['serialnum', 'typemeasure', 'unit_name','is_wind_sensor'],
+            where: ({ is_present: true }),
+            
+        })
+            .fetchAll()
+            .catch(err => resp.status(500).json({ error: err })),
+        Macs.fetchAll()
+            .catch(err => resp.status(500).json({ error: err })),
+        ((data_list, data_sensors, consentration) => {
+            let response = [data_list, data_sensors, consentration];
+            resp.json({ response });
+        })
+
+    )
+
+        .catch(err => resp.status(500).json({ error: err }));
+
+
+    //'whereIn', 'serialnum', data.sensors,
+
+
+});
 //  andWhereBetween: ('date_time_in', {[data.period_from, data.period_to]} )
 router.post('/', authenticate, (req, resp) => {
     //  const {dateTimeBegin, dateTimeEnd} = req.body;

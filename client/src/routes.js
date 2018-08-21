@@ -12,6 +12,7 @@ import MeteoPage from './MeteoPage';
 import ChartPage from './ChartPage';
 import ReportPage from './ReportPage';
 import  AdminPage from './AdminPage';
+import DashBoard from './DashBoard';
 
 import Divider from 'material-ui/Divider';
 
@@ -19,7 +20,7 @@ export default (
     <div><Divider/>
         <div className="routes form-control">
             <Switch>
-                <Route exact path="/" component={App} />
+                <Route exact path="/" component={DashBoard} />
                 <Route path="/signup" component={signUp} />
                 <Route path="/login" component={loginPage} />
                 <Route path="/myuserevent" component={requireAuth(UserEventPage)} />

@@ -49,6 +49,7 @@
     "jwt-decode": "^2.2.0",
     "knex": "^0.14.6",
     "lodash.isempty": "^4.4.0",
+    "material-dashboard-react": "^1.4.1",
     "material-ui": "^0.20.0",
     "mysql-json": "^0.1.3",
     "node.date-time": "^1.2.2",
@@ -95,10 +96,9 @@
   },
   "scripts": {
     "server": "nodemon --watch server --exec babel-node -- api/index.js",
-    "production": "nodemon --watch server --exec babel-node -- api/index.js",
+    "production": "NODE_ENV=production nodemon --watch server --exec babel-node -- api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ILIT.RU",
-
   "license": "ISC"
 }
