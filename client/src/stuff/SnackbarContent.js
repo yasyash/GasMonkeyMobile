@@ -52,13 +52,15 @@ function SnackbarContent(_ref) {
   var props = _objectWithoutProperties(_ref, []);
 
   var classes = props.classes,
-      message = props.message,
-      color = props.color,
-      close = props.close,
-      icon = props.icon;
+    message1 = props.message1,
+    message2 = props.message2,
+    color = props.color,
+    close = props.close,
+    icon = props.icon;
 
   var action = [];
   var messageClasses = (0, _classnames2.default)(_defineProperty({}, classes.iconMessage, icon !== undefined));
+  
   if (close !== undefined) {
     action = props.action;/*[_react2.default.createElement(
       _IconButton2.default,
@@ -77,9 +79,14 @@ function SnackbarContent(_ref) {
       null,
       icon !== undefined ? _react2.default.createElement(props.icon, { className: classes.icon }) : null,
       _react2.default.createElement(
+        "div",
+        { className: messageClasses },
+        message1
+      ),
+      _react2.default.createElement(
         "span",
         { className: messageClasses },
-        message
+        message2
       )
     ),
     classes: {
@@ -92,7 +99,6 @@ function SnackbarContent(_ref) {
 
 SnackbarContent.propTypes = {
   classes: _propTypes2.default.object.isRequired,
-  message: _propTypes2.default.node.isRequired,
   color: _propTypes2.default.oneOf(["info", "success", "warning", "danger", "primary"]),
   close: _propTypes2.default.bool,
   icon: _propTypes2.default.func

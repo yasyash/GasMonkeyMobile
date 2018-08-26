@@ -27,3 +27,6 @@ export const SET_MACS_LIST = 'SET_MACS_LIST';
 export const SET_DATE = 'SET_DATE';
 
 export const SET_REPORT_DATE = 'SET_REPORT_DATE';
+
+export const SET_LOGS_LIST = 'SET_LOGS_LIST';
+export const DELETE_LOGS_LIST = 'DELETE_LOGS_LIST';

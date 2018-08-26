@@ -1,17 +1,14 @@
 DECLARE
 	typemeasure varchar(32);
-   /* mcursor CURSOR FOR SELECT * FROM macs WHERE macs.chemical = typemeasure;*/
 	rec record;
 	station record;
 	BEGIN
 		IF (TG_OP = 'INSERT') THEN
 			typemeasure = NEW.typemeasure;
-			 /*OPEN mcursor;
-	  		 FETCH mcursor INTO rec;*/
+		
 			 SELECT * INTO rec FROM macs WHERE macs.chemical = typemeasure;
  			 SELECT * INTO station FROM stations WHERE stations.idd = NEW.idd;
 
-				/*RAISE NOTICE 'Is alert: % ', (rec.max_m <= NEW.measure);*/
 	 			 IF (rec.max_m <= NEW.measure) THEN
 				/*RAISE NOTICE 'alert: % ', NEW.measure;*/
 	 

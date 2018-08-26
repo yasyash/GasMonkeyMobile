@@ -15,7 +15,8 @@ let router = express.Router();
 
 router.post('/', (req, resp) => {
     const { identifier, passwrd } = req.body;
-    const ip =  req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+   // const ip =  req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+   const ip =   req.connection.remoteAddress;
 
     User.query({
         where: { username: identifier },

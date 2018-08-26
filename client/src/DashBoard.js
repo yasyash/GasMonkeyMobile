@@ -50,7 +50,7 @@ import dashboardStyle from "material-dashboard-react/assets/jss/material-dashboa
 import * as _materialDashboardReact from "material-dashboard-react/assets/jss/material-dashboard-react";
 
 import { queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
-
+import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 //import auth from './reducers/auth';
 
 
@@ -84,7 +84,10 @@ const styles = theme => ({
   icon: {
     fontSize: 20,
   },
-
+  message: {
+    textAlign: 'justify',
+    fontSize: 10
+  }
 
 });
 
@@ -135,35 +138,42 @@ class DashBoard extends Component {
     return data;
   };
   onClose = indx => () => {
-    const { systemList } = this.state;
-    systemList[indx].is_visible = false;
-    this.setState({ systemList });
-
+    const { systemList } = this.props;
+    if (!isEmpty(systemList)) {
+      systemList[indx].is_visible = false;
+      //this.setState({ systemList });
+      addLogsList( systemList);
+    }
   };
 
   componentWillMount() {
-    let params = {};
+    if (!isEmpty(this.props.username)) {
+      let params = {};
 
 
-    params.period_from = this.state.dateTimeBegin;
-    params.period_to = this.state.dateTimeEnd;
+      params.period_from = this.state.dateTimeBegin;
+      params.period_to = this.state.dateTimeEnd;
 
-    this.load_stations().then(stations => {
-      this.setState({ stationsList: stations });
-      this.load_data(params).then(data => {
-        if (data) {
-          let dataList = data.dataTable;
-          let sensorsList = data.sensorsTable;
-          let macsList = data.macsTable;
-          let alertsList = data.alertsTable;
-          let systemList = data.systemTable;
+      this.load_stations().then(stations => {
+        this.setState({ stationsList: stations });
+        this.load_data(params).then(data => {
+          if (data) {
+            let dataList = data.dataTable;
+            let sensorsList = data.sensorsTable;
+            let macsList = data.macsTable;
+            let alertsList = data.alertsTable;
+            let systemList = data.systemTable;
 
-          this.setState({ dataList, sensorsList, macsList, alertsList, systemList });
+            this.setState({ dataList, sensorsList, macsList, alertsList, systemList });
+            if (isEmpty(this.props.systemList)) {
 
-
-        }
+              addLogsList( systemList);
+            }
+          };
+        });
       });
-    })
+
+    };
   }
 
   render() {
@@ -171,8 +181,8 @@ class DashBoard extends Component {
 
     const { username, is_admin } = this.props;
 
-    const { classes } = this.props;
-    const { stationsList, macsList, dataList, open, anchorEl, mobileOpen, alertsList, systemList } = this.state;
+    const { classes, systemList } = this.props;
+    const { stationsList, macsList, dataList, open, anchorEl, mobileOpen, alertsList } = this.state;
     var tabs = [];
     var filter = '';
     var measure = 0;
@@ -235,12 +245,17 @@ class DashBoard extends Component {
               <Divider />
 
               <br />
-              {(alertsList) &&
+              {(!isEmpty(alertsList)) &&
                 alertsList.map((element, ind) => (
                   <SnackbarContent
                     color='danger'
                     key={'alert_' + ind}
-                    message={element.date_time + `\n   ` + element.descr} />))
+                    message1={element.date_time}
+                    message2={element.descr}
+                    className={classes.message}
+
+                  />))
+
               }
 
             </GridItem>
@@ -250,14 +265,15 @@ class DashBoard extends Component {
               <Divider />
 
               <br />
-              {(systemList) &&
+              {(!isEmpty(systemList)) &&
                 systemList.map((element, ind) => (
 
                   <div style={{ display: element.is_visible ? 'block' : 'none' }} key={'sys_' + ind}>
                     <SnackbarContent
 
                       color={element.type == 200 ? 'info' : 'warning'}
-                      message={element.date_time + " \n  " + element.descr}
+                      message1={element.date_time}
+                      message2={element.descr}
                       action={[
                         <IconButton
                           key={ind}
@@ -346,7 +362,8 @@ class DashBoard extends Component {
                   <SnackbarContent
                     color='danger'
                     key={'alert_' + ind}
-                    message={element.date_time + `\n   ` + element.descr} />))
+                    message1={element.date_time}
+                    message2={element.descr} />))
               }
 
             </GridItem>
@@ -377,8 +394,9 @@ class DashBoard extends Component {
 function mapStateToProps(state) {
 
   return {
-    user: state.auth[0].user.username,
-    is_admin: state.auth[0].user.full
+    username: state.auth[0].user.username,
+    is_admin: state.auth[0].user.full,
+    systemList: state.logsList
   };
 }
 
@@ -389,5 +407,5 @@ DashBoard.propTypes = {
 
 
 
-export default connect(mapStateToProps, { queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
+export default connect(mapStateToProps, { addLogsList, deleteLogsList, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
 
