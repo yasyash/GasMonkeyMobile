@@ -15,6 +15,7 @@ import isEmpty from 'lodash.isempty';
 
 import Divider from 'material-ui/Divider';
 
+//import Notifier from './stuff/Notifier';
 
 
 class NavigationBar extends React.Component {
@@ -40,7 +41,9 @@ class NavigationBar extends React.Component {
 
     const AdminLinks = (
       <ul className="nav navbar-nav navbar-right">
+
         <li><Link to="/admin">Администрирование  &nbsp; &nbsp;</Link>
+          
           <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
           <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
@@ -67,7 +70,7 @@ class NavigationBar extends React.Component {
     );
     return (
       <div>
-      <CssBaseline />
+        <CssBaseline />
         <div className="App App-header">
           <img src={logo} className="App-logo" alt="Data visualizer" />
           <h3 className="">Визуализация газоаналитических данных </h3>

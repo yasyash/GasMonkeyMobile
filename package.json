@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@material-ui/core": "^1.0.0",
+    "@material-ui/core": "^1.5.1",
     "@material-ui/icons": "^1.1.0",
     "adm-zip": "^0.4.11",
     "axios": "^0.18.0",

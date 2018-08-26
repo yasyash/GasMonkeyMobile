@@ -42,7 +42,11 @@ export function queryEvent(paramstr) {
                             code: element.code,
                             namestation: element.namestation,
                             date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
-                            date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS')
+                            date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
+                            place: element.place,
+                            latitude: element.latitude,
+                            longitude: element.longitude
+                            
                         });
                     });
                     return wrapData(dataTable);
@@ -265,7 +269,7 @@ export function queryOperativeEvent(paramstr) {
                     let i = 0;
                     var dataTable = [];
                     var sensorsTable = [];
-                   // let macsTable = [];
+                    // let macsTable = [];
 
                     data_list.forEach(element => {
                         dataTable.push({
@@ -291,7 +295,7 @@ export function queryOperativeEvent(paramstr) {
 
 
                 }
-                return {dataTable, sensorsTable, macsTable};
+                return { dataTable, sensorsTable, macsTable };
             });
 
 
@@ -312,22 +316,26 @@ export function queryAllDataOperativeEvent(paramstr) {
                     let data_list = data.response[0];
                     let sensors_list = data.response[1];
                     var macsTable = data.response[2];
+                    let logs_list = data.response[3];
                     let unit_name = '';
                     let prev = '';
                     let i = 0;
-                    var dataTable = [];
-                    var sensorsTable = [];
-                   // let macsTable = [];
+                    var dataTable = [],
+                        sensorsTable = [],
+                        alertsTable = [],
+                        systemTable = [],
+                        last = '';
+                    // let macsTable = [];
 
                     data_list.forEach(element => {
                         dataTable.push({
                             id: element.idd,
                             typemeasure: element.typemeasure,
                             serialnum: element.serialnum,
-                            date_time: new Date(element.date_time).format('dd-mm-YY HH:mm:SS'),
+                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
                             unit_name: unit_name,
                             measure: element.measure,
-                            is_alert: element.is_alert 
+                            is_alert: element.is_alert
                         });
                     });
 
@@ -339,12 +347,54 @@ export function queryAllDataOperativeEvent(paramstr) {
                             is_wind_sensor: element.is_wind_sensor,
                         });
                     });
+                    logs_list.forEach((element, indx) => {
+                        if ((Number(element.type) >= 100)&&(Number(element.type) <= 110)) {
+                            alertsTable.push({
+                                date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                type: element.type,
+                                descr: element.descr
+                            });
+                        }
 
+                        if (Number(element.type) == 0) {
+                            if (indx != logs_list.length - 1) {
+                                if (last != element.descr)
+                                    systemTable.push({
+                                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                        type: element.type,
+                                        descr: element.descr,
+                                        is_visible: true
+ 
+                                    });
+                            } else {
+                                systemTable.push({
+                                    date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                    type: element.type,
+                                    descr: element.descr,
+                                    is_visible: true
+                                });
+                            }
+
+                        }
+                        if (Number(element.type) == 200) {
+                            systemTable.push({
+                                date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                type: element.type,
+                                descr: element.descr,
+                                is_visible: true
+
+                            });
+                        }
+
+                        last = element.descr;
+                    });
 
 
 
                 }
-                return {dataTable, sensorsTable, macsTable};
+                return { dataTable, sensorsTable, macsTable, alertsTable, systemTable };
+
+
             });
 
 

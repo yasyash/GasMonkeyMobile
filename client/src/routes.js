@@ -2,6 +2,7 @@ import React from 'react';
 import { Switch, Route } from 'react-router-dom'
 //import { IndexRoute} from 'react-router-dom';
 import requireAuth from './stuff/requireAuth';
+import requireAuth2 from './stuff/requireAuth2';
 
 import loginPage from './loginPage';
 import App from './App';
@@ -20,7 +21,7 @@ export default (
     <div><Divider/>
         <div className="routes form-control">
             <Switch>
-                <Route exact path="/" component={DashBoard} />
+                <Route exact path="/" component={requireAuth2(DashBoard)} />
                 <Route path="/signup" component={signUp} />
                 <Route path="/login" component={loginPage} />
                 <Route path="/myuserevent" component={requireAuth(UserEventPage)} />

@@ -13,7 +13,9 @@ import Sensors from '../models/sensors';
 import Data from '../models/data';
 import Macs from '../models/macs';
 import User from '../models/user';
+import Logs from '../models/logs';
 
+import date from 'date-and-time';
 import url from 'url';
 import qs from 'querystring';
 
@@ -40,7 +42,7 @@ router.get('/', authenticate, (req, resp) => {
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
         Sensors.query({
-            select: ['serialnum', 'typemeasure', 'unit_name','is_wind_sensor'],
+            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor'],
             where: ({ is_present: true }),
             andWhere: ({ idd: data.station }),
         })
@@ -73,7 +75,8 @@ router.get('/all', authenticate, (req, resp) => {
     //    obj = JSON.parse(decodeURIComponent(query))
     //}
     const between_date = [data.period_from, data.period_to];
-         console.log('data ', between_date);
+    const between_wide_date = [ new Date().format('Y-MM-ddT00:00'), data.period_to];// from begin of day
+    //console.log('data ', between_wide_date);
 
 
     Promise.join(
@@ -81,16 +84,19 @@ router.get('/all', authenticate, (req, resp) => {
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
         Sensors.query({
-            select: ['serialnum', 'typemeasure', 'unit_name','is_wind_sensor'],
+            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor'],
             where: ({ is_present: true }),
-            
+
         })
             .fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
-        Macs.fetchAll()
+        Macs.query('where', 'max_m', '>',0).orderBy('chemical', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
-        ((data_list, data_sensors, consentration) => {
-            let response = [data_list, data_sensors, consentration];
+        Logs.query('whereBetween', 'date_time', between_wide_date)
+            .orderBy('date_time', 'DESC').fetchAll()
+            .catch(err => resp.status(500).json({ error: err })),
+        ((data_list, data_sensors, consentration, logs_list) => {
+            let response = [data_list, data_sensors, consentration, logs_list];
             resp.json({ response });
         })
 
