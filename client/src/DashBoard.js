@@ -19,7 +19,7 @@ import DateRange from "@material-ui/icons/DateRange";
 import Backup from '@material-ui/icons/Backup';
 import Place from '@material-ui/icons/Place';
 import Notifications from "@material-ui/icons/Notifications";
-import Notifier from './stuff/Notifier';
+//import Notifier from './stuff/Notifier';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import StationsIcon from '@material-ui/icons/AccountBalance';
