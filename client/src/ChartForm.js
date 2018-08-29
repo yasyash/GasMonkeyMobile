@@ -81,6 +81,7 @@ class ChartForm extends React.Component {
             locations: '',
             checkedLine: true,
             checkedMeteo: true,
+            whatsRange: false, //false corresponds to % range of MACs
             pointStyle: 'crossRot',
             radius: 2,
             borderWidth: 1,
@@ -110,10 +111,13 @@ class ChartForm extends React.Component {
     ////////////    
     handleChangeToggle = (name, event) => {
         this.setState({ [name]: event.target.checked });
-        if (name === 'checkedMeteo') {
-            // this.setState({ [name]: event.target.checked });
-            this.getChartData(event.target.checked);
+        if ((name === 'checkedMeteo')) {
+            this.getChartData(event.target.checked, this.state.whatsRange);
         }
+        if ((name === 'whatsRange')) {
+            this.getChartData(this.state.checkedMeteo, event.target.checked);
+        }
+
     };
     onSubmit(e) {
         e.preventDefault();
@@ -213,7 +217,7 @@ class ChartForm extends React.Component {
         // chrt.update();
     };
 
-    getChartData(_state) {
+    getChartData(_state, _range) {
         // Ajax calls here
         const { dataList } = this.props;
         const { meteoList } = this.props;
@@ -312,7 +316,18 @@ class ChartForm extends React.Component {
                                 };
 
                                 if (isNumber(_tmp)) {
-                                    tmp.push(_tmp);
+
+                                    if (_range) {
+                                        tmp.push(_tmp);
+                                    } else {
+                                        let _filter = macs.filter((_item, i, arr) => {
+                                            return _item.chemical === filter[0].typemeasure;
+                                        });
+                                        tmp.push(_tmp / _filter[0].max_m * 100); //normalize to 100 % range of macs
+                                    };
+
+
+                                    // tmp.push(_tmp);
 
                                 } else {
                                     if (i === 0) label = _tmp;
@@ -321,21 +336,14 @@ class ChartForm extends React.Component {
                                 i++;
                             });
 
-                            //chartData.datasets[counter].data = Object.freeze(tmp);
-                            // if (!isEmpty(filter[0].def_colour)) {
+
                             let n = '#' + (filter[0].def_colour.toString(16));
                             let m = '#' + ((filter[0].def_colour + 20).toString(16));
                             colour_pairs.push({
                                 sensor: filter[0].typemeasure,
                                 colour: n
                             });
-                            // chartData.datasets[counter].borderColor = n;
-                            //chartData.datasets[counter].backgroundColor = m;
-                            //};
-                            // if (!isEmpty(label))
 
-                            //chartData.datasets[counter].label = label;
-                            // let obj = chartData.datasets.concat(emptydatasets);
                             let emptydatasets =
                                 {
                                     label: label,
@@ -368,20 +376,21 @@ class ChartForm extends React.Component {
                             filter = '';
                             i = 0;
 
-                            // chartData.datasets[0].data = 
-
-
-
                             counter++;
                         });
-                        //chartData.datasets.splice(chartData.datasets.length - 1, );
-                        //   chartData.labels = _timeaxis;
-                        //chartData.datasets = obj;
+
                     };
                 }; //end multidata section
                 if (sensors_actual.length === 1) {
+                    let _filter = macs.filter((_item, i, arr) => {
+                        return _item.chemical === dataList[0].typemeasure;
+                    });
                     dataList.forEach(element => {
-                        tmp.push(element.measure);
+                        if (_range) {
+                            tmp.push(element.measure);
+                        } else {
+                            tmp.push(element.measure / _filter[0].max_m * 100); //normalize to 100 % range of macs
+                        };
                         _timeaxis.push(element['date_time']);
 
                     });
@@ -408,7 +417,13 @@ class ChartForm extends React.Component {
                         sensor: dataList[0].typemeasure,
                         colour: n
                     });
-                    title = dataList[0].typemeasure + ' (' + dataList[0].unit_name + ')';
+                    if (_range) {
+                        title = dataList[0].typemeasure + ' (' + dataList[0].unit_name + ')';
+                    } else {
+                        title = dataList[0].typemeasure + ' (в процентах от ПДК)';
+
+                    }
+
                     if (isEmpty(stateOptions[0])) {
                         options.push({ chemical: (dataList[0].typemeasure), visible: true, id: 0 });
                     } else {
@@ -425,6 +440,7 @@ class ChartForm extends React.Component {
 
                 //macs creation
                 let obj_macs = [];
+                let _arr = [];
                 i = 0;
                 selectedSensors.forEach(element => {
                     let filter = macs.filter((_item, i, arr) => {
@@ -432,8 +448,12 @@ class ChartForm extends React.Component {
                     });
 
                     if (!isEmpty(filter[0])) {
-                        let _arr = new Array(_timeaxis.length + 1).join(filter[0].max_m + '|').split('|');
+                        if (_range) {
 
+                            _arr = new Array(_timeaxis.length + 1).join(filter[0].max_m + '|').split('|');
+                        } else {
+                            _arr = new Array(_timeaxis.length + 1).join(100 + '|').split('|'); //scaling macs to 100%
+                        }
                         let _colour = '#' + element.def_colour.toString(16);
 
 
@@ -565,7 +585,7 @@ class ChartForm extends React.Component {
         this.setState({ checkedMeteo: this.props.checkedMeteo });
 
 
-        this.getChartData(this.props.checkedMeteo);
+        this.getChartData(this.props.checkedMeteo, this.state.whatsRange);
     }
 
 
@@ -614,7 +634,7 @@ class ChartForm extends React.Component {
                 />
 
                 {(this.state.checkedLine) &&
-                    <Line 
+                    <Line
                         ref='line-chart'
                         data={this.state.chartData}
                         options={{
@@ -626,7 +646,7 @@ class ChartForm extends React.Component {
                         }}
                     />}
                 {(!this.state.checkedLine) &&
-                    <Bar 
+                    <Bar
                         data={this.state.chartData}
                         options={{
                             title: titles,

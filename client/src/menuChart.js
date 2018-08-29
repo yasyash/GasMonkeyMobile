@@ -259,6 +259,7 @@ class MenuChart extends Component {
         const { anchorEl } = this.state;
         const { options } = this.state;
         const { meteoOptions } = this.state;
+        const {checkedMeteo} = this.props;
 
         /*let { fixedHeader,
             fixedFooter,
@@ -360,6 +361,31 @@ class MenuChart extends Component {
 
                         <div className={classes.root}>
 
+                        {(checkedMeteo) &&   
+                            <Tooltip id="tooltip-charts-rangePrcnt" title="Отображение в % от ПДК">
+                                <span  className={classes.icon}> отображение в %</span>
+                            </Tooltip>}
+
+                        { (checkedMeteo)  &&  
+
+                              <Switch  classes={{
+                                    switchBase: classes.iOSSwitchBase,
+                                    bar: classes.iOSBar,
+                                    icon: classes.iOSIcon,
+                                    iconChecked: classes.iOSIconChecked,
+                                    checked: classes.iOSChecked,
+                                }}
+                                disableRipple
+                                checked={this.props.whatsRange}
+                                onChange={this.handleLocalChangeToggle('whatsRange')}
+                                value={this.props.valueMeteo}
+                            />}
+
+
+                         {(checkedMeteo) && <Tooltip id="tooltip-charts-rangeMg" title="Отображение в мг/м3">
+                              <span  className={classes.icon}>в  мг/м3</span>
+                            </Tooltip>}
+                            
 
                             <Tooltip id="tooltip-charts-view3" title="Метеоданные">
                             <SvgIcon className={classes.icon}>
