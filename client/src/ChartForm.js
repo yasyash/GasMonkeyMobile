@@ -323,14 +323,15 @@ class ChartForm extends React.Component {
                                         let _filter = macs.filter((_item, i, arr) => {
                                             return _item.chemical === filter[0].typemeasure;
                                         });
-                                        tmp.push(_tmp / _filter[0].max_m * 100); //normalize to 100 % range of macs
+                                        if (!isEmpty(_filter))
+                                            tmp.push(_tmp / _filter[0].max_m * 100); //normalize to 100 % range of macs
                                     };
 
 
                                     // tmp.push(_tmp);
 
                                 } else {
-                                    if (i === 0) label = _tmp;
+                                    if (i === 0) label = filter[0].typemeasure;//_tmp;
                                 };
 
                                 i++;
@@ -362,6 +363,11 @@ class ChartForm extends React.Component {
                                 title += ',';
                             };
                             title = title + ' ' + label;
+                            if (_range) {
+                                title += ' (' + filter[0].unit_name + ')';
+                            } else {
+                                title += ' (% от ПДК)';
+                            };
                             //this.setState({ 'locations': title });
                             if (isEmpty(stateOptions[0])) {//if first rendering - not simple switch
                                 options.push({ chemical: filter[0].typemeasure, visible: true, id: counter });
@@ -389,7 +395,8 @@ class ChartForm extends React.Component {
                         if (_range) {
                             tmp.push(element.measure);
                         } else {
-                            tmp.push(element.measure / _filter[0].max_m * 100); //normalize to 100 % range of macs
+                            if (!isEmpty(_filter))
+                                tmp.push(element.measure / _filter[0].max_m * 100); //normalize to 100 % range of macs
                         };
                         _timeaxis.push(element['date_time']);
 
