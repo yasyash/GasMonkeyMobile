@@ -142,11 +142,10 @@ class DashBoard extends Component {
     if (!isEmpty(systemList)) {
       systemList[indx].is_visible = false;
       //this.setState({ systemList });
-      addLogsList( systemList);
+      addLogsList(systemList);
     }
   };
-
-  componentWillMount() {
+  renderData() {
     if (!isEmpty(this.props.username)) {
       let params = {};
 
@@ -163,11 +162,19 @@ class DashBoard extends Component {
             let macsList = data.macsTable;
             let alertsList = data.alertsTable;
             let systemList = data.systemTable;
+            let today = new Date();
 
-            this.setState({ dataList, sensorsList, macsList, alertsList, systemList });
+            today -= 600000;
+
+            this.setState({
+              dataList, sensorsList, macsList, alertsList, systemList,
+              dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
+              dateTimeEnd: new Date().format('Y-MM-ddTHH:mm')
+            });
             if (isEmpty(this.props.systemList)) {
 
-              addLogsList( systemList);
+              addLogsList(systemList);
+
             }
           };
         });
@@ -175,7 +182,13 @@ class DashBoard extends Component {
 
     };
   }
-
+  componentWillMount() {
+    this.renderData();
+    this.interval = setInterval(this.renderData.bind(this), 10000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
   render() {
     //var { isAuthenticated } = false;
 
