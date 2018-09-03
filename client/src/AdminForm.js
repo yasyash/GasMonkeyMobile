@@ -184,7 +184,7 @@ class AdminForm extends React.Component {
                             getDev={getDev}
                         />
                     </Tab>
-
+                   
                     <Tab label="FTP выгрузка" >
                         <FtpForm
                             {...this.state}

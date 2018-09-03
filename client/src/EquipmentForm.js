@@ -711,9 +711,9 @@ class EquipmentForm extends React.Component {
                         Cell: this.renderEditable
 
                     },
-                    ,
+                    
                     {
-                        Header: "Время предыдущей загрузки данных",
+                        Header: "Время ближайшей загрузки данных",
                         id: "date_time_out",
                         accessor: "date_time_out"
                     },

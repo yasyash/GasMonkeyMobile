@@ -297,16 +297,22 @@ export function getDev() {
                 var list = [];
                 const stns = resp.data.stations_list;
                 const devs = resp.data.dev_list;
+                const macs = resp.data.macs_list;
                 var idd_old = '';
                 var filter = [];
+                var macs_filter = [];
 
                 devs.forEach(element => {
                     if (idd_old != element.idd) {
                         filter = stns.filter((item, i, arr) => {
                             return item.idd == element.idd;
                         });
+                       
                         idd_old = filter[0].idd;
                     }
+                    macs_filter = macs.filter((item, i, arr) => {
+                        return item.chemical == element.typemeasure;
+                    });
                     list.push({
                         id: String(element.id),
                         namestation: filter[0].namestation,
@@ -317,8 +323,8 @@ export function getDev() {
                         date_time_out: new Date(element.date_time_out).format('dd-MM-Y HH:mm:SS'),
                         unit_name: element.unit_name,
                         def_colour: element.def_colour,
-                        max_consentration: element.max_consentration,
-                        max_day_consentration: element.max_day_consentration
+                        max_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_m : '',
+                        max_day_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_d : ''
                     })
 
                 });

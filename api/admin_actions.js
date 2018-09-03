@@ -19,6 +19,7 @@ import USERS from '../models/user';
 import METEO from '../models/meteostations';
 import DEV from '../models/devices';
 import Stations from '../models/stations'
+import Macs from '../models/macs';
 
 let router = express.Router();
 
@@ -538,8 +539,10 @@ router.get('/dev_get', authenticate, (req, resp) => {
         where: ({ is_present: true })
     }).fetchAll().catch(err => resp.status(500).json({ error: err })),
         DEV.where({ is_present: true }).fetchAll().catch(err => resp.status(500).json({ error: err })),
-        ((stations_list, dev_list) => {
-            resp.json({ stations_list, dev_list });
+        Macs.query('where', 'max_m', '>', 0).orderBy('chemical', 'ASC').fetchAll()
+            .catch(err => resp.status(500).json({ error: err })),
+        ((stations_list, dev_list, macs_list) => {
+            resp.json({ stations_list, dev_list, macs_list });
         })).catch(err => resp.status(500).json({ error: err }));
 
     // write the result
@@ -572,7 +575,9 @@ router.post('/dev_update', authenticate, (req, resp) => {
 
             //  is_active: data.is_active,
             // is_admin: data.is_admin,
-        }, { patch: true })
+        }, { patch: true }).then(Macs.where({ chemical: data.typemeasure })
+            .save({ max_d: data.max_day_consentration, max_m: data.max_consentration }, { patch: true }))
+        .catch(err => resp.status(500).json({ error: err }))
         .then(result => {
             resp.json({ result });
         }).catch(err => resp.status(500).json({ error: err }));
@@ -637,6 +642,29 @@ router.post('/dev_insert', authenticate, (req, resp) => {
                 measure_class, is_wind_sensor, max_consentration, max_day_consentration,
                 date_time_in, date_time_out, def_colour, is_present
             }, { method: 'insert' })
+                .then(Macs.where({ chemical: data.typemeasure }).fetchAll()
+                    .then(result_macs => {
+                        var _result_macs = JSON.stringify(result_macs);
+                        var arr_macs = JSON.parse(_result_macs);
+                        if ((!isEmpty(max_consentration)) && (!isEmpty(max_day_consentration))) {
+
+                            if (isEmpty( arr_macs[0])) {
+
+                                Macs.forge({
+                                    chemical: typemeasure,
+                                    max_m: max_consentration,
+                                    max_d: max_day_consentration
+                                }).save()
+                                    .catch(err => resp.status(500).json({ error: err }))
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        //console.log('1');
+
+                        resp.status(500).json({ error: err });
+                    })
+                )
                 .then(result => resp.json({ success: true }))
                 .catch(err => resp.status(500).json({ error: err }));
 

@@ -63,7 +63,9 @@ my $loctime;
 our @SOAP_ERRORS = ();
 my $last_update;
 my $wsdl;
-
+my $max_day;
+my @days = (31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+ 
 #$password = $user = 'shklyar';
 #$prefix =  undef;
 my $GMT_ADD_ZONE = 5; #because soap service retreives data in UTC format.
@@ -145,13 +147,34 @@ my $GMT_ADD_ZONE = 5; #because soap service retreives data in UTC format.
 								($date, $time) =split("T", $utc);
 								($y, $mns, $d) = split("-",$date);
 								($h, $m, $s) = split(":",$time);
+								
+								if ($y % 4) {$days[1] = 28;} else {$days[1] = 29;};
+
+								$max_day = $days[$m - 1];
+
  								#$_ = $row[4];
 			 					#m{^\s*(\d{1,4})\W*0*(\d{2})\W*0*(\d{2})\W*0*
         	 			      			#  (\d{2})\W*0*(\d{2})\W*0*(\d{2})}x;
 								
 								if (($h+$GMT_ADD_ZONE)>23 )
 									{$H = $GMT_ADD_ZONE - 24 + $h;
+									 if (($d+1) <= $max_day ){
 									 $d=$d+1;
+									}
+									 else
+									{
+									 $d=1;
+									 if ($mns == 12) {
+									   $mns = 1;
+									   $y += 1;
+ 
+									  }
+									  else
+									  {
+									   $mns += 1;
+									  };
+									};
+
 								 	}
 								else {
 									$H = $h + $GMT_ADD_ZONE;
