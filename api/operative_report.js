@@ -120,7 +120,62 @@ router.get('/', authenticate, (req, resp) => {
 
 
 
-})
+});
+
+router.get('/report_excel', authenticate, (req, resp) => {
+    //  
+
+    let query = url.parse(req.url).query;
+    let obj = qs.parse(query);
+    let data = JSON.parse(obj.data);
+    //  if (query) {
+    //    obj = JSON.parse(decodeURIComponent(query))
+    //}
+    //const between_date = [data.period_from, data.period_to];
+    // const between_date = ['2018-05-21 00:00:00', '2018-05-21 19:05:00']
+    // console.log('sensors ', data.sensors[0]);
+    //if (data.report == 'operative') {
+    //console.log(data.html);
+    if (data.report == 'operative') {
+        var filename = 'OperativeReport_station_' + data.station + '_' + data.date + '.xlsx';
+        var filereport = 'operative_templ.xlsx'
+    };
+
+    if (data.report == 'daily') {
+        var filename = 'DailyReport_station_' + data.station + '_' + data.date + '.xlsx';
+        var filereport = 'daily_templ.xslx'
+    };
+
+    if (data.report == 'monthly') {
+        var filename = 'MonthlyReport_station_' + data.station + '_' + data.date + '.xlsx';
+        var filereport = 'monthly_templ.xlsx'
+    };
+
+    if (data.report == 'tza4') {
+        var filename = 'TZA_4_Report_station_' + data.station + '_Substance_' + data.chemical + '_' + data.date + '.xlsx';
+        var filereport = 'tza4_templ.xlsx'
+    };
+    var filepath = './reports/';
+
+
+
+
+    resp.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    resp.setHeader('Content-disposition', 'attachment; filename=' + filename);
+
+    carbone.render(path.resolve(filepath + filereport), data.data_4_report, function (err, result) {
+        if (err) {
+            return console.log(err);
+        }
+        // write the result
+
+        // write the result
+        resp.send(result);
+
+    });
+
+   
+});
 
 function daysInMonth(month) {
     let days = 33 - new Date(new Date().getFullYear(), month, 33).getDate();

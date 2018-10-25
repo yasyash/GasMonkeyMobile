@@ -457,141 +457,53 @@ if (!isEmpty(this.props.data_4_report)) {
       //  var blob = new Blob([byteNumbers], {type: 'text/html'});
        // saveAs(response, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
     });
-}
-//var docx = htmlDocx.asBlob(text, {orientation: 'landscape'});
-//saveAs(docx, 'OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'.docx');
+ }
+};
 
-/*htmlTo(_html.innerHTML, (err, file) => {
-    if (err) return console.error(err);
+handleExcelClick = (name) => {
     
-    file.saveAs()
-    .pipe(fs.createWriteStream('OperativeReport_'+new Date(this.state.dateReportEnd).format('dd-MM-Y_H:mm')+'xlsx'))
-    .on('finish', () => console.log('Done.'));
+const {dateReportEnd} = this.props;
+var date ='';
+var chemical = this.state.chemical;
 
-  });*/
-  //var options = {"format","xlsx","includeHeaderNames":true,"includeAllTables":true};
-  //client.html_to_docx(_html.innerHTML, {"targetElement": "operative_report"});
- /* var tab_text = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">  <html>  <head>      <meta http-equiv="content-type" content="text/html; charset=utf-8"/>        <title></title><meta http-equiv="content-type" content="text/html; charset=utf-8"/>';
+if (this.props.report_type =='operative')
+    date =new Date(dateReportEnd).format('dd-MM-Y_H:mm');
 
-  tab_text = tab_text + '<style type="text/css">  @page { size: landscape; margin: 2cm }  p { margin-bottom: 0.25cm; line-height: 120% }  td p { margin-bottom: 0cm; line-height: 120% }</style></head><body lang="ru-RU" dir="ltr">';
+if (this.props.report_type =='daily')
+    date =new Date(dateReportEnd).format('dd-MM-Y');
 
-  tab_text = tab_text + _html.innerHTML;
-  tab_text = tab_text + '<p style="margin-bottom: 0cm; line-height: 100%"><br/></p></body> </html>';
+if (this.props.report_type =='monthly')
+    date =new Date(dateReportEnd).format('MM-Y');
 
-  
-  var ua = window.navigator.userAgent;
-  var msie = ua.indexOf("MSIE ");
-  
-  if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
-      if (window.navigator.msSaveBlob) {
-          var blob = new Blob([tab_text], {
-              type: "application/csv;charset=utf-8;"
-          });
-          navigator.msSaveBlob(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx');
+if (this.props.report_type =='tza4')
+    date =new Date(dateReportEnd).format('MM-Y');
 
-      }
-  } else {
-    var blob = new Blob([tab_text], {
-        type: "application/csv;charset=utf-8;"});
-        
-       // var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(tab_text);
-        saveAs(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
+ 
+ if (!isEmpty(this.props.data_4_report)) {
 
-       // jQuery(this).attr({ 'download': 'test.csv', 'href': csvData, 'target': '_blank' }); 
+    this.props.reportXlsGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: chemical}).then(response =>{
+    //var xhr = new XMLHttpRequest();
 
+    var type = response.headers['content-type'];
+    var filename = "";
+    var disposition = response.headers['content-disposition'];
 
-  }*/
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        var matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+    }
+    //var blob = new File([response], filename, { type: type });
+    var blob = new Blob([response.data], { type: type });
 
+    saveAs(blob, filename);
 
-  /*var docx = officegen ( 'docx' );
-  docx.on ( 'finalize', function ( written ) {
-    console.log ( 'Finish to create a Docx file.\nTotal bytes created: ' + written + '\n' );
-  });
-
-  docx.on ( 'error', function ( err ) {
-    console.log ( err );
-  });
-  docx.createByJson(data);
-  //fs.writeFile('/home/hello-world.txt');
-  console.log(__dirname);
-
-  docx.generate ( out );*/
-
-  //fs.mkdir(__dirname+'homemy');
-      //var out = fs.createWriteStream ( '/homemy/out.docx');
-      //fs.writeFile("/homemy/out.docx", "data", function(err) {  
-       // if (err) throw err;  })
-      //out.on('open', (fd)=>{docx.generate ( out );});
-         //   out.on('open', (fd)=>{fd.write('123456789');});
-
-     // out.on ( 'close', function () {
-    //    console.log ( 'Finished to create the Docx file!' );
-     // });
-     /* fs.open('/home/ilit/weather/test/testing.txt', "w+",  function(err, file_handle) {
-        if (!err) {
-            fs.write(file_handle, '/home/ilit/weather/test/testing/txt', null, 'ascii', function(err, written) {
-                if (!err) {
-                    console.log("Текст успешно записан в файл");
-                } else {
-                    console.log("Произошла ошибка при записи");
-                }
-            });
-        } else {
-            console.log("Произошла ошибка при открытии");
-        }
-    });*/
-  
-    //var contentDocument = tinymce.get('content').getDoc();
-   /* var content = '<!DOCTYPE html>' + _html.outerHTML;
-    var html1 = '<!DOCTYPE html><html><head><title>hello!</title></head><body><h1>Hello!</h1></body></html>';
-  //  var converted = htmlDocx.asBlob(html1, {orientation: 'landscape'});
-  var docx = officegen ( 'docx' );
-  docx.on ( 'finalize', function ( written ) {
-    console.log ( 'Finish to create a Docx file.\nTotal bytes created: ' + written + '\n' );
-  });
-
-  docx.on ( 'error', function ( err ) {
-    console.log ( err );
-  });
-  docx.createByJson(data);
-  var out = fs.createWriteStream ( path.resolve('/home/ilit/weather/test/out.docx'));
-
-  // docx.generate ( out );
-   out.on ( 'close', function () {
-      console.log ( 'Finished to create the Docx file!' );
-      });
-      async.parallel ([
-        function ( done ) {
-            out.on ( 'close', function () {
-                console.log ( 'Finish to create a DOCX file.' );
-                done ( null );
-            });
-            docx.generate ( out );
-        }
-    
-    ], function ( err ) {
-        if ( err ) {
-            console.log ( 'error: ' + err );
-        } // Endif.
-    });*/
-//saveAs(pObj, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
-//out.close();
-/*
-var html1 = '<!DOCTYPE html><html><head><title>hello!</title></head><body><h1>Hello!</h1></body></html>';
-var byteNumbers = new Uint8Array(html1.length);
-
-for (var i = 0; i < html1.length; i++) {
-
-byteNumbers[i] = html1.charCodeAt(i);
-
-}
-var blob = new Blob([byteNumbers], {type: 'text/html'});
-saveAs(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'.docx', false);
-*/
-
+    });
+ }
 
 };
-    handleClose = () => {
+
+handleClose = () => {
         this.setState({ anchorEl: null });
 
     };
@@ -863,7 +775,17 @@ saveAs(blob, 'OperativeReport_'+new Date(dateReportEnd).format('dd-MM-Y_H:mm')+'
                                 </IconButton>
 
                             </Tooltip>
+                            <Tooltip id="tooltip-charts-view4" title="Экспорт в Excel">
 
+                            <IconButton className={classes.button} onClick = {this.handleExcelClick} aria-label="Экспорт в Excel">
+                                <SvgIcon className={classes.icon}>
+                                    <path d="M6,2H14L20,8V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M13,3.5V9H18.5L13,
+                                    3.5M17,11H13V13H14L12,14.67L10,13H11V11H7V13H8L11,15.5L8,18H7V20H11V18H10L12,16.33L14,
+                                    18H13V20H17V18H16L13,15.5L16,13H17V11Z" />
+                                </SvgIcon>
+                                </IconButton>
+
+                            </Tooltip>
 
 
 

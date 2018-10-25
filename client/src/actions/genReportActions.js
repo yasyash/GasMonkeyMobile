@@ -18,6 +18,18 @@ export function reportGen(paramstr) {
     }
 };
 
+export function reportXlsGen(paramstr) {
+    return dispatch => {
+        const data = JSON.stringify(paramstr);
+        console.log('parameters is ', data);
+
+        return Axios.create({ responseType: 'blob' }).get('/api/operative_report/report_excel', { params: { data } })
+            .then(resp => {
+                return resp;
+            })//.then(file => { FileDownload(file, 'report.docx'); });
+    }
+};
+
 export function reportGet_monthly(paramstr) {
     
         const data = JSON.stringify(paramstr);

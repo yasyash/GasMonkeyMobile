@@ -31,7 +31,7 @@ import classnames from 'classnames';
 import MenuReport from './menuReport';
 
 import { queryOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
-import { reportGen } from './actions/genReportActions';
+import { reportGen, reportXlsGen } from './actions/genReportActions';
 import { dateAddAction } from './actions/dateAddAction';
 
 
@@ -600,4 +600,5 @@ OperativeReport.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(null, { queryOperativeEvent, queryMeteoEvent, reportGen })(withRouter(withStyles(styles)(OperativeReport)));
+export default connect(null, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen })(withRouter(withStyles(styles)(OperativeReport)
+));
