@@ -143,7 +143,7 @@ router.get('/report_excel', authenticate, (req, resp) => {
 
     if (data.report == 'daily') {
         var filename = 'DailyReport_station_' + data.station + '_' + data.date + '.xlsx';
-        var filereport = 'daily_templ.xslx'
+        var filereport = 'daily_templ.xlsx'
     };
 
     if (data.report == 'monthly') {
