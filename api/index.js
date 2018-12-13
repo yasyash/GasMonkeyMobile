@@ -15,6 +15,9 @@ import meteoquery from './meteoquery';
 import operative_query from './operative_query';
 import operative_report from './operative_report';
 import admin_actions from './admin_actions';
+import ftp_actions from './ftp_actions';
+import cron from 'node-cron';
+import ftp_upload from './ftp_actions';
 
 const app = express();
 
@@ -31,6 +34,7 @@ app.use('/api/meteoquery', meteoquery);
 app.use('/api/operative_query', operative_query);
 app.use('/api/operative_report', operative_report);
 app.use('/api/admin', admin_actions);
+app.use('/api/ftp', ftp_actions);
 
 
 const compiler = webpack(webpackConfig);
@@ -52,4 +56,8 @@ app.get('/*', (req, resp) => {
 
 const server = app.listen(3000, () => {
     console.log('Server is started on 3000 port...');
+   const task = cron.schedule('* * * * *', () => {
+        //git console.log('running a task every minute');
+        ftp_upload();
+    });
 });

@@ -31,7 +31,7 @@ import classnames from 'classnames';
 import MenuReport from './menuReport';
 
 import { queryOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
-import { reportGen } from './actions/genReportActions';
+import { reportGen, reportXlsGen } from './actions/genReportActions';
 import { reportGet_tza4 } from './actions/genReportActions';
 
 import { dateAddAction } from './actions/dateAddAction';
@@ -572,4 +572,4 @@ Tza4Report.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportGet_tza4 })(withRouter(withStyles(styles)(Tza4Report)));
+export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen, reportGet_tza4 })(withRouter(withStyles(styles)(Tza4Report)));

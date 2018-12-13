@@ -69,7 +69,7 @@ export default class FormDialog extends React.Component {
                             autoFocus
                             margin="dense"
                             id="periods"
-                            label="Период выгрузки, сек."
+                            label="Период выгрузки, минут"
                             type="text"
                             fullWidth
                             onChange={this.props.handleChange('periods')}

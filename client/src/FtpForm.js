@@ -45,6 +45,10 @@ import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
 import FtpDialog from './stuff/FtpDialog';
 
+import PlayListAdd from '@material-ui/icons/PlaylistAdd';
+import Icon from '@material-ui/core/Icon';
+import { sendFtp } from './actions/ftpActions';
+
 const CheckboxTable = checkboxHOC(ReactTable);
 
 const styles = theme => ({
@@ -129,7 +133,11 @@ class FtpForm extends React.Component {
 
     }
 
-
+    handleFTP() {
+        if (!isEmpty(this.state.ftp_actual)) {
+            this.props.sendFtp(this.state.ftp_actual);
+        }
+    };
 
     setData(data_in) {
         const data = data_in.map(item => {
@@ -330,7 +338,7 @@ class FtpForm extends React.Component {
                     this.load_ftp().then(data => {
                         if (data)
                             this.setState({ ftp_list: data });
-                            this.setState({ ftp_actual: '' });
+                        this.setState({ ftp_actual: '' });
 
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Данные успешно обновлены...' });
@@ -353,7 +361,7 @@ class FtpForm extends React.Component {
                         this.load_ftp().then(data => {
                             if (data)
                                 this.setState({ ftp_list: data });
-                                this.setState({ ftp_actual: '' });
+                            this.setState({ ftp_actual: '' });
 
                             this.setState({ isLoading: true });
                             this.setState({ snack_msg: 'Данные удалены...' });
@@ -521,7 +529,7 @@ class FtpForm extends React.Component {
 
                     },
                     {
-                        Header: "Период передачи, сек.",
+                        Header: "Период передачи, мин.",
                         id: "periods",
                         accessor: "periods",
                         Cell: this.renderEditable
@@ -552,6 +560,8 @@ class FtpForm extends React.Component {
                     handleDialogAdd={this.handleDialogAdd.bind(this)}
                     data_actual={this.state.ftp_actual}
                 />
+
+
                 <FtpDialog openDialog={this.state.openDialog}
                     handleDialogClose={this.handleDialogClose.bind(this)}
                     handleAdd={this.handleAdd.bind(this)}
@@ -624,5 +634,5 @@ FtpForm.contextType = {
 }
 
 export default connect(null, {
-    getFtp, updateFtp, deleteFtp, insertFtp
+    getFtp, updateFtp, deleteFtp, insertFtp, sendFtp
 })(withRouter(withStyles(styles)(FtpForm)));

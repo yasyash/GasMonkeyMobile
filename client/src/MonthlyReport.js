@@ -31,7 +31,7 @@ import classnames from 'classnames';
 import MenuReport from './menuReport';
 
 import { queryOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
-import { reportGen } from './actions/genReportActions';
+import { reportGen, reportXlsGen } from './actions/genReportActions';
 import { reportGet_monthly } from './actions/genReportActions';
 
 import { dateAddAction } from './actions/dateAddAction';
@@ -429,4 +429,4 @@ MonthlyReport.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportGet_monthly })(withRouter(withStyles(styles)(MonthlyReport)));
+export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen, reportGet_monthly })(withRouter(withStyles(styles)(MonthlyReport)));
