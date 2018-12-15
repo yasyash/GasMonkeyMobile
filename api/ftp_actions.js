@@ -385,14 +385,7 @@ function ftp_upload() {
         'Dr': 'Дверь',
         'Fr': 'Пожар'
     };
-    // let query = url.parse(req.url).query;
-    // let obj = qs.parse(query);
-    //let data = JSON.parse(obj.data);
-    //let data = req.body;
 
-    //console.log(data.address);
-
-    //console.log('id ', data.id);
     FTP.where({ isdeleted: false }).fetchAll().then(
         result => {
             let result_str = JSON.parse(JSON.stringify(result));
@@ -420,13 +413,9 @@ function ftp_upload() {
 
                                 let _stations = JSON.parse(JSON.stringify(stations));
                                 //console.log(_stations);
-
                                 var dataTable = [];
-                                // deleteDataList(); // add with id for table element
-                                //  deleteSensorsList();
+
                                 if (_stations) {
-                                    //deleteActiveStationsList();
-                                    // deleteActiveSensorsList();
 
                                     // let stations = _stations.stations;
                                     _stations.forEach(element => {
@@ -445,7 +434,7 @@ function ftp_upload() {
                                         operative_report(element.idd).then(report => {
 
                                             //console.log('result ', result_str[0].name);
-                                            let tmp_nm = item.name + '_' + new Date().format('ddMMY_HHmm') + '.csv';
+                                            let tmp_nm = item.name + '_' + element.namestation + '_' + new Date().format('ddMMY_HHmm') + '.csv';
                                             let filename = "./reports/ftp/" + tmp_nm;
                                             let str_hdr = 'Индекс;Долгота, град;Широта, град;Название;Время';
                                             let str_body = item.indx + ';' + element.longitude + ';' + element.latitude + ';' + element.namestation
@@ -468,8 +457,7 @@ function ftp_upload() {
 
                                             fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
 
-                                                if (error) throw resp.status(500).json({ error: error }); // если возникла ошибка
-                                                //console.log("Асинхронная запись файла завершена. Содержимое файла:");
+                                                if (error) throw error; //if something error
                                                 let temp = fs.readFileSync(filename, "utf8");
                                                 let options = {
                                                     host: item.address,
@@ -484,39 +472,37 @@ function ftp_upload() {
                                                 };
                                                 let conn = new Client();
                                                 conn.on('ready', function () {
-                                                    conn.put(filename, './' + item.folder + '/' + tmp_nm, function (err) {
-                                                        //console.log('err ', err);
-                                                        if (err) throw resp.status(500).json({ error: err });
+                                                    let _folder = tmp_nm;
+                                                    if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
+                                                    conn.put(filename, _folder, function (err) {
+                                                        //console.log('file ', '/' + item.folder + '/' + tmp_nm);
+                                                        if (err) throw err;
                                                         conn.end();
 
                                                     });
 
                                                 });
                                                 conn.connect(options);
-                                                // console.log(temp);  // выводим считанные данные
 
                                             })
 
 
-                                            // console.log('result', data);
-                                            //resp.json(data);
+
                                         })
 
 
 
                                     });
-                                    //resp.json({ OK: 'OK' });
 
-                                    // resp.json({ dataTable });
 
 
                                 };
 
-                            }).catch(err => resp.status(500).json({ error: err }));
+                            }).catch(err => { throw err });
                         });
                 };
             });
-        }).catch(err => resp.status(500).json({ error: err }));
+        }).catch(err => { throw err });
 
 }
 
