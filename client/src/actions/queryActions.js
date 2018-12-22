@@ -403,13 +403,97 @@ export function queryAllDataOperativeEvent(paramstr) {
     };
 };
 
-/* export function queryEvent(params) {
+export function queryByTypeEvent(paramstr) {
     return dispatch => {
-        return Axios.get('/api/query', params).then(resp => {
-            let stations = resp.stations;
-            return stations;
-        });
+        const data = JSON.stringify(paramstr);
+        //  console.log('parameters is ', data);
+
+        return Axios.get('/api/query/by_type', { params: { data } })
+            .then(resp => resp.data)
+            .then(data => {
+                const dataTable = [];
+                
+                // deleteDataList(); // add with id for table element
+                //  deleteSensorsList();
+
+                if (data.response) {
+                    let data_list = data.response[0];
+                    let sensors_list = data.response[1];
+                    let unit_name = '';
+                    let prev = '';
+                    let i = 0;
+
+                    if (sensors_list.length == 1) {
+
+                        data_list.forEach(element => {
+                            let filter = sensors_list.filter((item, i, arr) => {
+                                return item.serialnum == element.serialnum;
+                            });
+                            if (!isEmpty(filter[0])) { unit_name = filter[0].unit_name }
+                            dataTable.push({
+                                id: element.idd,
+                                typemeasure: element.typemeasure,
+                                serialnum: element.serialnum,
+                                date_time: new Date(element.date_time).format('Y-MM-dd HH:mm:SS'),
+                                unit_name: unit_name,
+                                measure: element.measure,
+                                is_alert: element.is_alert ? 'тревога' : 'нет',
+                            });
+
+                        });
+                    }
+
+                    else {
+                        let size_arr = sensors_list.length + 1;//datetime, sensor1, ..., sensorN
+                        let obj = { date_time: 'Время наблюдения' };
+                        //tmp_arr.push({});//table header - first element
+                        sensors_list.forEach(_id => {
+                            obj[_id.serialnum] = _id.typemeasure + ' (' + _id.unit_name + ')';
+                        });
+
+                        dataTable.push(obj); //insert first element
 
 
+                        let tmp_arr = data_list;
+
+                        while (tmp_arr.length > 0) {
+                            let obj = {};
+                            let one = tmp_arr[0];
+                            let nex_arr = [];
+
+                            tmp_arr.forEach(element => {
+
+                                if (element.date_time !== one.date_time) {
+                                    nex_arr.push(element);
+                                }
+                                else {
+                                    obj['date_time'] = new Date(element.date_time).format('Y-MM-dd HH:mm:SS');
+                                    obj[element.serialnum] = element.measure;
+                                }
+
+
+
+
+                            });
+                            tmp_arr = nex_arr;
+                            dataTable.push(obj);
+                        }
+
+                    };
+
+                    // Max allowable consentration for all gaz sensors
+
+                    let consentration = data.response[2];
+
+                    addConsentrationList(wrapData(consentration));
+                    addDataList(wrapData(dataTable)); // add with id for table element
+                    addSensorsList(wrapData(sensors_list));
+                    addActiveSensorsList(sensors_list);
+                    return dataTable;
+                };
+
+                return dataTable;
+
+            });
     }
-}; */
+};

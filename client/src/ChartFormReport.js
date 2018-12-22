@@ -4,8 +4,9 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import format from 'node.date-time';
 
-import { queryMeteoEvent } from './actions/queryActions';
-import MenuTable from './menuTable';
+import { queryMeteoEvent, queryEvent, queryByTypeEvent } from './actions/queryActions';
+import { addActiveSensorsList, deleteActiveSensorsList } from './actions/sensorsAddAction';
+import { addActiveStationsList, deleteActiveStationsList, getFirstActiveStationsList } from './actions/stationsAddAction';
 
 import { Tabs, Tab } from 'material-ui/Tabs';
 import FontIcon from 'material-ui/FontIcon';
@@ -31,7 +32,7 @@ import toUpper from 'lodash/toUpper';
 import "react-table/react-table.css";
 import isNumber from 'lodash.isnumber';
 
-import MenuChart from './menuChart';
+import MenuChartReport from './menuChartReport';
 
 
 const styles = theme => ({
@@ -67,11 +68,12 @@ class ChartForm extends React.Component {
             errors: {},
             isLoading: false,
 
-            dateTimeBegin: new Date().format('Y-MM-dd') + ' 00:00:00',
+            dateTimeBegin: new Date().format('Y-MM-dd'),
             dateTimeEnd: new Date().format('Y-MM-dd H:m:SS'),
             station_actual: '',
             sensors_actual: [],
             stationsList,
+            station_name: '',
             sensorsList,
             dataList,
             selected: [],
@@ -588,22 +590,154 @@ class ChartForm extends React.Component {
 
     };
 
-    handleClickPdf  ()  {
+    handleClickPdf() {
 
-       
-       var cnvs =  this.refs.chrts.chartInstance.canvas;
-       console.log(this.refs.chrts);
-       var img = cnvs.toDataURL("image/png");
 
-            
+        var cnvs = this.refs.chrts.chartInstance.canvas;
+        console.log(this.refs.chrts);
+        var img = cnvs.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        //var button = document.getElementById('sv-bt');
+        //button.download = img;
+        var link = document.getElementById('link');
+        link.setAttribute('download', this.state.station_name + '_' + this.state.dateTimeBegin + '.png');
+        link.setAttribute('href', img);
+        link.click();
+    };
+
+    async    loadDataStations(qtype) {
+        let params = {};
+        // 0 - all stations, 1- all sensors of the station, 2 - selected sensors
+        //3 - macs table
+        params.period_from = this.state.dateTimeBegin;
+        params.period_to = this.state.dateTimeEnd;
+        if (qtype === 1) {
+            params.station = this.state.station_actual;
+            // if (this.props.station_actual.length > 0) { deleteActiveStationsList(); };
+            addActiveStationsList({ station: this.state.station_actual });
+            deleteDataList();
+            deleteSensorsList();
+            //this.setState({ slection: '' })
+        };
+        if (qtype === 2) {
+            params.station = this.state.station_actual;
+            params.sensors = this.state.sensors_actual;
+            // addActiveSensorsList(this.state.sensors_actual);
+
+        }; // query for sensors data had been sent to the TableSensors component
+
+        if (qtype === 3) {
+            params.sensors = this.state.sensors_actual;
+
+        };
+        let data = await (this.props.queryEvent(params));
+        //console.log(data);
+        return data;
+    };
+
+    handleSnackClose() {
+        this.setState({ isLoading: false });
+        this.setState({ isUpdated: false });
+
+    };
+
+    handleSelectChange = event => {
+        const { stationsList } = this.state;
+
+        let filter = stationsList.filter((item, i, arr) => {
+            return item.namestation == event.target.value;
+        });
+
+        this.setState({ [event.target.name]: event.target.value });
+        this.setState({ station_actual: filter[0].id });
+
+        this.getFullData(filter[0].id);
+    };
+
+    getFullData(station_id, date) {
+        let params = {};
+        //e.preventDefault();
+        //this.setState({ dateTimeBegin: this.props.dateTimeBegin, dateTimeEnd: this.props.dateTimeEnd });
+        //this.loadData().then(data => this.setState({ sensorsList: data }));
+
+
+        // 0 - all stations, 1- all sensors of the station, 2 - selected sensors
+        if (isEmpty(date)) {
+            params.period_from = this.state.dateTimeBegin + 'T00:00:00';
+            params.period_to = this.state.dateTimeBegin + 'T23:59:59';
+        } else {
+            params.period_from = date + 'T00:00:00';
+            params.period_to = date + 'T23:59:59';
         }
-   
+
+        params.station = station_id;
+        params.sensors = ["NO", "NO2", "O3", "CO", "H2S", "SO2"];
+        this.props.queryByTypeEvent(params).then(data => {
+            const { sensorsList } = this.props;
+
+            if (data) {
+                this.setState({ dataList: data });
+                this.setState({ isLoading: true });
+
+                let selection = [];
+                sensorsList.forEach(element => {
+                    selection.push(element._id);
+                });
+                this.setState({ selection: selection });
+                // addActiveSensorsList(this.state.selection);
+                getFirstActiveStationsList();
+                addActiveStationsList({ sensors: this.state.selection });
+                this.getChartData(this.state.checkedMeteo, this.state.whatsRange);
+                this.setState({ snack_msg: 'Данные успешно загружены...' });
+
+
+
+            }
+            else {
+                this.setState({ isLoading: false })
+                this.setState({ snack_msg: 'Данные отсутствуют...' })
+
+            }
+        });
+    };
+    handlePickerChange = (event) => {
+        const value = event.target.value;
+        const id = event.target.id;
+        /*if (this.props.report_type=='daily'){
+            dateAddReportAction({ 'dateReportBegin': value + 'T00:00' });
+            dateAddReportAction({ 'dateReportEnd': value + 'T23:59' });
+            if (!isEmpty(this.props.station_name)){
+            this.props.handleReportChange({station_name: this.props.station_name,station_actual: this.props.station_actual,
+                'dateReportBegin': value + 'T00:00', 'dateReportEnd': value + 'T23:59', chemical: this.state.chemical});
+ 
+        }
+       }*/
+        this.setState({ dateTimeBegin: value });
+        if (!isEmpty(this.state.station_actual))
+            this.getFullData(this.state.station_actual, value);
+    };
     componentWillMount() {
+        this.loadDataStations(0).then(data => {
+            if (this.props.station_actual) {
+                let selection = [];
+                if (this.props.station_actual.length > 0) {
+                    data.forEach(element => {
+                        if (element.id == this.props.station_actual) {
+                            selection.push(element._id);
+                        };
+                    });
+                    this.setState({ selection });
+                    this.setState({ station_actual: this.props.station_actual });
+                }
+            }
+            this.setState({ stationsList: data }); //sta list
+        });
 
-        this.setState({ checkedMeteo: this.props.checkedMeteo });
 
 
-        this.getChartData(this.props.checkedMeteo, this.state.whatsRange);
+        this.setState({ checkedMeteo: this.state.checkedMeteo });
+
+
+        this.getChartData(this.state.checkedMeteo, this.state.whatsRange);
     }
 
 
@@ -643,18 +777,24 @@ class ChartForm extends React.Component {
 
 
             <Paper className={classes.root}>
-                <MenuChart
+                <br /><a id="link"></a>
+                <MenuChartReport
                     {...this.state}
                     handleChangeToggle={this.handleChangeToggle.bind(this)}
                     hideLine={this.hideLine.bind(this)}
-                    handleClickPdf = {this.handleClickPdf.bind(this)}
+                    handleClickPdf={this.handleClickPdf.bind(this)}
+                    queryByTypeEvent={this.props.queryByTypeEvent.bind(this)}
+                    handleSelectChange={this.handleSelectChange.bind(this)}
+                    handlePickerChange={this.handlePickerChange.bind(this)}
+                    handleSnackClose={this.handleSnackClose.bind(this)}
+
                     value="checkedLine"
                     valueMeteo="checkedMeteo"
                 />
 
                 {(this.state.checkedLine) &&
-                  <Line
-                        ref = 'chrts'
+                    <Line
+                        ref='chrts'
                         data={this.state.chartData}
                         options={{
                             title: titles,
@@ -721,4 +861,4 @@ ChartForm.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryMeteoEvent })(withRouter(withStyles(styles)(ChartForm)));
+export default connect(mapStateToProps, { queryMeteoEvent, queryEvent, queryByTypeEvent })(withRouter(withStyles(styles)(ChartForm)));

@@ -41,7 +41,7 @@ import OperativeReport from './OperativeReport';
 import DailyReport from './DailyReport';
 import MonthlyReport from './MonthlyReport';
 import Tza4Report from './Tza4Report';
-
+import ChartFormReport from './ChartFormReport';
 const styles = theme => ({
     root: {
         flexGrow: 1,
@@ -299,7 +299,10 @@ class ReportForm extends React.Component {
                         />
                     </Tab>
 
+                    <Tab label="Графический" >
+                    <ChartFormReport  {...this.state} />
 
+                    </Tab>
                 </Tabs>
 
             </Paper >
