@@ -92,7 +92,8 @@ class ChartForm extends React.Component {
             options: [],
             barThickness: null,
             beginChartData: [],
-            meteoOptions: []
+            meteoOptions: [],
+            chemical_checked: []
         };
 
 
@@ -166,6 +167,10 @@ class ChartForm extends React.Component {
         //console.log(data);
         return data;
     };
+
+    setStateByChild(name, state) {
+        this.setState({ [name]: state });
+    }
 
     hideLine(state) {
         let { chartData } = this.state;
@@ -499,7 +504,21 @@ class ChartForm extends React.Component {
 
             }; // end fetch section when data is exist
             //console.log('data = ', chartData.datasets[0].data);
+            let obj_macs = [];
+            let visible = false;
+            let chem = [];
+            if (this.state.chemical_checked.length == 0) {
+                chem = ["NO", "NO2", "O3", "CO", "H2S", "SO2"];
+                let counter = 0;
+                macs.forEach(element => {
+                    if (chem.indexOf(element.chemical) != -1) { visible = true; } else { visible = false; };
 
+                    obj_macs.push({ chemical: element.chemical, visible: visible, id: counter });
+                    counter++;
+                });
+
+                this.setState({ chemical_checked: obj_macs });
+            };
             this.setState({ beginChartData });
             if (isEmpty(this.state.options[0]))
                 this.setState({ options });
@@ -670,7 +689,18 @@ class ChartForm extends React.Component {
         }
 
         params.station = station_id;
-        params.sensors = ["NO", "NO2", "O3", "CO", "H2S", "SO2"];
+        params.sensors = [];
+        
+        if (this.state.chemical_checked.length == 0) {
+            params.sensors = ["NO", "NO2", "O3", "CO", "H2S", "SO2"];
+        } else {
+            const { chemical_checked } = this.state;
+            chemical_checked.forEach(element => {
+                if (element.visible) { params.sensors.push(element.chemical); };
+
+            });
+        };
+
         this.props.queryByTypeEvent(params).then(data => {
             const { sensorsList } = this.props;
 
@@ -787,7 +817,7 @@ class ChartForm extends React.Component {
                     handleSelectChange={this.handleSelectChange.bind(this)}
                     handlePickerChange={this.handlePickerChange.bind(this)}
                     handleSnackClose={this.handleSnackClose.bind(this)}
-
+                    setStateByChild={this.setStateByChild.bind(this)}
                     value="checkedLine"
                     valueMeteo="checkedMeteo"
                 />
