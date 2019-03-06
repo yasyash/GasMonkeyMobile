@@ -34,7 +34,6 @@ import isEmpty from 'lodash.isempty';
 import toUpper from 'lodash/toUpper';
 import isNumber from 'lodash.isnumber';
 
-import { Map, TileLayer, Rectangle } from 'react-leaflet';
 import L from 'leaflet';
 import { LeafIcon } from 'leaflet';
 import worldGeoJSON from 'geojson-world-map';
@@ -43,7 +42,7 @@ import "leaflet/dist/leaflet.css";
 import marker from 'leaflet/src/images/marker.svg';
 
 import { getStationsList } from './actions/stationsGetAction';
-import { queryEvent } from './actions/queryActions';
+import { queryEvent, queryOperativeEvent } from './actions/queryActions';
 
 const pngs = require.context('../../tiles', true, /\.png$/);
 //const keys = pngs.keys();
@@ -87,14 +86,17 @@ class MapsForm extends React.Component {
             sensorsList,
         } = props;
 
-
+        let today = new Date();
+        today -= 1200000;//20 min in milliseconds
 
         this.state = {
             title: '',
             snack_msg: '',
             errors: {},
             bounds: outer,
-            stationsList
+            stationsList,
+            dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
+            dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
         };
 
 
@@ -135,6 +137,9 @@ class MapsForm extends React.Component {
         let params = {};
         this.props.queryEvent(params).then(data => {
             let lat, lng = 0;
+            let params = {};
+            params.period_from = this.state.dateTimeBegin;
+            params.period_to = this.state.dateTimeEnd;
 
             getStationsList(data);
 
@@ -146,7 +151,55 @@ class MapsForm extends React.Component {
             L.tileLayer("./tiles/{z}/{x}/{y}.png", {}).addTo(lmap);
             //var greenIcon = new LeafIcon({iconUrl: 'leaf-green.png'});
             data.map(item => {
-                L.marker([item.latitude, item.longitude], { title: item.namestation + "\n" + item.place, opacity: 0.5 }).addTo(lmap);
+                let marker = L.marker([item.latitude, item.longitude], { title: item.namestation + "\n" + item.place, opacity: 0.5 }).addTo(lmap);
+                params.station = item.id;
+                this.props.queryOperativeEvent(params).then(values => {
+                    if (values) {
+                        let dataList = values.dataTable;
+                        let sensorsList = values.sensorsTable;
+                        let macsList = values.macsTable;
+                        let rows_measure = [];
+                        let popupContent = "";
+
+                        macsList.forEach((element, indx) => {
+                            let filter = dataList.filter((item, i, arr) => {
+                                return item.typemeasure == element.chemical;
+                            });
+                            let sum = 0;
+                            let counter = 0;
+                            let class_css;
+                            let quotient = 0;
+                            let range_macs = 0; // range of macs surplus
+
+
+                            if (!isEmpty(filter)) {
+                                filter.forEach(item => {
+                                    sum += item.measure;
+                                    counter++;
+                                });
+                                quotient = (sum / counter);
+                                range_macs = quotient / element.max_m;
+                                class_css = 'alert_success';
+
+                                if (range_macs > 1)
+                                    class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
+                                if (range_macs >= 5)
+                                    class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
+                                if (range_macs >= 10)
+                                    class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
+
+
+                                rows_measure.push({
+                                    'chemical': element.chemical + ', мг/м.куб.', 'macs': element.max_m,
+                                    'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
+                                    'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(6), 'className': class_css
+                                })
+                                popupContent += element.chemical + " : " + quotient.toFixed(6) + "\n";
+                            };
+                        });
+                        marker.bindPopup(popupContent, { autoClose: false });
+                    }
+                });
             })
         });
     }
@@ -203,4 +256,4 @@ MapsForm.contextType = {
     // router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent })(withRouter(withStyles(styles)(MapsForm)));
+export default connect(mapStateToProps, { queryEvent, queryOperativeEvent })(withRouter(withStyles(styles)(MapsForm)));
