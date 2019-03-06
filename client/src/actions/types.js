@@ -30,3 +30,5 @@ export const SET_REPORT_DATE = 'SET_REPORT_DATE';
 
 export const SET_LOGS_LIST = 'SET_LOGS_LIST';
 export const DELETE_LOGS_LIST = 'DELETE_LOGS_LIST';
+
+export const GET_STATION_LIST = 'GET_STATION_LIST';

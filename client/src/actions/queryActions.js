@@ -46,7 +46,7 @@ export function queryEvent(paramstr) {
                             place: element.place,
                             latitude: element.latitude,
                             longitude: element.longitude
-                            
+
                         });
                     });
                     return wrapData(dataTable);
@@ -348,7 +348,7 @@ export function queryAllDataOperativeEvent(paramstr) {
                         });
                     });
                     logs_list.forEach((element, indx) => {
-                        if ((Number(element.type) >= 100)&&(Number(element.type) <= 110)) {
+                        if ((Number(element.type) >= 100) && (Number(element.type) <= 110)) {
                             alertsTable.push({
                                 date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
                                 type: element.type,
@@ -364,7 +364,7 @@ export function queryAllDataOperativeEvent(paramstr) {
                                         type: element.type,
                                         descr: element.descr,
                                         is_visible: true
- 
+
                                     });
                             } else {
                                 systemTable.push({
@@ -412,7 +412,7 @@ export function queryByTypeEvent(paramstr) {
             .then(resp => resp.data)
             .then(data => {
                 const dataTable = [];
-                
+
                 // deleteDataList(); // add with id for table element
                 //  deleteSensorsList();
 

@@ -22,6 +22,7 @@ export default {
 
     ],
     module: {
+
         rules: [{
             test: /\.(js|jsx)$/,
             include: path.join(__dirname, 'client'),
@@ -48,7 +49,11 @@ export default {
         }, {
             test: /\.(png|jpe?g|svg|gif)$/,
             use: [{
-                loader: 'file-loader?context=[path][name].[ext]'
+                loader: 'file-loader',
+                options: {
+                    name: '[path][name].[ext]',
+                    mimetype: 'image'
+                }
 
             }]
 
@@ -58,8 +63,11 @@ export default {
             use: [{ loader: 'html-loader' }]
         },
         {
-            test: /\.ttf$/,
-            use: [{ loader: 'url-loader' }]
+            test: /\.(ttf)$/i,
+            use: [{
+                loader: 'url-loader',
+                options: { mimetype: 'image' }
+            }]
         },
         {
             test: /\.xml$/,

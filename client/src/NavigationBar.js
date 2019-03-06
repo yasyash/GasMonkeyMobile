@@ -43,11 +43,13 @@ class NavigationBar extends React.Component {
       <ul className="nav navbar-nav navbar-right">
 
         <li><Link to="/admin">Администрирование  &nbsp; &nbsp;</Link>
-          
+
           <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
           <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
           <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
+          <Link to="/maps">Карты  &nbsp; &nbsp;</Link>
+
           <a href="#" onClick={this.logout.bind(this)}>   Выход</a></li>
       </ul>
     );
@@ -58,6 +60,8 @@ class NavigationBar extends React.Component {
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
           <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
           <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
+          <Link to="/maps">Карты  &nbsp; &nbsp;</Link>
+
           <a href="#" onClick={this.logout.bind(this)}>   Выход</a></li>
       </ul>
     );

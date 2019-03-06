@@ -9,7 +9,7 @@ use POSIX qw(strftime);
 #sudo apt-get install libdbd-pg-perl
 
 
-use SOAP::Lite; #(+trace =>"all", readable => 1);
+use SOAP::Lite (+trace =>"all", readable => 1);
 #( +trace => , maptype => {} );;
 use DBI;
 use MIME::Base64;
@@ -39,7 +39,8 @@ $wsdl = 'http://84.204.102.4/SkatApiService/Service.asmx';
 $xmlns="http://skat.ru/";
 $method_getstations = "GetStations";
 
-$password = $user = 'shklyar';
+$password = 'optec';
+$user = 'admin';
 $prefix =  undef;
 
 $client = SOAP::Lite->service($wsdl . '?wsdl'); 
