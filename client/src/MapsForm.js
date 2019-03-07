@@ -43,8 +43,10 @@ import marker from 'leaflet/src/images/marker.svg';
 
 import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
+import pinAlert from './pin-alert.png';
 
 const pngs = require.context('../../tiles', true, /\.png$/);
+//const pinAlert = require.context('./', true, /\.svg$/);
 //const keys = pngs.keys();
 
 //const pngsArray = keys.map(key => pngs(key));
@@ -57,7 +59,23 @@ const styles = theme => ({
     },
     map: {
         height: '400px'
+    },
+
+    alert_macs1_ylw: {
+        backgroundColor: '#ffff1a'
+    },
+    alert_macs5_orng: {
+        backgroundColor: '#ff4d00'
+    },
+
+    alert_macs10_red: {
+        backgroundColor: '#ff0000'
+    },
+    alert_success: {
+        color: '#000000',
+        backgroundColor: '#ffffff'
     }
+
 
 
 });
@@ -151,7 +169,6 @@ class MapsForm extends React.Component {
             L.tileLayer("./tiles/{z}/{x}/{y}.png", {}).addTo(lmap);
             //var greenIcon = new LeafIcon({iconUrl: 'leaf-green.png'});
             data.map(item => {
-                let marker = L.marker([item.latitude, item.longitude], { title: item.namestation + "\n" + item.place, opacity: 0.5 }).addTo(lmap);
                 params.station = item.id;
                 this.props.queryOperativeEvent(params).then(values => {
                     if (values) {
@@ -160,6 +177,7 @@ class MapsForm extends React.Component {
                         let macsList = values.macsTable;
                         let rows_measure = [];
                         let popupContent = "";
+                        let class_css = 'alert_success';
 
                         macsList.forEach((element, indx) => {
                             let filter = dataList.filter((item, i, arr) => {
@@ -167,7 +185,6 @@ class MapsForm extends React.Component {
                             });
                             let sum = 0;
                             let counter = 0;
-                            let class_css;
                             let quotient = 0;
                             let range_macs = 0; // range of macs surplus
 
@@ -194,10 +211,31 @@ class MapsForm extends React.Component {
                                     'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
                                     'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(6), 'className': class_css
                                 })
-                                popupContent += element.chemical + " : " + quotient.toFixed(6) + "\n";
+                                if (class_css != 'alert_success')
+                                {
+                                popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(4) + '</div>';
+                                }
+                                else
+                                {
+                                    popupContent +=  element.chemical + " : " + quotient.toFixed(4);
+
+                                }
                             };
                         });
-                        marker.bindPopup(popupContent, { autoClose: false });
+
+                        if (class_css == 'alert_success') {
+                            var marker = L.marker([item.latitude, item.longitude], { title: item.namestation + "\n" + item.place, opacity: 0.7 }).addTo(lmap);
+                        }
+                        else {
+                            let _Icon = L.icon({
+                                iconUrl: pinAlert
+                            });
+                            var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).addTo(lmap);
+
+                        }
+
+                        if (!isEmpty(popupContent))
+                            marker.bindPopup(popupContent, { autoClose: false });
                     }
                 });
             })
