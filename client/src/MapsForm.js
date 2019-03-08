@@ -36,10 +36,9 @@ import isNumber from 'lodash.isnumber';
 
 import L from 'leaflet';
 import { LeafIcon } from 'leaflet';
-import worldGeoJSON from 'geojson-world-map';
 import './map-widget.css';
-import "leaflet/dist/leaflet.css";
-import marker from 'leaflet/src/images/marker.svg';
+import 'leaflet/dist/leaflet.css';
+import markerPin from 'leaflet/dist/images/marker-icon.png';
 
 import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
@@ -211,20 +210,26 @@ class MapsForm extends React.Component {
                                     'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
                                     'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(6), 'className': class_css
                                 })
+
+                                var prcnt = range_macs * 100;
+
                                 if (class_css != 'alert_success')
                                 {
-                                popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(4) + '</div>';
+                                popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) +" % ПДК)"+ '</div>';
                                 }
                                 else
                                 {
-                                    popupContent +=  element.chemical + " : " + quotient.toFixed(4);
+                                    popupContent +=  element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) +" % ПДК)"+ "<br/>";
 
                                 }
                             };
                         });
 
                         if (class_css == 'alert_success') {
-                            var marker = L.marker([item.latitude, item.longitude], { title: item.namestation + "\n" + item.place, opacity: 0.7 }).addTo(lmap);
+                            let _Icon = L.icon({
+                                iconUrl: markerPin
+                            });
+                            var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).addTo(lmap);
                         }
                         else {
                             let _Icon = L.icon({
