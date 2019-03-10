@@ -39,6 +39,7 @@ import { LeafIcon } from 'leaflet';
 import './map-widget.css';
 import 'leaflet/dist/leaflet.css';
 import markerPin from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
@@ -213,13 +214,11 @@ class MapsForm extends React.Component {
 
                                 var prcnt = range_macs * 100;
 
-                                if (class_css != 'alert_success')
-                                {
-                                popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) +" % ПДК)"+ '</div>';
+                                if (class_css != 'alert_success') {
+                                    popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) + " % ПДК)" + '</div>';
                                 }
-                                else
-                                {
-                                    popupContent +=  element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) +" % ПДК)"+ "<br/>";
+                                else {
+                                    popupContent += element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) + " % ПДК)" + "<br/>";
 
                                 }
                             };
@@ -227,13 +226,15 @@ class MapsForm extends React.Component {
 
                         if (class_css == 'alert_success') {
                             let _Icon = L.icon({
-                                iconUrl: markerPin
+                                iconUrl: markerPin,
+                                shadowUrl: markerShadow
                             });
                             var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).addTo(lmap);
                         }
                         else {
                             let _Icon = L.icon({
-                                iconUrl: pinAlert
+                                iconUrl: pinAlert,
+                                shadowUrl: markerShadow
                             });
                             var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).addTo(lmap);
 
@@ -241,6 +242,29 @@ class MapsForm extends React.Component {
 
                         if (!isEmpty(popupContent))
                             marker.bindPopup(popupContent, { autoClose: false });
+
+                        let dir_wind = dataList.filter((item, i, arr) => {
+                            return item.typemeasure == 'Направление ветра';
+                        });
+
+                        if (!isEmpty(dir_wind)) {
+                            let sum = 0;
+                            dir_wind.forEach(_item => {
+                                sum += _item.measure;
+                            });
+                            let avrg = (sum / dir_wind.length)* Math.PI / 180;
+                            let arr_hi = (90 - sum / dir_wind.length - 20)* Math.PI / 180;
+                            let arr_low = (sum / dir_wind.length - 20)* Math.PI / 180;
+                            let line = [
+                                [item.latitude, item.longitude],
+                                [item.latitude + Math.cos(avrg) * 0.004, item.longitude + Math.sin(avrg) * 0.004],
+                                [item.latitude + Math.cos(avrg) * 0.004 - Math.cos(arr_low)*0.0012, item.longitude +Math.sin(avrg) * 0.004 - Math.sin(arr_low)*0.0012],
+                                [item.latitude + Math.cos(avrg) * 0.004, item.longitude + Math.sin(avrg) * 0.004],
+                                [item.latitude + Math.cos(avrg) * 0.004 - Math.sin(arr_hi)*0.0012, item.longitude + Math.sin(avrg) * 0.004 - Math.cos(arr_hi)*0.0012]
+                            ];
+
+                            L.polyline(line, {color: 'red', weight: 1}).addTo(lmap);
+                        };
                     }
                 });
             })
