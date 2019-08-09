@@ -16,11 +16,7 @@ export default (state = [], action = {}) => {
                 
             ];
         case DELETE_ACTIVE_SENSORS_LIST:
-            return [
-                
-                     []
-                
-            ];
+            return [];
         default: return state;
 
     }

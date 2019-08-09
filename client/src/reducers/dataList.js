@@ -10,17 +10,14 @@ export default (state = initialState, action = {}) => {
     switch (action.type) {
         case SET_DATA_LIST:
             return [
-                
 
-                     ...action.data
-                
+
+                ...action.data
+
             ];
         case DELETE_DATA_LIST:
-            return [
-                
-                     []
-                
-            ];
+            return [];
+
         default: return state;
 
     }

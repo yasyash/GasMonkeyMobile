@@ -10,17 +10,13 @@ export default (state = [], action = {}) => {
     switch (action.type) {
         case SET_SENSORS_LIST:
             return [
-                
 
-                     ...action.data
-                
+
+                ...action.data
+
             ];
         case DELETE_SENSORS_LIST:
-            return [
-                
-                     []
-                
-            ];
+            return [];
         default: return state;
 
     }

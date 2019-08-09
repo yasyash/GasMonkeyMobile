@@ -29,7 +29,7 @@ import { deleteSensorsList } from './actions/sensorsAddAction';
 
 import ReactTable from "react-table";
 import checkboxHOC from "react-table/lib/hoc/selectTable";
-import "react-table/react-table.css";
+//import "react-table/react-table.css";
 
 const CheckboxTable = checkboxHOC(ReactTable);
 
@@ -43,8 +43,6 @@ Object.assign(CheckboxTable, {
     rowsText: 'записей',
 });
 import shortid from 'shortid';
-//import './Table.css';
-//import './css/rwd-table.css';
 
 
 import TextField from 'material-ui/TextField';
@@ -157,7 +155,7 @@ class TableForm extends React.Component {
         // start off with the existing state
         let selection = [...this.state.selection];
 
-        const keyIndex = selection.indexOf(key);
+        const keyIndex = selection.indexOf(row._id);
         // check to see if the key exists
         if (keyIndex >= 0) {
             // it does exist so we will remove it using destructing
@@ -171,7 +169,7 @@ class TableForm extends React.Component {
 
         } else {
             // it does not exist so add it
-            selection.push(key);
+            selection.push(row._id);
             this.setState({ station_actual: row.id });
 
         }
@@ -322,7 +320,7 @@ class TableForm extends React.Component {
     //onChange(e) {
     //  this.setState({ [e.target.name]: e.target.value });
     //}
-    
+
     componentWillMount() {
         //const getStations = this.props.queryEvent(this.state);
         //this.setState({ stationsList: getStations });
@@ -461,7 +459,7 @@ class TableForm extends React.Component {
                                 ofText={'из'}
                                 rowsText={'записей'}
                                 style={{
-                                    height: height+100 // This will force the table body to overflow and scroll, since there is not enough room
+                                    height: height + 100 // This will force the table body to overflow and scroll, since there is not enough room
                                 }}
                                 className="-striped -highlight"
                                 {...this.state}
@@ -493,7 +491,7 @@ class TableForm extends React.Component {
                     </Tab>
 
                 </Tabs>
-             
+
 
 
             </Paper >

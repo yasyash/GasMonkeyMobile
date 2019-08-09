@@ -19,13 +19,15 @@ import DataIcon from 'material-ui/svg-icons/action/timeline';
 import { addActiveSensorsList, deleteActiveSensorsList } from './actions/sensorsAddAction';
 import { addActiveStationsList, deleteActiveStationsList, getFirstActiveStationsList } from './actions/stationsAddAction';
 
-import ReactTable from "react-table";
+import  ReactTable from "react-table";
+import ReactTableDefaults from "react-table";
+
 
 import checkboxHOC from "react-table/lib/hoc/selectTable";
 import FoldableTableHOC from '../foldableTable/index';
-import 'react-table/react-table.css';
+//import 'react-table/react-table.css';
 
-Object.assign(ReactTable, {
+Object.assign(ReactTableDefaults, {
     previousText: 'Предыдущие',
     nextText: 'Следующие',
     loadingText: 'Loading...',
@@ -43,6 +45,8 @@ const CheckboxTable = checkboxHOC(ReactTable);
 
 
 const FoldableTable = FoldableTableHOC(CheckboxTable);
+
+
 
 import shortid from 'shortid';
 
@@ -141,7 +145,7 @@ class TableSensors extends React.Component {
         let selection = [...this.state.selection];
         let sensors_actual = [...this.state.sensors_actual];
 
-        const keyIndex = selection.indexOf(key);
+        const keyIndex = selection.indexOf(row._id);
         // check to see if the key exists
         if (keyIndex >= 0) {
             // it does exist so we will remove it using destructing
@@ -155,7 +159,7 @@ class TableSensors extends React.Component {
             ];
         } else {
             // it does not exist so add it
-            selection.push(key);
+            selection.push(row._id);
             sensors_actual.push(row.serialnum);
         }
         // update the state
@@ -450,7 +454,7 @@ class TableSensors extends React.Component {
                     style={{
                         height: height // This will force the table body to overflow and scroll, since there is not enough room
                     }}
-                    className="-striped -highlight"
+                    //className='-striped -highlight'
                     {...this.state}
 
 

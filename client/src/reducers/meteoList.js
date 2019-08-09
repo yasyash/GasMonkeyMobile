@@ -10,17 +10,13 @@ export default (state = [], action = {}) => {
     switch (action.type) {
         case SET_METEO_LIST:
             return [
-                
 
-                     ...action.data
-                
+
+                ...action.data
+
             ];
         case DELETE_METEO_LIST:
-            return [
-                
-                     []
-                
-            ];
+            return [];
         default: return state;
 
     }

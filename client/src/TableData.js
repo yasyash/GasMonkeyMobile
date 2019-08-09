@@ -17,6 +17,7 @@ import DataIcon from 'material-ui/svg-icons/action/timeline';
 
 
 import ReactTable from "react-table";
+import ReactTableDefaults from "react-table";
 
 import checkboxHOC from "react-table/lib/hoc/selectTable";
 import FoldableTableHOC from '../foldableTable/index';
@@ -29,11 +30,7 @@ import Toggle from 'material-ui/Toggle';
 
 import { withStyles } from '@material-ui/core/styles';
 
-
-
-const CheckboxTable = checkboxHOC(ReactTable);
-
-Object.assign(CheckboxTable, {
+Object.assign(ReactTableDefaults, {
     previousText: 'Предыдущие',
     nextText: 'Следующие',
     loadingText: 'Loading...',
@@ -42,6 +39,10 @@ Object.assign(CheckboxTable, {
     ofText: 'из',
     rowsText: 'записей',
 });
+
+const CheckboxTable = checkboxHOC(ReactTable);
+
+
 const FoldableTable = FoldableTableHOC(CheckboxTable);
 
 const styles = theme => ({
@@ -331,7 +332,7 @@ class TableData extends React.Component {
                     style={{
                         height: height // This will force the table body to overflow and scroll, since there is not enough room
                     }}
-                    className="-striped -highlight"
+                   // className="-striped -highlight"
                     {...this.props}
                 />
                 <br />

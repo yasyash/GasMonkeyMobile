@@ -12,11 +12,7 @@ export default (state = [], action = {}) => {
             return action.data;
             
         case DELETE_METEO_STATION:
-            return [
-
-                []
-
-            ];
+            return [];
         default: return state;
 
     }

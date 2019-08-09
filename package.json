@@ -76,7 +76,7 @@
     "react-table": "^6.8.6",
     "react-tap-event-plugin": "^3.0.2",
     "readable-stream": "^2.3.6",
-    "redux": "^3.7.2",
+    "redux": "^4.0.4",
     "redux-devtools-extension": "^2.13.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",

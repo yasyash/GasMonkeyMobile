@@ -22,11 +22,8 @@ export default (state = [], action = {}) => {
 
 
         case DELETE_STATION_LIST:
-            return [
+            return [];
 
-                []
-
-            ];
         case FIRST_STATION_LIST:
             return [
 
