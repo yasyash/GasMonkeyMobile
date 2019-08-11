@@ -18,6 +18,9 @@ import StationsIcon from 'material-ui/svg-icons/action/account-balance';
 import DataIcon from 'material-ui/svg-icons/action/timeline';
 import IconButton from 'material-ui/IconButton';
 import Renew from 'material-ui/svg-icons/action/autorenew';
+
+import SvgIcon from '@material-ui/core/SvgIcon';
+
 import Snackbar from '@material-ui/core/Snackbar';
 import Slider from '@material-ui/core/Slide';
 import Paper from '@material-ui/core/Paper';
@@ -440,7 +443,8 @@ class TableForm extends React.Component {
             <Paper className={classes.root}>
                 <Tabs>
                     <Tab
-                        icon={<StationsIcon />}
+                        icon={<SvgIcon className={classes.icon}>
+                            <path d="M17,16H15V22H12V17H8V22H5V16H3L10,10L17,16M6,2L10,6H9V9H7V6H5V9H3V6H2L6,2M18,3L23,8H22V12H19V9H17V12H15.34L14,10.87V8H13L18,3Z"></path> </SvgIcon>}
                         label="Станции наблюдения">
                         <br />
                         <MenuTable handleToggle={this.handleToggle.bind(this)}
@@ -480,7 +484,8 @@ class TableForm extends React.Component {
 
                     </Tab>
                     <Tab
-                        icon={<SensorsIcon />}
+                        icon={<SvgIcon className={classes.icon}>
+                            <path d="M15 22H9V21H15V22M19 4L15 2H9L5 4H19M8 5L8.4 6H15.6L16 5H8M10 10H11V15C10.4 15 10 15.4 10 16V20H14V16C14 15.4 13.6 15 13 15V10H14L14.4 9H9.6L10 10M9.2 8H14.8L15.2 7H8.8L9.2 8Z"></path> </SvgIcon>}
                         label="Перечень датчиков"
                     >
 
@@ -491,7 +496,8 @@ class TableForm extends React.Component {
 
                     </Tab>
                     <Tab
-                        icon={<DataIcon />}
+                        icon={<SvgIcon className={classes.icon}>
+                            <path d="M17.36,20.2V14.82H19.15V22H3V14.82H4.8V20.2H17.36M6.77,14.32L7.14,12.56L15.93,14.41L15.56,16.17L6.77,14.32M7.93,10.11L8.69,8.5L16.83,12.28L16.07,13.9L7.93,10.11M10.19,6.12L11.34,4.74L18.24,10.5L17.09,11.87L10.19,6.12M14.64,1.87L20,9.08L18.56,10.15L13.2,2.94L14.64,1.87M6.59,18.41V16.61H15.57V18.41H6.59Z"></path> </SvgIcon>}
                         label="Данные датчиков"
                     >
                         <TableData
