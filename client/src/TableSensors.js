@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import format from 'node.date-time';
 import isEmpty from 'lodash.isempty';
+import { isNumber } from 'util';
 
 
 import TxtFieldGroup from './stuff/txtField';
@@ -98,15 +99,15 @@ class TableSensors extends React.Component {
 
             fixedHeader,
             fixedFooter,
-            stripedRows,
+            stripedRows: false,
             showRowHover,
             selectable,
             multiSelectable,
             enableSelectAll,
             deselectOnClickaway,
             showCheckboxes,
-            height: '400px',
-
+            height: 400,
+            defaultPageSize: 25,
             selection,
             selectAll: false,
             isSensor: true
@@ -222,8 +223,10 @@ class TableSensors extends React.Component {
 
 
 
-    handleChange(event) {
-        this.setState({ height: event.target.value });
+    handleChange(name, value) {
+        if (isNumber(parseInt(value))) { var val = parseInt(value) } else { var val = value };
+
+        this.setState({ [name]: val });
     };
 
     ////////////
@@ -331,7 +334,7 @@ class TableSensors extends React.Component {
 
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
-        const { selection, selectAll, height } = this.state;
+        const { selection, selectAll, height, defaultPageSize, stripedRows } = this.state;
         const { sensorsList } = this.props;
 
         const checkboxProps = {
@@ -370,19 +373,22 @@ class TableSensors extends React.Component {
             [{
                 Header: "Тип",
                 id: "typemeasure",
-                accessor: "typemeasure"
+                accessor: "typemeasure",
+                filterable: true
             },
             {
                 Header: "Макс. показатель",
                 id: "max_consentration",
                 accessor: "max_consentration",
-                foldable: true
+                foldable: true,
+                filterable: true
             },
             {
                 Header: "Макс. сут. показатель",
                 id: "max_day_consentration",
                 accessor: "max_day_consentration",
-                foldable: true
+                foldable: true,
+                filterable: true
             },
             {
                 Header: "Ед. измерения",
@@ -394,14 +400,16 @@ class TableSensors extends React.Component {
                 id: "date_time_out",
                 accessor: "date_time_out",
                 foldable: true,
-                folded: true
+                folded: true,
+                filterable: true
             },
             {
                 Header: "ID датчика",
                 id: "serialnum",
                 foldable: true,
                 accessor: d => d.serialnum,
-                folded: true
+                folded: true,
+                filterable: true
             },
 
             {
@@ -409,14 +417,16 @@ class TableSensors extends React.Component {
                 id: "date_time_in",
                 accessor: "date_time_in",
                 foldable: true,
-                folded: true
+                folded: true,
+                filterable: true
             },
             {
                 Header: "Период усреднения",
                 id: "average_period",
                 accessor: "average_period",
                 foldable: true,
-                folded: true
+                folded: true,
+                filterable: true
             },
 
             {
@@ -424,7 +434,8 @@ class TableSensors extends React.Component {
                 id: "def_colour",
                 accessor: "def_colour",
                 foldable: true,
-                folded: true
+                folded: true,
+                filterable: true
             }];
             
         return (
@@ -443,7 +454,8 @@ class TableSensors extends React.Component {
                     data={sensorsList}
                     columns={Title}
                     {...checkboxProps}
-                    defaultPageSize={20}
+                    defaultPageSize={defaultPageSize}
+                    pageSize={defaultPageSize}
                     previousText={'Предыдущие'}
                     nextText={'Следующие'}
                     loadingText={'Loading...'}
@@ -452,7 +464,9 @@ class TableSensors extends React.Component {
                     ofText={'из'}
                     rowsText={'записей'}
                     style={{
-                        height: height // This will force the table body to overflow and scroll, since there is not enough room
+                        height: height, // This will force the table body to overflow and scroll, since there is not enough room
+                        backgroundColor: stripedRows ? '#000000' : '',
+                        color: stripedRows ? '#FFFFFF' : ''
                     }}
                     //className='-striped -highlight'
                     {...this.state}

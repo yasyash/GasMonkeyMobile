@@ -21,7 +21,10 @@ import ReactTableDefaults from "react-table";
 
 import checkboxHOC from "react-table/lib/hoc/selectTable";
 import FoldableTableHOC from '../foldableTable/index';
+import "react-table/react-table.css";
+
 import shortid from 'shortid';
+import { isNumber } from 'util';
 
 
 
@@ -106,17 +109,18 @@ class TableData extends React.Component {
 
             fixedHeader,
             fixedFooter,
-            stripedRows,
+            stripedRows: false,
             showRowHover,
             selectable,
             multiSelectable: true,
             enableSelectAll: true,
             deselectOnClickaway,
             showCheckboxes,
-            height: '600px',
-
+            height: 600,
+            defaultPageSize: 50,
             selection: [],
-            selectAll: false
+            selectAll: false,
+            hideFiltartion: false
         };
 
 
@@ -217,12 +221,16 @@ class TableData extends React.Component {
         this.setState({
             [event.target.name]: toggled
         });
+
     };
 
 
+    handleChange(name, value) {
+        if (isNumber(parseInt(value))) { var val = parseInt(value) } else { var val = value };
 
-    handleChange(event) {
-        this.setState({ height: event.target.value });
+        this.setState({ [name]: val });
+
+
     };
 
     ////////////
@@ -271,8 +279,8 @@ class TableData extends React.Component {
 
         //let dataList = [555];
         const { toggleSelection, toggleAll, isSelected } = this;
-        const { selection, selectAll, height } = this.state;
-        const dataList = this.props.dataList.slice(1, );
+        const { selection, selectAll, height, defaultPageSize, stripedRows } = this.state;
+        const dataList = this.props.dataList.slice(1);
         const { title } = this.props;
         // let lists={};
         //     console.log('dataList ', dataList);
@@ -321,7 +329,9 @@ class TableData extends React.Component {
                     data={dataList}
                     columns={title}
                     {...checkboxProps}
-                    defaultPageSize={20}
+                    defaultPageSize={defaultPageSize}
+                    pageSizeOptions={[10, 20, 50, 100, 150, 200, 300]}
+                    pageSize={defaultPageSize}
                     previousText={'Предыдущие'}
                     nextText={'Следующие'}
                     loadingText={'Loading...'}
@@ -330,10 +340,13 @@ class TableData extends React.Component {
                     ofText={'из'}
                     rowsText={'записей'}
                     style={{
-                        height: height // This will force the table body to overflow and scroll, since there is not enough room
-                    }}
-                   // className="-striped -highlight"
-                    {...this.props}
+                        height: height,
+                        backgroundColor: stripedRows ? '#000000' : '',
+                        color: stripedRows ? '#FFFFFF' : ''
+                    }
+                    }
+                    className="-striped -highlight"
+                    {...this.state}
                 />
                 <br />
                 <Tips />
@@ -349,7 +362,8 @@ function mapStateToProps(state, ownProps) {
     let title = [{
         Header: "Время наблюдения",
         id: "date_time",
-        accessor: "date_time"
+        accessor: "date_time",
+        filterable: true
     }, {
         Header: "Тип",
         id: "typemeasure",
@@ -358,7 +372,10 @@ function mapStateToProps(state, ownProps) {
     {
         Header: "Значение",
         id: "measure",
-        accessor: "measure"
+        accessor: "measure",
+        filterable: true,
+
+
     },
     {
         Header: "Единицы",
@@ -378,7 +395,28 @@ function mapStateToProps(state, ownProps) {
         Header: "Тревога",
         id: "is_alert",
         accessor: "is_alert",
-        foldable: true
+        foldable: true,
+        filterable: true,
+        Cell: row => (
+            <div
+                style={{
+
+                    borderRadius: '2px'
+                }}
+            >
+                <div
+                    style={{
+
+                        backgroundColor:
+                            row.value == 'тревога' ? '#ff2e00' : '',
+                        borderRadius: '2px',
+                        transition: 'all .2s ease-out',
+                        className: '-striped -highlight'
+                    }}>
+                    {row.value}
+                </div>
+
+            </div>)
 
     }]
 

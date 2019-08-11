@@ -103,7 +103,9 @@ class MenuTable extends Component {
             snack_msg,
             dateTimeBegin,
             dateTimeEnd,
-            isSensor
+            isSensor,
+            defaultPageSize,
+            hideFiltartion
         } = props;
 
         if (isStation) { isNll = true }
@@ -125,7 +127,9 @@ class MenuTable extends Component {
             snack_msg,
             dateTimeBegin,
             dateTimeEnd,
-            isSensor
+            isSensor,
+            defaultPageSize,
+            hideFiltartion
         };
 
 
@@ -188,9 +192,9 @@ class MenuTable extends Component {
         }
     };
 
-    handleChange(event) {
-        this.setState({ height: event.target.value });
-        this.props.handleChange(event);
+    handleChange (name, event) {
+        this.setState({ [name]: event.target.value });
+        this.props.handleChange(name, event.target.value);
 
     };
     handleRefresh = name => event => {
@@ -282,70 +286,24 @@ class MenuTable extends Component {
                                 <TextField
                                     label="Высота окна таблицы"
                                     defaultValue={this.state.height}
-                                    onChange={this.handleChange}
+                                    onChange={(event) => this.handleChange(name = 'height', event)}
+                                /><br/>
+                                <TextField
+                                    label="Записей на странице таблицы"
+                                    defaultValue={this.state.defaultPageSize}
+                                    onChange={(event) => this.handleChange(name = 'defaultPageSize', event)}
                                 />
-
-                                <h6 >Настройка вида таблицы</h6>
-                                <Toggle
-                                    name="deselectOnClickaway"
-                                    label="Отмена выбора кликом"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.deselectOnClickaway}
-                                />
+                            
                                 <Toggle
                                     name="stripedRows"
-                                    label="Подсветка через строку"
+                                    label="Черно-белый стиль"
                                     onToggle={this.handleToggle}
                                     defaultToggled={this.state.stripedRows}
                                 />
-                                <Toggle
-                                    name="showRowHover"
-                                    label="Выделять при наведении"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.showRowHover}
-                                />
-                                <h5 style={styles.propToggleHeader}>Настройка выбора</h5>
+                         
 
-
-                                <Toggle
-                                    name="fixedHeader"
-                                    label="Фиксировать верхний заголовок таблицы"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.fixedHeader}
-                                />
-                                <Toggle
-                                    name="fixedFooter"
-                                    label="Фиксировать нижний заголовок таблицы"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.fixedFooter}
-                                />
-                                <Toggle
-                                    name="showCheckboxes"
-                                    label="Показать элементы выбора"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.showCheckboxes}
-                                />
-                                <Toggle
-                                    name="selectable"
-                                    label="Активировать выбор записей"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.selectable}
-                                />
-
-
-                                {(!this.state.isStation) && <Toggle
-                                    name="multiSelectable"
-                                    label="Мультивыбор записей"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.multiSelectable}
-                                />}
-
-                                {(!this.state.isStation) && <Toggle
-                                    name="enableSelectAll"
-                                    label="Выбор всех записей"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.enableSelectAll}
-                                />}
+                       
+                            
                             </div>
                         </div>
 

@@ -47,6 +47,7 @@ import shortid from 'shortid';
 
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
+import { isNumber } from 'util';
 
 
 
@@ -105,15 +106,15 @@ class TableForm extends React.Component {
 
             fixedHeader,
             fixedFooter,
-            stripedRows,
+            stripedRows: false,
             showRowHover,
             selectable,
             multiSelectable,
             enableSelectAll,
             deselectOnClickaway,
             showCheckboxes,
-            height: '300px',
-
+            height: 300,
+            defaultPageSize: 5,
             selection: [],
             selectAll: false,
 
@@ -230,8 +231,10 @@ class TableForm extends React.Component {
 
 
 
-    handleChange(event) {
-        this.setState({ height: event.target.value });
+    handleChange(name, value) {
+        if (isNumber(parseInt(value))) { var val = parseInt(value) } else { var val = value };
+
+        this.setState({ [name]: val });
     };
 
     handleRowSelection(selectedRows) {
@@ -350,7 +353,7 @@ class TableForm extends React.Component {
     };
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
-        const { selection, selectAll, stationsList, height } = this.state;
+        const { selection, selectAll, stationsList, height, defaultPageSize, stripedRows } = this.state;
         const { loadData } = this.props;
         const { classes } = this.props;
         // var tableData = this.state.stationsList;
@@ -401,22 +404,26 @@ class TableForm extends React.Component {
                 columns: [{
                     Header: "ID станции",
                     id: "id",
-                    accessor: d => d.id
+                    accessor: d => d.id,
+                    filterable: true
                 },
                 {
                     Header: "Наименование",
                     id: "namestation",
-                    accessor: "namestation"
+                    accessor: "namestation",
+                    filterable: true
                 },
                 {
                     Header: "Код",
                     id: "code",
-                    accessor: "code"
+                    accessor: "code",
+                    filterable: true
                 },
                 {
                     Header: "Последнее обращение",
                     id: "date_time_out",
-                    accessor: "date_time_out"
+                    accessor: "date_time_out",
+                    filterable: true
                 },
                 {
                     Header: "Станция добавлена",
@@ -450,7 +457,8 @@ class TableForm extends React.Component {
                                 data={stationsList}
                                 columns={Title}
                                 {...checkboxProps}
-                                defaultPageSize={3}
+                                defaultPageSize={defaultPageSize}
+                                pageSize={defaultPageSize}
                                 previousText={'Предыдущие'}
                                 nextText={'Следующие'}
                                 loadingText={'Loading...'}
@@ -459,10 +467,12 @@ class TableForm extends React.Component {
                                 ofText={'из'}
                                 rowsText={'записей'}
                                 style={{
-                                    height: height + 100 // This will force the table body to overflow and scroll, since there is not enough room
+                                    height: height,  // This will force the table body to overflow and scroll, since there is not enough room
+                                    backgroundColor: stripedRows ? '#000000' : '',
+                                    color: stripedRows ? '#FFFFFF' : ''
                                 }}
                                 className="-striped -highlight"
-                                {...this.state}
+                            //{...this.state}
                             />
                             <br />
                             <Tips />
