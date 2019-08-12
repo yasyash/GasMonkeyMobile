@@ -23,6 +23,7 @@ import Notifications from "@material-ui/icons/Notifications";
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import StationsIcon from '@material-ui/icons/AccountBalance';
+import StationIcon from './icons/Stations';
 
 
 // core components
@@ -204,7 +205,7 @@ class DashBoard extends Component {
         stationsList.map((item, i) => (
           tabs.push({
             tabName: item.namestation,
-            tabIcon: StationsIcon,
+            tabIcon: StationIcon,
             tabContent: (
               < GridContainer style={{ padding: "2px" }} >
                 {(macsList) &&
