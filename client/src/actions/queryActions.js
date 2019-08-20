@@ -386,6 +386,27 @@ export function queryAllDataOperativeEvent(paramstr) {
                             });
                         }
 
+                        if (Number(element.type) == 500) {
+                            if (indx != logs_list.length - 1) {
+                                if (last != element.descr)
+                                    systemTable.push({
+                                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                        type: element.type,
+                                        descr: element.descr,
+                                        is_visible: true
+
+                                    });
+                            } else {
+                                systemTable.push({
+                                    date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                    type: element.type,
+                                    descr: element.descr,
+                                    is_visible: true
+                                });
+                            }
+
+                        }
+
                         last = element.descr;
                     });
 

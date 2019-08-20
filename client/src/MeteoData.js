@@ -289,13 +289,15 @@ class MeteoData extends React.Component {
                                {
                     Header: "Время измерения",
                     id: "date_time",
-                    accessor: "date_time"
+                    accessor: "date_time",
+                    filterable: true
                 },
                 {
                     Header: "Внешняя температура",
                     id: "temp_out",
                     accessor: "temp_out",
-                    foldable: true
+                    foldable: true,
+                    filterable: true
                 },
                 {
                     Header: "Макс. значение темп.",
@@ -313,7 +315,8 @@ class MeteoData extends React.Component {
                     Header: "Влажность внешняя",
                     id: "hum_out",
                     accessor: "hum_out",
-                    foldable: true
+                    foldable: true,
+                    filterable: true
                 },
                 {
                     Header: "Точка росы",
@@ -325,13 +328,15 @@ class MeteoData extends React.Component {
                     Header: "Скор. ветра (м/с)",
                     id: "speed_wind",
                     accessor: "speed_wind",
-                    foldable: true
+                    foldable: true,
+                    filterable: true,
                 },
                 {
                     Header: "Направление",
                     id: "dir_wind",
                     accessor: "dir_wind",
-                    foldable: true
+                    foldable: true,
+                    filterable: true,
                 },
                 {
                     Header: "Пробег ветра,км.",
@@ -379,13 +384,15 @@ class MeteoData extends React.Component {
                     Header: "Давление",
                     id: "bar",
                     accessor: "bar",
-                    foldable: true
+                    foldable: true,
+                    filterable: true,
                 },
                 {
                     Header: "Осадки, мм",
                     id: "rain",
                     accessor: "rain",
-                    foldable: true
+                    foldable: true,
+                    filterable: true,
                 },
                 {
                     Header: "Интенсивн. осадков",

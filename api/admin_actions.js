@@ -61,7 +61,8 @@ router.post('/ftp_update', authenticate, (req, resp) => {
             folder: data.folder,
             name: data.name,
             periods: data.periods,
-            date_time: new Date().format('Y-MM-dd HH:mm:SS')
+            date_time: new Date().format('Y-MM-dd HH:mm:SS'),
+            remained_time: data.periods
         }, { patch: true })
         .then(result => {
             resp.json({ result });
@@ -118,10 +119,12 @@ router.post('/ftp_insert', authenticate, (req, resp) => {
             let periods = data.periods;
             let date_time = new Date().format('Y-MM-dd HH:mm:SS');
             let isdeleted = false;
+            let remained_time = data.periods;
+
             //let id = Number(arr[0].idd) + 1;
             //   console.log({ "idd": idd, "address": address, "username": username, "pwd": pwd, "periods": periods, "date_time": date_time, "isdeleted": false })
             FTP.forge({ id }).save({
-                address, username, pwd, periods, date_time, isdeleted
+                address, username, pwd, periods, date_time, isdeleted, remained_time
 
             }, { method: 'insert' })
                 .then(result => resp.json({ success: true }))
@@ -440,7 +443,7 @@ router.post('/meteo_update', authenticate, (req, resp) => {
     // let obj = qs.parse(query);
     //let data = JSON.parse(obj.data);
     let data = req.body;
-    //console.log(data.address);
+    //console.log(data.id);
 
     //   console.log(req.body);
 
@@ -448,7 +451,7 @@ router.post('/meteo_update', authenticate, (req, resp) => {
         .save({
             updateperiod: data.updateperiod,
             namestation: data.namestation,
-            folder: data.folder,
+            //folder: data.folder,
             // date_time_out: new Date().format('dd-MM-Y HH:mm:SS'),
             idd: data.idd
             //  is_active: data.is_active,
@@ -473,7 +476,7 @@ router.post('/meteo_del', authenticate, (req, resp) => {
 
     //  console.log(req.body);
 
-    METEO.where({ idd: data.id })
+    METEO.where({ id: data.id })
         .save({
             is_present: false
         }, { patch: true })

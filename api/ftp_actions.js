@@ -4,6 +4,7 @@ import Promise from 'bluebird';
 import isEmpty from 'lodash.isempty';
 import isBoolean from 'lodash.isboolean';
 import jsonWT from 'jsonwebtoken';
+
 import config from './config';
 import format from 'node.date-time';
 import authenticate from './shared/authenticate';
@@ -26,8 +27,11 @@ import Stations from '../models/stations'
 import Macs from '../models/macs';
 import Sensors from '../models/sensors';
 import Data from '../models/data';
+import LOGS from '../models/logs';
 
-import Client from 'ftp';
+import {Client} from 'basic-ftp';
+import { fromRenderProps } from 'recompose';
+import ftp from '../models/ftp';
 
 let router = express.Router();
 
@@ -295,8 +299,8 @@ router.post('/ftp_send', authenticate, (req, resp) => {
 
                                 fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
 
-                                    if (error) throw resp.status(500).json({ error: error }); // если возникла ошибка
-                                    //console.log("Асинхронная запись файла завершена. Содержимое файла:");
+                                    if (error) throw resp.status(500).json({ error: error }); // if error
+                                    //console.log("Asynchronous file write completed");
                                     let temp = fs.readFileSync(filename, "utf8");
                                     let options = {
                                         host: item.address,
@@ -309,18 +313,13 @@ router.post('/ftp_send', authenticate, (req, resp) => {
                                         //pasvTimeout: undefined,
                                         //aliveTimeout: undefined
                                     };
-                                    let conn = new Client();
-                                    conn.on('ready', function () {
-                                        conn.put(filename, './' + item.folder + '/' + tmp_nm, function (err) {
-                                            //console.log('err ', err);
-                                            if (err) throw resp.status(500).json({ error: err });
-                                            conn.end();
 
-                                        });
 
-                                    });
-                                    conn.connect(options);
-                                    // console.log(temp);  // выводим считанные данные
+                                    let _folder = tmp_nm;
+                                    if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
+                                    try_ftp(options, temp, _folder);
+
+
 
                                 })
                             });
@@ -389,122 +388,145 @@ function ftp_upload() {
     FTP.where({ isdeleted: false }).fetchAll().then(
         result => {
             let result_str = JSON.parse(JSON.stringify(result));
-            //console.log('result', result_str);
 
             result_str.forEach(item => {
-                if ((item.remained_time - 1) > 0) {
+                if (!isEmpty(item.name) && !isEmpty(item.indx)) {
+                    if ((item.remained_time - 1) > 0) {
+                       //console.log('remained ', item.remained_time - 1);
+                        FTP.where({ id: item.id })
+                            .save({
+                                remained_time: item.remained_time - 1,
+                                last_time: new Date().format('Y-MM-dd HH:mm:SS')
 
-                    FTP.where({ id: item.id })
-                        .save({
-                            remained_time: item.remained_time - 1,
-                            last_time: new Date().format('Y-MM-dd HH:mm:SS')
+                            }, { patch: true })
 
-                        }, { patch: true })
+                    } else {
+                        FTP.where({ id: item.id })
+                            .save({
+                                remained_time: item.periods,
+                                last_time: new Date().format('Y-MM-dd HH:mm:SS')
+                            }, { patch: true }).then(res => {
+                                Stations.query({
+                                    where: ({ is_present: true })
+                                }).fetchAll().then(stations => {
 
-                } else {
-                    FTP.where({ id: item.id })
-                        .save({
-                            remained_time: item.periods,
-                            last_time: new Date().format('Y-MM-dd HH:mm:SS')
-                        }, { patch: true }).then(res => {
-                            Stations.query({
-                                where: ({ is_present: true })
-                            }).fetchAll().then(stations => {
+                                    let _stations = JSON.parse(JSON.stringify(stations));
+                                    //console.log(_stations);
+                                    var dataTable = [];
 
-                                let _stations = JSON.parse(JSON.stringify(stations));
-                                //console.log(_stations);
-                                var dataTable = [];
+                                    if (_stations) {
 
-                                if (_stations) {
+                                        // let stations = _stations.stations;
+                                        _stations.forEach(element => {
+                                            dataTable.push({
+                                                id: element.idd,
+                                                code: element.code,
+                                                namestation: element.namestation,
+                                                date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
+                                                date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
+                                                place: element.place,
+                                                latitude: element.latitude,
+                                                longitude: element.longitude
 
-                                    // let stations = _stations.stations;
-                                    _stations.forEach(element => {
-                                        dataTable.push({
-                                            id: element.idd,
-                                            code: element.code,
-                                            namestation: element.namestation,
-                                            date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
-                                            date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
-                                            place: element.place,
-                                            latitude: element.latitude,
-                                            longitude: element.longitude
+                                            });
+                                            //console.log(element.idd);
+                                            operative_report(element.idd).then(report => {
 
-                                        });
-                                        //console.log(element.idd);
-                                        operative_report(element.idd).then(report => {
+                                                //console.log('result ', result_str[0].name);
+                                                let tmp_nm = item.name + '_' + element.namestation + '_' + new Date().format('ddMMY_HHmm') + '.csv';
+                                                let filename = "./reports/ftp/" + tmp_nm;
+                                                let str_hdr = 'Индекс;Долгота, град;Широта, град;Название;Время';
+                                                let str_body = item.indx + ';' + element.longitude + ';' + element.latitude + ';' + element.namestation
+                                                    + ' - ' + element.place + ';' + new Date().format('dd-MM-Y HH:mm:SS');
 
-                                            //console.log('result ', result_str[0].name);
-                                            let tmp_nm = item.name + '_' + element.namestation + '_' + new Date().format('ddMMY_HHmm') + '.csv';
-                                            let filename = "./reports/ftp/" + tmp_nm;
-                                            let str_hdr = 'Индекс;Долгота, град;Широта, град;Название;Время';
-                                            let str_body = item.indx + ';' + element.longitude + ';' + element.latitude + ';' + element.namestation
-                                                + ' - ' + element.place + ';' + new Date().format('dd-MM-Y HH:mm:SS');
+                                                for (var key in report.rows_measure) {
+                                                    str_hdr += ';' + report.rows_measure[key].chemical;
+                                                    //console.log('header', report.rows_measure[key].chemical);
+                                                    str_body += ';' + report.rows_measure[key].value;
+                                                    // console.log('body', report.rows_measure[key].value);
 
-                                            for (var key in report.rows_measure) {
-                                                str_hdr += ';' + report.rows_measure[key].chemical;
-                                                //console.log('header', report.rows_measure[key].chemical);
-                                                str_body += ';' + report.rows_measure[key].value;
-                                                // console.log('body', report.rows_measure[key].value);
-
-                                            };
-                                            for (var key in report.rows_service) {
-                                                str_hdr += ';' + queryFields[key];
-                                                str_body += ';' + (isBoolean(report.rows_service[key]) ? (report.rows_service[key] ? 'тревога' : 'норма') : report.rows_service[key]);
-
-
-                                            };
-
-
-                                            fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
-
-                                                if (error) throw error; //if something error
-                                                let temp = fs.readFileSync(filename, "utf8");
-                                                let options = {
-                                                    host: item.address,
-                                                    port: 21,
-                                                    user: item.username,
-                                                    password: item.pwd,
-                                                    secure: false,
-                                                    //secureOptions: undefined,
-                                                    //connTimeout: undefined,
-                                                    //pasvTimeout: undefined,
-                                                    //aliveTimeout: undefined
                                                 };
-                                                let conn = new Client();
-                                                conn.on('ready', function () {
-                                                    let _folder = tmp_nm;
-                                                    if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
-                                                    conn.put(filename, _folder, function (err) {
-                                                        //console.log('file ', '/' + item.folder + '/' + tmp_nm);
-                                                        if (err) throw err;
-                                                        conn.end();
+                                                for (var key in report.rows_service) {
+                                                    str_hdr += ';' + queryFields[key];
+                                                    str_body += ';' + (isBoolean(report.rows_service[key]) ? (report.rows_service[key] ? 'тревога' : 'норма') : report.rows_service[key]);
 
-                                                    });
 
-                                                });
-                                                conn.connect(options);
+                                                };
+
+
+                                                fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
+
+                                                    if (!error) {
+
+                                                        let temp = fs.readFileSync(filename, "utf8");
+                                                        let options = {
+                                                            host: item.address,
+                                                            port: 21,
+                                                            user: item.username,
+                                                            password: item.pwd,
+                                                            secure: false
+                                                            //secureOptions: undefined,
+                                                            //connTimeout: undefined,
+                                                            //pasvTimeout: undefined,
+                                                            //aliveTimeout: undefined
+                                                        };
+
+
+                                                        let _folder = tmp_nm;
+                                                        if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
+                                                        try_ftp(options, temp, _folder, element.namestation);
+                                                    }
+                                                    else { console.log('File creation error: ', error); }
+                                                })
+
+
 
                                             })
 
 
 
-                                        })
+                                        });
 
 
 
-                                    });
+                                    };
 
-
-
-                                };
-
-                            }).catch(err => { throw err });
-                        });
+                                }).catch(err => { throw err });
+                            });
+                    };
                 };
             });
         }).catch(err => { throw err });
 
 }
+
+async function try_ftp(options, file_stream, _folder, namestation) {
+    try {
+        const conn =  new Client();
+        conn.ftp.verbose = true;
+        await conn.access(options);
+        await conn.upload(file_stream, _folder);
+        conn.close();
+
+        return true;
+
+
+    }
+    catch (err) {
+        //console.log('FTP connection error catched:  ', err);
+        let date_time = new Date().format( 'Y-MM-dd HH:mm:SS');
+        //console.log('date ', date_time);
+       // let result = JSON.parse(err);
+        //console.log ('RES - ', result.code);
+        //type = 100 is successful authorized.
+        await LOGS.forge({
+            date_time,
+            type: 500, descr: ('FTP error at address: ' + options.host +'; login: ' + options.user+'; Station: '+ namestation + '; Reason: '+ err)
+        }).save();
+        return false;
+        
+    }
+};
 
 export default ftp_upload;
 

@@ -486,9 +486,9 @@ class FtpForm extends React.Component {
                     {
                         Header: "Индекс файла",
                         id: "indx",
-                        accessor: "indx",
                         accessor: d => d.id,
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
 
@@ -497,14 +497,16 @@ class FtpForm extends React.Component {
                         id: "address",
                         accessor: "address",
                         accessor: d => d.id,
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Логин",
                         id: "username",
                         accessor: "username",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
@@ -518,21 +520,24 @@ class FtpForm extends React.Component {
                         Header: "Папка на сервере",
                         id: "folder",
                         accessor: "folder",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Название в файле",
                         id: "name",
                         accessor: "name",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Период передачи, мин.",
                         id: "periods",
                         accessor: "periods",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {

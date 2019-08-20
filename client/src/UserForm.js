@@ -525,8 +525,8 @@ class UserForm extends React.Component {
                     {
                         Header: "Имя пользователя",
                         id: "username",
-                        accessor: "username",
                         accessor: d => d.id,
+                        filterable: true,
                         Cell: this.renderEditable
 
                     },
@@ -534,14 +534,16 @@ class UserForm extends React.Component {
                         Header: "e-mail",
                         id: "email",
                         accessor: "email",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "моб. телефон",
                         id: "mobile",
                         accessor: "mobile",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
@@ -556,7 +558,8 @@ class UserForm extends React.Component {
                         Header: "Права администратора",
                         id: "is_admin",
                         accessor: "is_admin",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {

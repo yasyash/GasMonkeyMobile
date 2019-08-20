@@ -393,7 +393,8 @@ class MeteoForm extends React.Component {
                 {
                     Header: "Наименование",
                     id: "namestation",
-                    accessor: "namestation"
+                    accessor: "namestation",
+                    filterable: true,
                 },
                 {
                     Header: "Период обновления",

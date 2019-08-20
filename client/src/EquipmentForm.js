@@ -659,56 +659,63 @@ class EquipmentForm extends React.Component {
                         Header: "Наименование станции",
                         id: "namestation",
                         accessor: "namestation",
+                        filterable: true
 
                     },
                     {
                         Header: "ID станции наблюдения",
                         id: "idd",
                         accessor: "idd",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Тип измерений",
                         id: "typemeasure",
                         accessor: "typemeasure",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Размерность",
                         id: "unit_name",
                         accessor: "unit_name",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "ID датчика",
                         id: "serialnum",
                         accessor: "serialnum",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Цвет отображения на графике",
                         id: "def_colour",
                         accessor: "def_colour",
-                        Cell: this.renderEditable
-                        //Cell: this.renderClick
+                        Cell: this.renderEditable,
+                        filterable: true
                     },
 
                     {
                         Header: "ПДК м.",
                         id: "max_consentration",
                         accessor: "max_consentration",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "ПДК с.с.",
                         id: "max_day_consentration",
                         accessor: "max_day_consentration",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     

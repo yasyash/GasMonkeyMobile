@@ -322,7 +322,7 @@ class MeteoFormAdmin extends React.Component {
     }
 
     handleDelete() {
-        if (!isEmpty(this.state.soap_actual)) {
+        if (!isEmpty(String(this.state.soap_actual))) {
             var isReal = confirm("Вы уверены?...");
 
             if (isReal) {
@@ -458,27 +458,20 @@ class MeteoFormAdmin extends React.Component {
                     {
                         Header: "Наименование станции",
                         id: "namestation",
-                        accessor: "namestation",
                         accessor: d => d.id,
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Ункальный код станции",
                         id: "idd",
                         accessor: "idd",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
-                    ,
-                    {
-                        Header: "Папка на сервере",
-                        id: "folder",
-                        accessor: "folder",
-                        Cell: this.renderEditable
-
-                    },
-
+                   
                     {
                         Header: "Период опроса, сек.",
                         id: "updateperiod",
@@ -499,7 +492,7 @@ class MeteoFormAdmin extends React.Component {
 
 
         return (
-
+ 
 
             <Paper className={classes.root}>
                 <br />

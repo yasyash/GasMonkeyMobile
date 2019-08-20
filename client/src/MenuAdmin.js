@@ -22,8 +22,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 
 import SvgIcon from '@material-ui/core/SvgIcon';
 
-import PlayListAdd from '@material-ui/icons/PlaylistAdd'
-import PlayListAddCheck from '@material-ui/icons/PlaylistAddCheck';
+import MultiCheck from './icons/checkbox-multiple-marked-circle';
+
 import DeleteForever from '@material-ui/icons/DeleteForever';
 import Switch from '@material-ui/core/Switch';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -42,6 +42,8 @@ import TextField from '@material-ui/core/TextField';
 import { connect } from 'react-redux';
 
 import isEmpty from 'lodash.isempty';
+import SaveIcon from './icons/save-icon';
+import DevAdd from './icons/device-add';
 
 
 
@@ -242,7 +244,7 @@ class MenuAdmin extends Component {
                                 <IconButton className={classes.button} onClick={this.handleUpdateClick} aria-label="Записать">
 
                                     <Icon className={classes.icon} color="primary">
-                                        < PlayListAddCheck />
+                                        < SaveIcon />
                                     </Icon>
                                 </IconButton>
                             </Tooltip>
@@ -250,7 +252,7 @@ class MenuAdmin extends Component {
                                 <IconButton className={classes.button} onClick={this.handleAdd} aria-label="Добавить">
 
                                     <Icon className={classes.icon} color="primary">
-                                        < PlayListAdd />
+                                        < DevAdd />
                                     </Icon>
                                 </IconButton>
                             </Tooltip>

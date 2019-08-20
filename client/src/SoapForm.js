@@ -486,23 +486,25 @@ class SoapForm extends React.Component {
                     {
                         Header: "Наименование станции",
                         id: "namestation",
-                        accessor: "namestation",
                         accessor: d => d.id,
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Адрес станции",
                         id: "place",
                         accessor: "place",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Ункальный код станции",
                         id: "idd",
                         accessor: "idd",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     
@@ -510,7 +512,8 @@ class SoapForm extends React.Component {
                         Header: "Широта",
                         id: "latitude",
                         accessor: "latitude",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     
@@ -518,20 +521,21 @@ class SoapForm extends React.Component {
                         Header: "Долгота",
                         id: "longitude",
                         accessor: "longitude",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Станция в работе",
                         id: "is_present",
                         accessor: "is_present",
+                        filterable: true
 
                     },
 
                     {
                         Header: "Адрес сервера",
                         id: "address",
-                        accessor: "address",
                         accessor: d => d.id,
                         Cell: this.renderEditable
 
@@ -540,14 +544,16 @@ class SoapForm extends React.Component {
                         Header: "Логин",
                         id: "login",
                         accessor: "login",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
                         Header: "Пароль",
                         id: "password_soap",
                         accessor: "password_soap",
-                        Cell: this.renderEditable
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
