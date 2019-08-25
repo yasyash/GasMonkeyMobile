@@ -12,13 +12,14 @@ import Renew from 'material-ui/svg-icons/action/autorenew';
 import Snackbar from '@material-ui/core/Snackbar';
 import Slider from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
+import Divider from '@material-ui/core/Divider';
 
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 
 import { connect } from 'react-redux';
 
-import {dateAddAction} from './actions/dateAddAction';
+import { dateAddAction } from './actions/dateAddAction';
 /**
  * Three controlled examples, the first allowing a single selection, the second multiple selections,
  * the third using internal state.
@@ -118,6 +119,7 @@ class MenuTable extends Component {
             showRowHover,
             selectable,
             multiSelectable,
+            isEdit: false,
             enableSelectAll,
             deselectOnClickaway,
             showCheckboxes,
@@ -129,7 +131,8 @@ class MenuTable extends Component {
             dateTimeEnd,
             isSensor,
             defaultPageSize,
-            hideFiltartion
+            hideFiltartion,
+
         };
 
 
@@ -140,6 +143,7 @@ class MenuTable extends Component {
         this.handleOpenMenu = this.handleOpenMenu.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleEdit = this.handleEdit.bind(this);
         // this.handleClose = this.handleClose.bind (this);
 
     }
@@ -192,22 +196,31 @@ class MenuTable extends Component {
         }
     };
 
-    handleChange (name, event) {
+    handleChange(name, event) {
         this.setState({ [name]: event.target.value });
         this.props.handleChange(name, event.target.value);
 
     };
     handleRefresh = name => event => {
-       // let { state } = this;
+        // let { state } = this;
         this.props.handleClick();
     };
 
     handlePickerChange = (event) => {
         const value = event.target.value;
         const id = event.target.id;
-        
+
         dateAddAction({ [id]: value });
     };
+
+handleEdit (event, toggled)
+{
+    this.setState({
+        [event.target.name]: toggled
+    });
+    this.props.handleToggleEdit(event, toggled);
+
+};
 
     render() {
 
@@ -272,12 +285,27 @@ class MenuTable extends Component {
 
                     <IconMenu
                         iconButtonElement={<IconButton iconStyle={styles.smallIcon}
-                            style={styles.small} tooltip={'Настройки вида таблицы'}>
+                            style={styles.small} tooltip={'Cервис таблиц'}>
                             <Settings />
                         </IconButton>}
                         onChange={this.handleChangeSingle}
                         value={this.state.valueSingle}
                     >
+
+                        <div className="form-control " style={styles.menuContainer}>
+                            <Toggle
+                                name="isEdit"
+                                label="Редактировать данные"
+                                onToggle={this.handleEdit}
+                                defaultToggled={this.state.isEdit}
+                            />
+                            <Toggle
+                                name="stripedRows"
+                                label="Черно-белый стиль"
+                                onToggle={this.handleToggle}
+                                defaultToggled={this.state.stripedRows}
+                            />
+                        </div>
                         <div className="form-control " style={styles.menuContainer}>
                             <div style={styles.propContainer} >
 
@@ -287,23 +315,13 @@ class MenuTable extends Component {
                                     label="Высота окна таблицы"
                                     defaultValue={this.state.height}
                                     onChange={(event) => this.handleChange(name = 'height', event)}
-                                /><br/>
+                                /><br />
                                 <TextField
                                     label="Записей на странице таблицы"
                                     defaultValue={this.state.defaultPageSize}
                                     onChange={(event) => this.handleChange(name = 'defaultPageSize', event)}
                                 />
-                            
-                                <Toggle
-                                    name="stripedRows"
-                                    label="Черно-белый стиль"
-                                    onToggle={this.handleToggle}
-                                    defaultToggled={this.state.stripedRows}
-                                />
-                         
 
-                       
-                            
                             </div>
                         </div>
 
@@ -349,4 +367,4 @@ MenuTable.propTypes = {
     handleClick: PropTypes.func.isRequired
 }
 
-export default connect (null, {dateAddAction})(withStyles(styles)(MenuTable));
+export default connect(null, { dateAddAction })(withStyles(styles)(MenuTable));

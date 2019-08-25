@@ -1,3 +1,6 @@
+//******************************************
+//
+
 import React from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
@@ -7,6 +10,8 @@ import format from 'node.date-time';
 
 import TxtFieldGroup from './stuff/txtField';
 import { queryEvent } from './actions/queryActions';
+import { addDataList, deleteDataList } from './actions/dataAddActions';
+
 import MenuTable from './menuTable';
 import { Tabs, Tab } from 'material-ui/Tabs';
 import FontIcon from 'material-ui/FontIcon';
@@ -21,12 +26,12 @@ import ReactTableDefaults from "react-table";
 
 import checkboxHOC from "react-table/lib/hoc/selectTable";
 import FoldableTableHOC from '../foldableTable/index';
+
 import "react-table/react-table.css";
 
 import shortid from 'shortid';
 import { isNumber } from 'util';
-
-
+import isEmpty from 'lodash.isempty';
 
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
@@ -103,7 +108,7 @@ class TableData extends React.Component {
             station_actual,
             stationsList,
             sensorsList,
-            dataList,
+            dataList: [],
             selected: [],
             sensors_actual,
 
@@ -120,19 +125,57 @@ class TableData extends React.Component {
             defaultPageSize: 50,
             selection: [],
             selectAll: false,
-            hideFiltartion: false
+            hideFiltartion: false,
+            isEdit: false
         };
 
 
-        //  this.onSubmit = this.onSubmit.bind(this);
+        this.renderEditable = this.renderEditable.bind(this);
     }
-    // this.onChange = this.onChange.bind(this);
-    // this.onChange = this.onChange.bind(this);
 
-    // this.handleToggle = this.handleToggle.bind(this);
-    //this.handleChange = this.handleChange.bind(this);
 
     /// begin of table functions
+
+    renderEditable(cellInfo) {
+
+        function _html_out(_obj) {
+            if (isEmpty(_obj.state.dataList)) {
+                return { __html: _obj.props.dataList[cellInfo.index][cellInfo.column.id] }
+            } else {
+                return { __html: _obj.state.dataList[cellInfo.index][cellInfo.column.id] }
+            }
+        };
+        return (
+            <div
+                style={{ backgroundColor: "#fafafa" }}
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={e => {
+                    var data;
+                    if (isEmpty(this.state.dataList)) {
+                        data = [...this.props.dataList];
+
+                    } else {
+                        data = [...this.state.dataList];
+                    }
+
+                    data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+                    this.setState({ dataList: data });
+                    deleteDataList();
+                    addDataList(data);
+                }}
+
+
+                dangerouslySetInnerHTML={
+                    _html_out(this)
+                }
+
+
+            />
+        );
+    } I
+
+
     setData(data_in) {
         const data = data_in.map(item => {
             const _id = shortid.generate();
@@ -215,7 +258,38 @@ class TableData extends React.Component {
     //// end of table fuctions
 
 
-    //}
+    handleToggleEdit(event, toggled) {
+        var _props;
+        var title = [];
+        this.setState({
+            [event.target.name]: toggled
+        });
+
+        if (toggled) {
+
+            _props = this.props.title;
+
+            _props.map(item => {
+                if (item.Cell === null) item.Cell = this.renderEditable;
+                title.push(item);
+
+            });
+
+
+        }
+        else {
+            _props = this.state.title;
+
+            _props.map(item => {
+                if (item.Cell === this.renderEditable) item.Cell = null;
+                title.push(item);
+
+            });
+
+        }
+        //}
+        this.setState({ title: title });
+    };
 
     handleToggle(event, toggled) {
         this.setState({
@@ -264,24 +338,37 @@ class TableData extends React.Component {
     //onChange(e) {
     //  this.setState({ [e.target.name]: e.target.value });
     //}
-    componentWillMount() {
-        //const getStations = this.props.queryEvent(this.state);
-        //this.setState({ stationsList: getStations });
-        // this.loadData().then(data => this.setState({ stationsList: data }));
-        //  this.loadData().then(data => this.setState({ stationsList: data }));
-        // this.loadData().then(data => this.setState({ stationsList: data }));
+    componentDidUpdate() {
+        //        var _props;
+        //var title = [];
+        //_props = this.props.title;
 
+        //        _props.map(item => {
+        //           if (item.Cell === null) item.Cell = this.renderEditable;
+        //            title.push(item);
+        //       });
+
+        // this.setState({ title: this.props.title });
 
     };
+    componentWillMount() {
+        // if (isEmpty(this.state.title))
+        this.setState({ title: this.props.title });
 
+    };
     render() {
         const { classes } = this.props;
 
-        //let dataList = [555];
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, height, defaultPageSize, stripedRows } = this.state;
         const dataList = this.props.dataList.slice(1);
-        const { title } = this.props;
+        var title = '';
+        if (this.state.isEdit) {
+            title = this.state.title;
+        }
+        else {
+            title = this.props.title;
+        }
         // let lists={};
         //     console.log('dataList ', dataList);
         const checkboxProps = {
@@ -294,7 +381,7 @@ class TableData extends React.Component {
             selectType: "checkbox",
             getTrProps: (s, r) => {
                 let selected = false;
-                // someone asked for an example of a background color change
+                //  background color change
                 // here it is...
                 if (r) {
                     selected = this.isSelected(r.original._id);
@@ -318,7 +405,9 @@ class TableData extends React.Component {
 
             <div>
                 <br />
-                <MenuTable {...this.state} handleToggle={this.handleToggle.bind(this)}
+                <MenuTable {...this.state}
+                    handleToggleEdit={this.handleToggleEdit.bind(this)}
+                    handleToggle={this.handleToggle.bind(this)}
                     handleChange={this.handleChange.bind(this)}
                     handleClick={this.handleClick.bind(this)}
                     height={this.state.height}
@@ -374,6 +463,7 @@ function mapStateToProps(state, ownProps) {
         id: "measure",
         accessor: "measure",
         filterable: true,
+        Cell: null
 
 
     },
@@ -428,14 +518,21 @@ function mapStateToProps(state, ownProps) {
         let _header = state.dataList[0];
         let columns = [];
         for (var key in _header) {
-            if (key !== '_id') {
+            if ((key !== '_id')&& (key!='date_time')) {
                 columns.push({
                     Header: _header[key],
                     id: key,
                     accessor: key,
-                    foldable: true
-
+                    Cell: null
                 });
+            }
+            if (key=='date_time')
+            {
+                columns.push({
+                    Header: _header[key],
+                    id: key,
+                    accessor: key,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    });
             }
         };
         title = columns;
@@ -457,6 +554,7 @@ function mapStateToProps(state, ownProps) {
         dateTimeEnd: state.datePickers.dateTimeEnd
 
 
+
     };
 }
 
@@ -469,4 +567,4 @@ TableData.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent })(withRouter(withStyles(styles)(TableData)));
+export default connect(mapStateToProps, { queryEvent, addDataList, deleteDataList })(withRouter(withStyles(styles)(TableData)));

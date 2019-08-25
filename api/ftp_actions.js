@@ -29,7 +29,7 @@ import Sensors from '../models/sensors';
 import Data from '../models/data';
 import LOGS from '../models/logs';
 
-import {Client} from 'basic-ftp';
+import { Client } from 'basic-ftp';
 import { fromRenderProps } from 'recompose';
 import ftp from '../models/ftp';
 
@@ -392,7 +392,7 @@ function ftp_upload() {
             result_str.forEach(item => {
                 if (!isEmpty(item.name) && !isEmpty(item.indx)) {
                     if ((item.remained_time - 1) > 0) {
-                       //console.log('remained ', item.remained_time - 1);
+                        //console.log('remained ', item.remained_time - 1);
                         FTP.where({ id: item.id })
                             .save({
                                 remained_time: item.remained_time - 1,
@@ -476,7 +476,11 @@ function ftp_upload() {
                                                         if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
                                                         try_ftp(options, temp, _folder, element.namestation);
                                                     }
-                                                    else { console.log('File creation error: ', error); }
+                                                    else {
+                                                      //console.log('File creation error: ', error);
+                                                        insert_log('File creation error', 'server', '', '', error + ' or local folder: ./reports/ftp/ does not exist');
+
+                                                    }
                                                 })
 
 
@@ -491,18 +495,20 @@ function ftp_upload() {
 
                                     };
 
-                                }).catch(err => { throw err });
+                                }).catch(err => {
+                                    insert_log('SQL select from server DB error', 'server', '', '', err);
+                                });
                             });
                     };
                 };
             });
-        }).catch(err => { throw err });
+        }).catch(err => { insert_log('SQL update server DB error', 'server', '', '', err); });
 
 }
 
 async function try_ftp(options, file_stream, _folder, namestation) {
     try {
-        const conn =  new Client();
+        const conn = new Client();
         conn.ftp.verbose = true;
         await conn.access(options);
         await conn.upload(file_stream, _folder);
@@ -514,21 +520,28 @@ async function try_ftp(options, file_stream, _folder, namestation) {
     }
     catch (err) {
         //console.log('FTP connection error catched:  ', err);
-        let date_time = new Date().format( 'Y-MM-dd HH:mm:SS');
+
         //console.log('date ', date_time);
-       // let result = JSON.parse(err);
+        // let result = JSON.parse(err);
         //console.log ('RES - ', result.code);
         //type = 100 is successful authorized.
-        await LOGS.forge({
-            date_time,
-            type: 500, descr: ('FTP error at address: ' + options.host +'; login: ' + options.user+'; Station: '+ namestation + '; Reason: '+ err)
-        }).save();
+        insert_log('FTP error', options.host, options.user, namestation, err);
         return false;
-        
+
     }
 };
 
-export default ftp_upload;
+async function insert_log(reason, host, user, namestation, err) {
+    
+        let date_time = new Date().format('Y-MM-dd HH:mm:SS');
+        await LOGS.forge({
+            date_time,
+            type: 500, descr: (reason + ' at address: ' + host + '; Login: ' + user + '; Station: ' + namestation + '; Reason: ' + err)
+        }).save();
+
+    };
+
+    export default ftp_upload;
 
 
 

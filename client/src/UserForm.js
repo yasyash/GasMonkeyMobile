@@ -498,7 +498,7 @@ class UserForm extends React.Component {
             selectType: "checkbox",
             getTrProps: (s, r) => {
                 let selected = false;
-                // someone asked for an example of a background color change
+                // background color change
                 // here it is...
                 if (r) {
                     selected = this.isSelected(r.original._id);
