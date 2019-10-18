@@ -11,6 +11,7 @@ import format from 'node.date-time';
 import TxtFieldGroup from './stuff/txtField';
 import { queryEvent } from './actions/queryActions';
 import { addDataList, deleteDataList } from './actions/dataAddActions';
+import { updateData } from './actions/adminActions';
 
 import MenuTable from './menuTable';
 import { Tabs, Tab } from 'material-ui/Tabs';
@@ -37,6 +38,7 @@ import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
 
 import { withStyles } from '@material-ui/core/styles';
+import { isNull } from 'util';
 
 Object.assign(ReactTableDefaults, {
     previousText: 'Предыдущие',
@@ -89,10 +91,10 @@ class TableData extends React.Component {
             stationsList,
             sensorsList,
             dataList,
-
             dateTimeBegin,
             dateTimeEnd,
-            title
+            title,
+            auth
 
         } = props;
 
@@ -102,12 +104,12 @@ class TableData extends React.Component {
             snack_msg: '',
             errors: {},
             isLoading: false,
-
+            isForceToggle: false,
             dateTimeBegin,
             dateTimeEnd,
             station_actual,
             stationsList,
-            sensorsList,
+            sensorsList: props.sensorsList,
             dataList: [],
             selected: [],
             sensors_actual,
@@ -134,15 +136,56 @@ class TableData extends React.Component {
     }
 
 
-    /// begin of table functions
+    // begin of table functions
+
+    handleUpdateData() {
+        if (!isEmpty(this.state.dataList))
+            if (this.props.updateData(this.state.dataList)) {
+                this.setState({ isLoading: true });
+                this.setState({ snack_msg: 'Данные успешно сохранены...' });
+                this.setState({ isEdit: false });
+                this.setState({ isForceToggle: true });
+
+                this.handleToggleEdit( {target : {name: 'isEdit'}}, false, true); //generation syntetic event
+               // this.setState({ isForceToggle: false });
+
+            };
+    }
+
+    handleForceToggle()
+    {
+        this.setState({ isForceToggle: false });
+    }
 
     renderEditable(cellInfo) {
 
         function _html_out(_obj) {
             if (isEmpty(_obj.state.dataList)) {
-                return { __html: _obj.props.dataList[cellInfo.index][cellInfo.column.id] }
+                try {
+                    var _tmp = Date.parse(_obj.props.dataList[0]["date_time"]);
+                    if (!isNaN(_tmp))
+                        return { __html: _obj.props.dataList[cellInfo.index][cellInfo.column.id] }
+                    else
+                        return { __html: _obj.props.dataList[cellInfo.index + 1][cellInfo.column.id] }
+
+                }
+                catch (err) {
+                    return { __html: _obj.props.dataList[cellInfo.index + 1][cellInfo.column.id] }
+                }
+
             } else {
-                return { __html: _obj.state.dataList[cellInfo.index][cellInfo.column.id] }
+                try {
+                    var _tmp = Date.parse(_obj.state.dataList[0]["date_time"]);
+                    if (!isNaN(_tmp))
+                        return { __html: _obj.state.dataList[cellInfo.index][cellInfo.column.id] }
+                    else
+                        return { __html: _obj.state.dataList[cellInfo.index + 1][cellInfo.column.id] }
+
+                }
+                catch (err) {
+                    return { __html: _obj.state.dataList[cellInfo.index + 1][cellInfo.column.id] }
+                }
+
             }
         };
         return (
@@ -151,18 +194,37 @@ class TableData extends React.Component {
                 contentEditable
                 suppressContentEditableWarning
                 onBlur={e => {
-                    var data;
-                    if (isEmpty(this.state.dataList)) {
-                        data = [...this.props.dataList];
+                    // if (isEmpty(e.target.innerHTML)) {
+                    //    alert("Поле не должно быть пустым");
 
-                    } else {
-                        data = [...this.state.dataList];
+                    // }
+                    // else
+                    {
+
+                        var data;
+                        if (isEmpty(this.state.dataList)) {
+                            data = [...this.props.dataList];
+
+                        } else {
+                            data = [...this.state.dataList];
+                        }
+
+                        try {
+                            var _tmp = Date.parse(data[0]["date_time"]);
+                            if (!isNaN(_tmp))
+                                data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+                            else
+                                data[cellInfo.index + 1][cellInfo.column.id] = e.target.innerHTML;
+
+                        }
+                        catch (err) {
+                            data[cellInfo.index + 1][cellInfo.column.id] = e.target.innerHTML;
+                        }
+
+                        this.setState({ dataList: data });
+                        deleteDataList();
+                        addDataList(data);
                     }
-
-                    data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-                    this.setState({ dataList: data });
-                    deleteDataList();
-                    addDataList(data);
                 }}
 
 
@@ -257,16 +319,20 @@ class TableData extends React.Component {
 
     //// end of table fuctions
 
+    handleClose() {
+        this.setState({ isLoading: false });
+    };
 
-    handleToggleEdit(event, toggled) {
+    handleToggleEdit(event, toggled, isForceToggle) {
         var _props;
         var title = [];
-        this.setState({
-            [event.target.name]: toggled
-        });
+
 
         if (toggled) {
-
+            this.setState({ isForceToggle: false });
+            this.setState({
+                [event.target.name]: toggled
+            });
             _props = this.props.title;
 
             _props.map(item => {
@@ -275,20 +341,45 @@ class TableData extends React.Component {
 
             });
 
+            this.setState({ title: title });
 
         }
         else {
-            _props = this.state.title;
+            if (isForceToggle) {
+                // Done it after SQL update!
+                this.setState({
+                    [event.target.name]: toggled
+                });
+                _props = this.state.title;
 
-            _props.map(item => {
-                if (item.Cell === this.renderEditable) item.Cell = null;
-                title.push(item);
+                _props.map(item => {
+                    if (item.Cell === this.renderEditable) item.Cell = null;
+                    title.push(item);
 
-            });
+                });
+                this.setState({ dataList: [] });
+                this.setState({ title: title });
 
+            } else {
+                if (confirm('Все несохраненные данные будут потеряны! Вы уверены?')) {
+                    // Save it!
+                    this.setState({
+                        [event.target.name]: toggled
+                    });
+                    _props = this.state.title;
+
+                    _props.map(item => {
+                        if (item.Cell === this.renderEditable) item.Cell = null;
+                        title.push(item);
+
+                    });
+                    this.setState({ dataList: [] });
+                    this.setState({ title: title });
+
+                } else { return true; }
+            }
         }
         //}
-        this.setState({ title: title });
     };
 
     handleToggle(event, toggled) {
@@ -357,11 +448,22 @@ class TableData extends React.Component {
 
     };
     render() {
-        const { classes } = this.props;
-
+        const { classes, auth } = this.props;
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, height, defaultPageSize, stripedRows } = this.state;
-        const dataList = this.props.dataList.slice(1);
+
+        try {
+            var _tmp = Date.parse(this.props.dataList[0]["date_time"]);
+            if (!isNaN(_tmp))
+                var dataList = this.props.dataList;
+            else
+                var dataList = this.props.dataList.slice(1);
+
+        }
+        catch (err) {
+            var dataList = this.props.dataList.slice(1);
+        }
+
         var title = '';
         if (this.state.isEdit) {
             title = this.state.title;
@@ -410,7 +512,11 @@ class TableData extends React.Component {
                     handleToggle={this.handleToggle.bind(this)}
                     handleChange={this.handleChange.bind(this)}
                     handleClick={this.handleClick.bind(this)}
+                    handleClose={this.handleClose.bind(this)}
+                    handleUpdateData={this.handleUpdateData.bind(this)}
                     height={this.state.height}
+                    auth ={auth}
+
                 />
                 <br />
                 <FoldableTable
@@ -518,7 +624,7 @@ function mapStateToProps(state, ownProps) {
         let _header = state.dataList[0];
         let columns = [];
         for (var key in _header) {
-            if ((key !== '_id')&& (key!='date_time')) {
+            if ((key !== '_id') && (key != 'date_time')) {
                 columns.push({
                     Header: _header[key],
                     id: key,
@@ -526,13 +632,12 @@ function mapStateToProps(state, ownProps) {
                     Cell: null
                 });
             }
-            if (key=='date_time')
-            {
+            if (key == 'date_time') {
                 columns.push({
                     Header: _header[key],
                     id: key,
                     accessor: key,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    });
+                });
             }
         };
         title = columns;
@@ -549,6 +654,7 @@ function mapStateToProps(state, ownProps) {
           deselectOnClickaway: state.deselectOnClickaway,
           showCheckboxes: state.showCheckboxes,*/
         dataList: state.dataList,
+        sensorsList: state.sensorsList,
         title: title,
         dateTimeBegin: state.datePickers.dateTimeBegin,
         dateTimeEnd: state.datePickers.dateTimeEnd
@@ -567,4 +673,4 @@ TableData.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent, addDataList, deleteDataList })(withRouter(withStyles(styles)(TableData)));
+export default connect(mapStateToProps, { queryEvent, addDataList, deleteDataList, updateData })(withRouter(withStyles(styles)(TableData)));

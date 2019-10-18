@@ -13,11 +13,19 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Slider from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Divider from '@material-ui/core/Divider';
+import Icon from '@material-ui/core/Icon';
+
+import SaveIcon from './icons/save-icon';
+import BallotIcon from './icons/ballot-recount';
+import RenewIcon from './icons/renew-icon';
+import SettingsIcon from './icons/settings';
+
 
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 
 import { connect } from 'react-redux';
+import isEmpty from 'lodash.isempty';
 
 import { dateAddAction } from './actions/dateAddAction';
 /**
@@ -106,7 +114,9 @@ class MenuTable extends Component {
             dateTimeEnd,
             isSensor,
             defaultPageSize,
-            hideFiltartion
+            hideFiltartion,
+            isEdit,
+            isForceToggle
         } = props;
 
         if (isStation) { isNll = true }
@@ -119,7 +129,7 @@ class MenuTable extends Component {
             showRowHover,
             selectable,
             multiSelectable,
-            isEdit: false,
+            isEdit: isEdit,
             enableSelectAll,
             deselectOnClickaway,
             showCheckboxes,
@@ -144,9 +154,14 @@ class MenuTable extends Component {
         this.handleToggle = this.handleToggle.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleEdit = this.handleEdit.bind(this);
-        // this.handleClose = this.handleClose.bind (this);
+        this.handleUpdateSQLClick = this.handleUpdateSQLClick.bind(this);
 
     }
+
+    handleUpdateSQLClick() {
+        this.props.handleUpdateData();
+
+    };
 
     handleChangeSingle(event, value) {
         this.setState({
@@ -213,19 +228,29 @@ class MenuTable extends Component {
         dateAddAction({ [id]: value });
     };
 
-handleEdit (event, toggled)
-{
-    this.setState({
-        [event.target.name]: toggled
-    });
-    this.props.handleToggleEdit(event, toggled);
+    handleEdit(event, toggled) {
 
-};
+        var _res = this.props.handleToggleEdit(event, toggled);
+        if (!_res)
+            this.setState({
+                [event.target.name]: toggled
+            });
+    };
+
+
 
     render() {
+        let { username } = '';
 
         const { classes } = this.props;
 
+        if (!isEmpty(sessionStorage.jwToken)) {
+            let { auth } = this.props;
+            username = auth[0].user.username;
+        } else {
+            isAuthenticated = false;
+            username = '';
+        }
         /*let { fixedHeader,
             fixedFooter,
             stripedRows,
@@ -243,13 +268,21 @@ handleEdit (event, toggled)
             <nav className="navbar form-control classes.container">
                 <div className="navbar-header">
                     <IconButton
-                        iconStyle={styles.smallIcon}
-                        style={styles.small} tooltip={'Обновить'}
+                        className={classes.button}
+                        tooltip={'Обновить'}
                         onClick={this.handleRefresh('all')} //fake parameter for return function call
                     >
-                        <Renew />
-
+                        <Icon className={classes.icon} color="primary">
+                            <RenewIcon />
+                        </Icon>
                     </IconButton>
+                    {(this.state.isEdit) && (!this.props.isForceToggle) &&
+                        <IconButton className={classes.button} tooltip={'Записать'} aria-label="Записать">
+                            <Icon className={classes.icon} color="primary" onClick={this.handleUpdateSQLClick}>
+                                < SaveIcon />
+                            </Icon>
+                        </IconButton>
+                    }
 
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     {(this.state.isSensor) && '  данные с:    '}
@@ -284,21 +317,24 @@ handleEdit (event, toggled)
                 <div className="navbar-right">
 
                     <IconMenu
-                        iconButtonElement={<IconButton iconStyle={styles.smallIcon}
-                            style={styles.small} tooltip={'Cервис таблиц'}>
-                            <Settings />
+                        iconButtonElement={<IconButton
+                            className={classes.button}
+                            tooltip={'Настройки таблиц'}>
+                            <Icon
+                                className={classes.icon}>
+                                <SettingsIcon />
+                            </Icon>
                         </IconButton>}
                         onChange={this.handleChangeSingle}
-                        value={this.state.valueSingle}
-                    >
+                        value={this.state.valueSingle}>
 
                         <div className="form-control " style={styles.menuContainer}>
-                            <Toggle
+                            {(username == 'admin') && (typeof (this.props.handleToggleEdit) === 'function') && <Toggle
                                 name="isEdit"
                                 label="Редактировать данные"
                                 onToggle={this.handleEdit}
-                                defaultToggled={this.state.isEdit}
-                            />
+                                defaultToggled={(!this.props.isForceToggle) ? this.state.isEdit : false}
+                            />}
                             <Toggle
                                 name="stripedRows"
                                 label="Черно-белый стиль"
@@ -357,6 +393,7 @@ function mapStateToProps(state) {
           showCheckboxes: state.showCheckboxes,
           height: state.height*/
 
+        //isEdit: state.isEdit
 
     };
 }

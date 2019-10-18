@@ -85,7 +85,8 @@ class TableForm extends React.Component {
             sensorsList,
             dataList,
             dateTimeBegin,
-            dateTimeEnd
+            dateTimeEnd,
+            auth
 
 
         } = props;
@@ -121,7 +122,8 @@ class TableForm extends React.Component {
             selection: [],
             selectAll: false,
 
-            isUpdated: false
+            isUpdated: false,
+            auth: auth
         };
 
 
@@ -357,8 +359,7 @@ class TableForm extends React.Component {
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, stationsList, height, defaultPageSize, stripedRows } = this.state;
-        const { loadData } = this.props;
-        const { classes } = this.props;
+        const { loadData, classes, auth } = this.props;
         // var tableData = this.state.stationsList;
         // const { title, errors, isLoading } = this.state;
         //const {handleChange, handleToggle} = this.props;
@@ -452,6 +453,7 @@ class TableForm extends React.Component {
                             handleClick={this.handleClick.bind(this)}
                             isStation={true} {...this.state}
                             handleClose={this.handleClose.bind(this)}
+                            auth ={auth}
                         />
                         <br />
 
@@ -492,6 +494,8 @@ class TableForm extends React.Component {
                         <TableSensors
                             {...this.state}
                             loadData={loadData}
+                            auth ={auth}
+
                         />
 
                     </Tab>
@@ -502,6 +506,8 @@ class TableForm extends React.Component {
                     >
                         <TableData
                             {...this.state}
+                            auth ={auth}
+
                         // loadData={loadData}
                         />
                     </Tab>

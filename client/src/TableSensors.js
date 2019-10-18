@@ -77,7 +77,8 @@ class TableSensors extends React.Component {
             dateTimeEnd,
             sensors_actual,
             snack_msg,
-            selection
+            selection,
+            auth
 
         } = props;
 
@@ -335,7 +336,7 @@ class TableSensors extends React.Component {
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, height, defaultPageSize, stripedRows } = this.state;
-        const { sensorsList } = this.props;
+        const { sensorsList, auth } = this.props;
 
         const checkboxProps = {
             selection,
@@ -447,6 +448,8 @@ class TableSensors extends React.Component {
                     handleChange={this.handleChange.bind(this)}
                     handleClick={this.handleClick.bind(this)}
                     handleClose={this.handleClose.bind(this)}
+                    auth ={auth}
+
                 />
                 <br />
                 <FoldableTable

@@ -29,7 +29,8 @@ class TablePage extends React.Component {
             station_actual:'',
             stationsList: [],
             sensorsList: [],
-            dataList: []
+            dataList: [],
+            auth: props.auth
 
 
         }

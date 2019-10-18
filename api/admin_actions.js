@@ -6,8 +6,7 @@ import jsonWT from 'jsonwebtoken';
 import config from './config';
 import format from 'node.date-time';
 import authenticate from './shared/authenticate';
-
-
+import isUUid from 'validator/lib/isUUID';
 
 import url from 'url';
 import qs from 'querystring';
@@ -20,6 +19,8 @@ import METEO from '../models/meteostations';
 import DEV from '../models/devices';
 import Stations from '../models/stations'
 import Macs from '../models/macs';
+import DATA from '../models/data';
+import { isString } from 'util';
 
 let router = express.Router();
 
@@ -651,7 +652,7 @@ router.post('/dev_insert', authenticate, (req, resp) => {
                         var arr_macs = JSON.parse(_result_macs);
                         if ((!isEmpty(max_consentration)) && (!isEmpty(max_day_consentration))) {
 
-                            if (isEmpty( arr_macs[0])) {
+                            if (isEmpty(arr_macs[0])) {
 
                                 Macs.forge({
                                     chemical: typemeasure,
@@ -675,7 +676,102 @@ router.post('/dev_insert', authenticate, (req, resp) => {
 
     // write the result
 
+});
+
+router.post('/data_update', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(req.data);
+    let data = req.body;
+    var isErr = 0;
+    //console.log(data.address);
+
+    var _tmp = Date.parse(data[0].date_time);
+
+    if (!isNaN(_tmp)) {
+
+        //data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;4
+        for (var i = 0; i < data.length; i++) {
+
+            if (!updateSQL(data[i].serialnum, data[i].date_time, parseFloat(data[i].measure)))
+                isErr++;
+
+            // console.log("serial  ", data[i].serialnum, " is Str - ", isString(data[i].serialnum))
+            // console.log("date_time ", data[i].date_time, " is Str - ", isString(data[i].date_time))
+            // console.log("measure ", data[i].measure, " is Str - ", isString(data[i].measure))
+
+        }
+
+    }
+    else {
+        //data[cellInfo.index + 1][cellInfo.column.id] = e.target.innerHTML;
+        var _data = [];
+        for (var _key in data[0]) {
+            if (isUUid(_key))
+                _data.push(_key);
+        }
+
+        _data.forEach((element, indx) => {
+            for (var i = 1; i < data.length; i++) {
+                let ii = updateSQL(element, data[i].date_time, parseFloat(data[i][element]));
+
+                if (!ii)
+                    isErr++;
+                //console.log("num err - ", isErr)
+                //console.log("serialnum ", element, " is Str - ", isString(element))
+                //console.log("date_time ", data[i].date_time.toString(), " is Str - ", isString(data[i].date_time.toString()))
+                //console.log("measure ", parseFloat(data[i][element]), " is Str - ", isString(parseFloat(data[i][element])))
+            }
+        });
+
+    }
+
+    return resp.json({ errcount: isErr });
+
+    // write the result
+
 })
+
+async function updateSQL(element, date_time, value) {
+
+    await DATA.where({ serialnum: element, date_time: date_time })
+        .save({
+            measure: value
+        }, { patch: true }).then(resizeTo => {
+            return true;
+        }
+        ).catch(err => {
+            DATA.where({ serialnum: element, date_time: date_time }).fetchAll()
+                .then(out => {
+                    var _out = JSON.stringify(out);
+                    var _arr = JSON.parse(_out);
+
+                    if (_arr.length == 0) {
+                        DEV.query('where', 'serialnum', '=', element).fetchAll()
+                            .then(result => {
+                                
+                                var result_parse0 = JSON.stringify(result);
+                                var arr = JSON.parse(result_parse0);
+
+                                DATA.forge().save({
+                                    serialnum: element, date_time: date_time, measure: value, idd: arr[0].idd, typemeasure: arr[0].typemeasure,
+                                    is_alert: false
+
+                                }, { method: 'insert' });
+                            }
+                            );
+
+                        return false;
+                    };
+                });
+        });
+
+
+
+
+}
 
 export default router;
 

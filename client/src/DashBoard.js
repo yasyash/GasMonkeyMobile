@@ -81,6 +81,8 @@ const styles = theme => ({
   close: {
     width: theme.spacing.unit * 3,
     height: theme.spacing.unit * 3,
+    paddingTop: '2px !important'
+
   },
   icon: {
     fontSize: 20,
@@ -88,7 +90,8 @@ const styles = theme => ({
   message: {
     textAlign: 'justify',
     fontSize: 10
-  }
+  },
+  
 
 });
 
@@ -296,7 +299,7 @@ class DashBoard extends Component {
                           className={classes.close}
                           onClick={this.onClose(ind)}
                         >
-                          <CloseIcon className={classes.icon} />
+                          <CloseIcon className={classes.icon}  />
                         </IconButton>,
                       ]}
                       close

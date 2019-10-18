@@ -364,3 +364,14 @@ export function insertDev(paramstr) {
             .then(resp => resp)
     };
 };
+
+// update data table after edit
+
+export function updateData(paramstr) {
+
+
+    return dispatch => {
+        return Axios.post('/api/admin/data_update', paramstr)
+            .then(resp => {return (!resp.data.errcount ? true : false )});
+    };
+};
