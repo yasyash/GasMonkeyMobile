@@ -61,7 +61,8 @@ class MeteoData extends React.Component {
 
             dateTimeBegin,
             dateTimeEnd,
-            title
+            title,
+            auth
 
         } = props;
 
@@ -248,7 +249,7 @@ class MeteoData extends React.Component {
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, height } = this.state;
         const dataList = this.props.dataList;
-        //const { title } = this.props;
+        const { auth } = this.props;
         // let lists={};
         //     console.log('dataList ', dataList);
         const checkboxProps = {
@@ -484,6 +485,7 @@ class MeteoData extends React.Component {
                     handleChange={this.handleChange.bind(this)}
                     handleClick={this.handleClick.bind(this)}
                     height={this.state.height}
+                    auth ={auth}
                 />
                 <br />
                 <FoldableTable

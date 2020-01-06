@@ -610,8 +610,6 @@ class ChartForm extends React.Component {
     };
 
     handleClickPdf() {
-
-
         var cnvs = this.refs.chrts.chartInstance.canvas;
         console.log(this.refs.chrts);
         var img = cnvs.toDataURL("image/png").replace("image/png", "image/octet-stream");

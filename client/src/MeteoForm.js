@@ -95,7 +95,8 @@ class MeteoForm extends React.Component {
             stationsList,
             sensorsList,
             dataList,
-            station_actual
+            station_actual,
+            auth
 
 
         } = props;
@@ -130,7 +131,8 @@ class MeteoForm extends React.Component {
 
             selection: [],
             selectAll: false,
-            isSensor: true
+            isSensor: true,
+            auth: auth
         };
 
 
@@ -339,7 +341,7 @@ class MeteoForm extends React.Component {
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, stationsList, height } = this.state;
-        const { loadData, classes } = this.props;
+        const { loadData, classes, auth } = this.props;
         // var tableData = this.state.stationsList;
         // const { title, errors, isLoading } = this.state;
         //const {handleChange, handleToggle} = this.props;
@@ -428,6 +430,7 @@ class MeteoForm extends React.Component {
                             handleClick={this.handleClick.bind(this)}
                             isStation={true} {...this.state}
                             handleClose={this.handleClose.bind(this)}
+                            auth ={auth}
                         />
                         <br />
 

@@ -31,7 +31,8 @@ class MeteoPage extends React.Component {
 
             stationsList: [] ,
             sensorsList: [] ,
-            dataList:[]
+            dataList:[],
+            auth: props.auth
 
 
         }

@@ -346,18 +346,18 @@ class ChartForm extends React.Component {
                             });
 
                             let emptydatasets =
-                                {
-                                    label: label,
-                                    fill: false,
-                                    borderColor: n,
-                                    backgroundColor: m,
-                                    data: tmp,
-                                    pointStyle: this.state.pointStyle,
-                                    radius: this.state.radius,
-                                    borderWidth: this.state.borderWidth,
-                                    borderDash: [],
+                            {
+                                label: label,
+                                fill: false,
+                                borderColor: n,
+                                backgroundColor: m,
+                                data: tmp,
+                                pointStyle: this.state.pointStyle,
+                                radius: this.state.radius,
+                                borderWidth: this.state.borderWidth,
+                                borderDash: [],
 
-                                };
+                            };
                             //chartData.datasets = obj;
                             if (!isEmpty(title)) {
                                 title += ',';
@@ -407,18 +407,18 @@ class ChartForm extends React.Component {
                     let n = '#' + (filter[0].def_colour.toString(16));
                     let m = '#' + ((filter[0].def_colour + 20).toString(16));
                     let emptydatasets =
-                        {
-                            label: dataList[0].typemeasure,
-                            fill: false,
-                            borderColor: n,
-                            backgroundColor: m,
-                            data: tmp,
-                            pointStyle: this.state.pointStyle,
-                            radius: this.state.radius,
-                            borderWidth: this.state.borderWidth,
-                            borderDash: [],
+                    {
+                        label: dataList[0].typemeasure,
+                        fill: false,
+                        borderColor: n,
+                        backgroundColor: m,
+                        data: tmp,
+                        pointStyle: this.state.pointStyle,
+                        radius: this.state.radius,
+                        borderWidth: this.state.borderWidth,
+                        borderDash: [],
 
-                        };
+                    };
 
                     colour_pairs.push({
                         sensor: dataList[0].typemeasure,
@@ -465,18 +465,18 @@ class ChartForm extends React.Component {
 
 
                         let emptydatasets =
-                            {
-                                label: filter[0].chemical + ' ПДК',
-                                fill: false,
-                                borderColor: _colour,
-                                backgroundColor: _colour,
-                                data: _arr,
-                                pointStyle: 'circle',
-                                radius: 0,
-                                borderWidth: this.state.borderWidth + 2,
-                                borderDash: [10, 10],
-                                hidden: false
-                            };
+                        {
+                            label: filter[0].chemical + ' ПДК',
+                            fill: false,
+                            borderColor: _colour,
+                            backgroundColor: _colour,
+                            data: _arr,
+                            pointStyle: 'circle',
+                            radius: 0,
+                            borderWidth: this.state.borderWidth + 2,
+                            borderDash: [10, 10],
+                            hidden: false
+                        };
 
 
                         if (isEmpty(stateOptions[0])) {
@@ -545,18 +545,18 @@ class ChartForm extends React.Component {
                     n = '#' + (n.toString(16))
                     // let obj = chartData.datasets.concat(emptydatasets);
                     let emptydatasets =
-                        {
-                            label: element.header,
-                            fill: false,
-                            borderColor: n,
-                            backgroundColor: m,
-                            data: tmp,
-                            pointStyle: this.state.pointStyle,
-                            radius: this.state.radius,
-                            borderWidth: this.state.borderWidth,
-                            borderDash: [],
-                            hidden: (!element.visible)
-                        };
+                    {
+                        label: element.header,
+                        fill: false,
+                        borderColor: n,
+                        backgroundColor: m,
+                        data: tmp,
+                        pointStyle: this.state.pointStyle,
+                        radius: this.state.radius,
+                        borderWidth: this.state.borderWidth,
+                        borderDash: [],
+                        hidden: (!element.visible)
+                    };
                     if (!isEmpty(stateMeteoOption[0]))
                         emptydatasets['hidden'] = !stateMeteoOption[counter].visible;
 
@@ -588,16 +588,18 @@ class ChartForm extends React.Component {
 
     };
 
-    handleClickPdf  ()  {
+    handleClickPdf() {
+        var cnvs = this.refs.chrts.chartInstance.canvas;
+        console.log(this.refs.chrts);
+        var img = cnvs.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        //var button = document.getElementById('sv-bt');
+        //button.download = img;
+        var link = document.getElementById('link_report');
+        link.setAttribute('download', this.props.station_actual + '_' + this.state.dateTimeEnd+ '.png');
+        link.setAttribute('href', img);
+        link.click();
+    };
 
-       
-       var cnvs =  this.refs.chrts.chartInstance.canvas;
-       console.log(this.refs.chrts);
-       var img = cnvs.toDataURL("image/png");
-
-            
-        }
-   
     componentWillMount() {
 
         this.setState({ checkedMeteo: this.props.checkedMeteo });
@@ -643,18 +645,20 @@ class ChartForm extends React.Component {
 
 
             <Paper className={classes.root}>
+                <a id="link_report"></a>
                 <MenuChart
                     {...this.state}
                     handleChangeToggle={this.handleChangeToggle.bind(this)}
+                    handleClickPdf={this.handleClickPdf.bind(this)}
                     hideLine={this.hideLine.bind(this)}
-                    handleClickPdf = {this.handleClickPdf.bind(this)}
+                    handleClickPdf={this.handleClickPdf.bind(this)}
                     value="checkedLine"
                     valueMeteo="checkedMeteo"
                 />
 
                 {(this.state.checkedLine) &&
-                  <Line
-                        ref = 'chrts'
+                    <Line
+                        ref='chrts'
                         data={this.state.chartData}
                         options={{
                             title: titles,
@@ -685,7 +689,7 @@ function mapStateToProps(state) {
     let station = '';
     let tmp = '';
     if (state.activeStationsList[1]) {
-        tmp = state.activeStationsList.slice(state.activeStationsList.length - 1, );
+        tmp = state.activeStationsList.slice(state.activeStationsList.length - 1);
         sensors = tmp[0].sensors;
 
     };
