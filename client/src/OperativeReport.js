@@ -86,6 +86,8 @@ class OperativeReport extends React.Component {
 
             dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
             dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
+            dateReportEnd: new Date().format('Y-MM-ddT') + '23:59',
+
             station_actual,
             station_name: '',
             sensors_actual,
@@ -397,8 +399,8 @@ class OperativeReport extends React.Component {
                 <MenuReport
                     {...this.props} snack_msg={snack_msg} isLoading={isLoading}
                     station_name={this.state.station_name}
-                    dateTimeBegin={this.state.dateTimeBegin}
-                    dateTimeEnd={this.state.dateTimeEnd}
+                    dateReportBegin={this.state.dateTimeBegin}
+                    dateReportEnd={this.state.dateTimeEnd}
                     report_type='operative'
                     data_4_report={this.state.data_4_report}
 

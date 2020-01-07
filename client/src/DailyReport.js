@@ -172,7 +172,7 @@ class DailyReport extends React.Component {
         // this.setState({ dateReportBegin: this.props.dateReportBegin, dateReportEnd: this.props.dateReportEnd });
         //this.loadData().then(data => this.setState({ sensorsList: data }));
 
-        const template_chemical = ['NO', 'NO2', 'SO2', 'H2S', 'O3', 'CO', 'PM2.5', 'PM10'];
+        const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая'];
         if (isEmpty(state.dateReportBegin)) {
             params.period_from = this.props.dateReportBegin;
             params.period_to = this.props.dateReportEnd;
@@ -213,10 +213,12 @@ class DailyReport extends React.Component {
 
 
                 macsList.forEach((element, indx) => {
-                    if ((element.chemical == 'NO') || (element.chemical == 'NO2') ||
+                    if ((element.chemical == 'NO') || (element.chemical == 'NO2') || (element.chemical == 'NH3') ||
                         (element.chemical == 'SO2') || (element.chemical == 'H2S') ||
-                        (element.chemical == 'O3') || (element.chemical == 'CO') ||
-                        (element.chemical == 'PM2.5') || (element.chemical == 'PM10')) {
+                        (element.chemical == 'O3') || (element.chemical == 'CO') || (element.chemical == 'CH2O') ||
+                        (element.chemical == 'PM1') || (element.chemical == 'PM2.5') ||
+                        (element.chemical == 'PM10') || (element.chemical == 'Пыль общая') )
+                        {
 
                         let filter = dataList.filter((item, i, arr) => {
                             return item.typemeasure == element.chemical;
@@ -415,9 +417,9 @@ class DailyReport extends React.Component {
                 var data = [];
                 data_raw.forEach((element, ind) => {
                     pollution.push({
-                        time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueSO2: element.SO2,
-                        valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO, valuePM10: element.PM10,
-                        valuePM25: element['PM2.5']
+                        time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueNH3: element.NH3, valueSO2: element.SO2,
+                        valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO,valueCH2O: element.CH2O, valuePM1: element.PM1,
+                        valuePM25: element['PM2.5'],valuePM10: element.PM10, valueTSP: element['Пыль общая']
                     });
                 })
                 // values.push({
@@ -428,9 +430,9 @@ class DailyReport extends React.Component {
                 _avrg_measure.forEach((element, ind) => {
                     if ((ind > 0) && (ind < _avrg_measure.length - 1)) {
                         pollution.push({
-                            time: element[0], valueNO: element[1], valueNO2: element[2], valueSO2: element[3],
-                            valueH2S: element[4], valueO3: element[5], valueCO: element[6], valuePM10: element[7],
-                            valuePM25: element[8]
+                            time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3],valueSO2: element[4],
+                            valueH2S: element[5], valueO3: element[6], valueCO: element[7], valueCH2O: element[8], valuePM1: element[9],
+                            valuePM25: element[10], valuePM10: element[11], valueTSP: element[12]
 
                         });
                     }
@@ -564,7 +566,7 @@ class DailyReport extends React.Component {
                                 <td style={{ 'width': '15%' }} rowSpan="2">
                                     <b> Время</b>
                                 </td>
-                                <td style={{ 'width': '85%' }} colSpan="8">
+                                <td style={{ 'width': '85%' }} colSpan="12">
                                     <b> Концентрация, мг/м. куб.</b>
                                 </td>
                             </tr>
@@ -574,6 +576,9 @@ class DailyReport extends React.Component {
                                  </td>
                                 <td style={{ 'width': '10%' }} >
                                     NO2
+                                 </td>
+                                 <td style={{ 'width': '10%' }} >
+                                    NH3
                                  </td>
                                 <td style={{ 'width': '10%' }} >
                                     SO2
@@ -587,11 +592,20 @@ class DailyReport extends React.Component {
                                 <td style={{ 'width': '10%' }} >
                                     CO
                                  </td>
+                                 <td style={{ 'width': '10%' }} >
+                                    CH2O
+                                 </td>
                                 <td style={{ 'width': '10%' }} >
-                                    PM-10
+                                    PM-1
                                  </td>
                                 <td style={{ 'width': '10%' }} >
                                     PM-2.5
+                                 </td>
+                                 <td style={{ 'width': '10%' }} >
+                                    PM-10
+                                 </td>
+                                 <td style={{ 'width': '10%' }} >
+                                    Пыль общая
                                  </td>
                             </tr>
 
@@ -602,12 +616,18 @@ class DailyReport extends React.Component {
                                         <td> {option.time}</td>
                                         <td> {option.NO}</td>
                                         <td> {option.NO2}</td>
+                                        <td> {option.NH3}</td>
                                         <td> {option.SO2}</td>
                                         <td> {option.H2S}</td>
                                         <td> {option.O3}</td>
                                         <td> {option.CO}</td>
-                                        <td> {option.PM10}</td>
+                                        <td> {option.CH2O}</td>
+                                        <td> {option.PM1}</td>
                                         <td> {option['PM2.5']}</td>
+                                        <td> {option.PM10}</td>
+                                        <td> {option['Пыль общая']}</td>
+
+
 
                                     </tr>
                                 ))}
@@ -627,6 +647,10 @@ class DailyReport extends React.Component {
                                         <td> {option[6]}</td>
                                         <td> {option[7]}</td>
                                         <td> {option[8]}</td>
+                                        <td> {option[9]}</td>
+                                        <td> {option[10]}</td>
+                                        <td> {option[11]}</td>
+                                        <td> {option[12]}</td>
 
                                     </tr>
                                 ))}
