@@ -1,6 +1,6 @@
 {
   "name": "meteo-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "dependencies": {
@@ -107,6 +107,6 @@
     "production": "NODE_ENV=production nodemon --watch server --exec babel-node -- api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "ILIT.RU",
-  "license": "ISC"
+  "author": "Yaroslav Shkliar & ILIT.RU",
+  "license": "GPL"
 }
