@@ -329,34 +329,46 @@ class MonthlyReport extends React.Component {
                                 <td style={{ 'width': '15%' }} rowSpan="2">
                                     <b> Время</b>
                                 </td>
-                                <td style={{ 'width': '85%' }} colSpan="8">
+                                <td style={{ 'width': '85%' }} colSpan="12">
                                     <b> Концентрация, мг/м. куб.</b>
                                 </td>
                             </tr>
                             <tr >
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     NO
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     NO2
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                 <td style={{ 'width': '7%' }} >
+                                    NH3
+                                 </td>
+                                <td style={{ 'width': '7%' }} >
                                     SO2
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     H2S
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     O3
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     CO
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                 <td style={{ 'width': '7%' }} >
+                                    CH2O
+                                 </td>
+                                <td style={{ 'width': '7%' }} >
+                                    PM-1
+                                 </td>
+                                <td style={{ 'width': '7%' }} >
+                                    PM-2.5
+                                 </td>
+                                 <td style={{ 'width': '7%' }} >
                                     PM-10
                                  </td>
-                                <td style={{ 'width': '10%' }} >
-                                    PM-2.5
+                                 <td style={{ 'width': '7%' }} >
+                                    Пыль общая
                                  </td>
                             </tr>
 
@@ -367,12 +379,17 @@ class MonthlyReport extends React.Component {
                                         <td> {option.time}</td>
                                         <td> {option.NO}</td>
                                         <td> {option.NO2}</td>
+                                        <td> {option.NH3}</td>
                                         <td> {option.SO2}</td>
                                         <td> {option.H2S}</td>
                                         <td> {option.O3}</td>
                                         <td> {option.CO}</td>
-                                        <td> {option.PM10}</td>
+                                        <td> {option.CH2O}</td>
+                                        <td> {option.PM1}</td>
                                         <td> {option['PM2.5']}</td>
+                                        <td> {option.PM10}</td>
+                                        <td> {option['Пыль общая']}</td>
+
 
                                     </tr>
                                 ))}
@@ -383,7 +400,7 @@ class MonthlyReport extends React.Component {
                                 avrg_measure.map((option, i) => (
                                     (i > 0 && i < avrg_measure.length - 1) &&
                                     <tr key={'trm_' + i}>
-                                        <td> {option[0]}</td>
+                                       <td> {option[0]}</td>
                                         <td> {option[1]}</td>
                                         <td> {option[2]}</td>
                                         <td> {option[3]}</td>
@@ -392,6 +409,10 @@ class MonthlyReport extends React.Component {
                                         <td> {option[6]}</td>
                                         <td> {option[7]}</td>
                                         <td> {option[8]}</td>
+                                        <td> {option[9]}</td>
+                                        <td> {option[10]}</td>
+                                        <td> {option[11]}</td>
+                                        <td> {option[12]}</td>
 
                                     </tr>
                                 ))}

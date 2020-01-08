@@ -258,7 +258,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         let result_parse2 = JSON.stringify(result[2]);
         let arr2 = JSON.parse(result_parse2);
 
-        const template_chemical = ['NO', 'NO2', 'SO2', 'H2S', 'O3', 'CO', 'PM2.5', 'PM10'];
+        const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая'];
 
         let dataList = arr0;
         let sensorsList = arr1;
@@ -287,10 +287,11 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         //  console.log('macs', macsList.length);
         macsList.forEach((element, indx) => {
             //    console.log('Macs list ', element);
-            if ((element.chemical == 'NO') || (element.chemical == 'NO2') ||
-                (element.chemical == 'SO2') || (element.chemical == 'H2S') ||
-                (element.chemical == 'O3') || (element.chemical == 'CO') ||
-                (element.chemical == 'PM2.5') || (element.chemical == 'PM10')) {
+            if ((element.chemical == 'NO') || (element.chemical == 'NO2') || (element.chemical == 'NH3') ||
+            (element.chemical == 'SO2') || (element.chemical == 'H2S') ||
+            (element.chemical == 'O3') || (element.chemical == 'CO') || (element.chemical == 'CH2O') ||
+            (element.chemical == 'PM1') || (element.chemical == 'PM2.5') ||
+            (element.chemical == 'PM10') || (element.chemical == 'Пыль общая')) {
 
 
 
@@ -529,9 +530,9 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         var data = [];
         data_raw.forEach((element, ind) => {
             pollution.push({
-                time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueSO2: element.SO2,
-                valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO, valuePM10: element.PM10,
-                valuePM25: element['PM2.5']
+                time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueNH3: element.NH3, valueSO2: element.SO2,
+                        valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO,valueCH2O: element.CH2O, valuePM1: element.PM1,
+                        valuePM25: element['PM2.5'],valuePM10: element.PM10, valueTSP: element['Пыль общая']
             });
         })
         // values.push({
@@ -542,9 +543,9 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         _avrg_measure.forEach((element, ind) => {
             if ((ind > 0) && (ind < _avrg_measure.length - 1)) {
                 pollution.push({
-                    time: element[0], valueNO: element[1], valueNO2: element[2], valueSO2: element[3],
-                    valueH2S: element[4], valueO3: element[5], valueCO: element[6], valuePM10: element[7],
-                    valuePM25: element[8]
+                    time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3],valueSO2: element[4],
+                    valueH2S: element[5], valueO3: element[6], valueCO: element[7], valueCH2O: element[8], valuePM1: element[9],
+                    valuePM25: element[10], valuePM10: element[11], valueTSP: element[12]
 
                 });
             }
@@ -584,7 +585,7 @@ router.get('/get_tza4', authenticate, (req, resp) => {
     let station_name = data.station_name;
     let chemic = data.chemical;
     const between_date = [data.period_from, data.period_to];
-    //     console.log('data ', between_date);
+        //console.log('chemical : ', chemic);
 
 
     loadData_tza(data.station, between_date, station_name, chemic).then(result => {
@@ -596,7 +597,7 @@ router.get('/get_tza4', authenticate, (req, resp) => {
         var result_parse2 = JSON.stringify(result[2]);
         var arr2 = JSON.parse(result_parse2);
 
-        const template_chemical = ['NO', 'NO2', 'SO2', 'H2S', 'O3', 'CO', 'PM2.5', 'PM10'];
+        const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая'];
 
         var dataList = arr0;
         var sensorsList = arr1;

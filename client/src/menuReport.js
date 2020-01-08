@@ -241,7 +241,7 @@ class MenuReport extends Component {
             station_name,
             report_type,
             data_4_report,
-            chemical_list : ['NO', 'NO2', 'SO2', 'H2S', 'O3', 'CO', 'PM2.5', 'PM10'],
+            chemical_list : ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая'],
             chemical:''
         };
 
@@ -253,6 +253,60 @@ class MenuReport extends Component {
         // this.handleChange = this.handleChange.bind (this);
 
     }
+
+    translit = (_in) => {
+    
+    var transl = new Array();
+    transl['А']='A';     transl['а']='a';
+    transl['Б']='B';     transl['б']='b';
+    transl['В']='V';     transl['в']='v';
+    transl['Г']='G';     transl['г']='g';
+    transl['Д']='D';     transl['д']='d';
+    transl['Е']='E';     transl['е']='e';
+    transl['Ё']='Yo';    transl['ё']='yo';
+    transl['Ж']='Zh';    transl['ж']='zh';
+    transl['З']='Z';     transl['з']='z';
+    transl['И']='I';     transl['и']='i';
+    transl['Й']='J';     transl['й']='j';
+    transl['К']='K';     transl['к']='k';
+    transl['Л']='L';     transl['л']='l';
+    transl['М']='M';     transl['м']='m';
+    transl['Н']='N';     transl['н']='n';
+    transl['О']='O';     transl['о']='o';
+    transl['П']='P';     transl['п']='p';
+    transl['Р']='R';     transl['р']='r';
+    transl['С']='S';     transl['с']='s';
+    transl['Т']='T';     transl['т']='t';
+    transl['У']='U';     transl['у']='u';
+    transl['Ф']='F';     transl['ф']='f';
+    transl['Х']='X';     transl['х']='x';
+    transl['Ц']='C';     transl['ц']='c';
+    transl['Ч']='Ch';    transl['ч']='ch';
+    transl['Ш']='Sh';    transl['ш']='sh';
+    transl['Щ']='Sch';    transl['щ']='sch';
+    transl['Ъ']='';     transl['ъ']='';
+    transl['Ы']='Y';    transl['ы']='y';
+    transl['Ь']='';    transl['ь']='';
+    transl['Э']='E';    transl['э']='e';
+    transl['Ю']='Yu';    transl['ю']='yu';
+    transl['Я']='Ya';    transl['я']='ya';
+
+    var out = '';
+
+    for(var i=0;i<_in.length;i++) {
+        if(transl[_in[i]] != undefined) { out += transl[_in[i]]; }
+        else { out += _in[i]; }
+    }
+    if (isEmpty(out) )
+     {
+            return _in;
+     } 
+     else
+     {
+            return out;
+     }
+
+    };
 
     daysInMonth = (month) => {
         let days = 33 - new Date(new Date().getFullYear(), month, 33).getDate();
@@ -402,6 +456,7 @@ var opt = {
     
 }
 
+
 async wrapReportGen  (params)  {
     var response = await(this.props.reportGen( {report:'operative', html: _html.innerHTML}));
 return response;
@@ -429,7 +484,7 @@ if (this.props.report_type =='tza4')
 
 if (!isEmpty(this.props.data_4_report)) {
 
-    this.props.reportGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: chemical}).then(response =>{
+    this.props.reportGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: this.translit(chemical)}).then(response =>{
     //var xhr = new XMLHttpRequest();
 
     var type = response.headers['content-type'];
@@ -481,7 +536,7 @@ if (this.props.report_type =='tza4')
  
  if (!isEmpty(this.props.data_4_report)) {
 
-    this.props.reportXlsGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: chemical}).then(response =>{
+    this.props.reportXlsGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: this.translit(chemical)}).then(response =>{
     //var xhr = new XMLHttpRequest();
 
     var type = response.headers['content-type'];

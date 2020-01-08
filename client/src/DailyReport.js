@@ -571,40 +571,40 @@ class DailyReport extends React.Component {
                                 </td>
                             </tr>
                             <tr >
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     NO
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     NO2
                                  </td>
-                                 <td style={{ 'width': '10%' }} >
+                                 <td style={{ 'width': '7%' }} >
                                     NH3
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     SO2
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     H2S
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     O3
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     CO
                                  </td>
-                                 <td style={{ 'width': '10%' }} >
+                                 <td style={{ 'width': '7%' }} >
                                     CH2O
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     PM-1
                                  </td>
-                                <td style={{ 'width': '10%' }} >
+                                <td style={{ 'width': '7%' }} >
                                     PM-2.5
                                  </td>
-                                 <td style={{ 'width': '10%' }} >
+                                 <td style={{ 'width': '7%' }} >
                                     PM-10
                                  </td>
-                                 <td style={{ 'width': '10%' }} >
+                                 <td style={{ 'width': '7%' }} >
                                     Пыль общая
                                  </td>
                             </tr>
