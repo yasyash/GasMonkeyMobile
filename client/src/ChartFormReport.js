@@ -508,7 +508,7 @@ class ChartForm extends React.Component {
             let visible = false;
             let chem = [];
             if (this.state.chemical_checked.length == 0) {
-                chem = ["NO", "NO2", "O3", "CO", "H2S", "SO2"];
+                chem = ["NO", "NO2", "NH3",  "H2S", "SO2", "O3", "CO", "CH2O", "Пыль общая"];
                 let counter = 0;
                 macs.forEach(element => {
                     if (chem.indexOf(element.chemical) != -1) { visible = true; } else { visible = false; };
@@ -690,7 +690,7 @@ class ChartForm extends React.Component {
         params.sensors = [];
         
         if (this.state.chemical_checked.length == 0) {
-            params.sensors = ["NO", "NO2", "O3", "CO", "H2S", "SO2"];
+            params.sensors = ["NO", "NO2", "NH3","H2S", "SO2", "O3", "CO", "CH2O", "Пыль общая"];
         } else {
             const { chemical_checked } = this.state;
             chemical_checked.forEach(element => {
@@ -779,7 +779,7 @@ class ChartForm extends React.Component {
         let titles = {
             display: this.props.displayTitle,
             text: 'Данные отсутствуют - сформируйте запрос',
-            fontSize: 15
+            fontSize: 12
         };
         let _title = '';
 

@@ -368,14 +368,16 @@ class MenuChart extends Component {
                                 </IconButton></Tooltip>
                             <Menu
                                 id="long-menu"
+                                keepMounted
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
                                 onClose={this.handleClose}
                                 PaperProps={{
                                     style: {
-                                        maxHeight: ITEM_HEIGHT * ((this.props.checkedMeteo && options.length)
+                                        maxHeight: ITEM_HEIGHT * ((this.props.checkedMeteo && 10)
                                             + (!this.props.checkedMeteo && 5) + 1),
                                         width: (this.props.checkedMeteo && 250) + (!this.props.checkedMeteo && 300),
+                         
                                     },
                                 }}>
 
@@ -414,7 +416,6 @@ class MenuChart extends Component {
                                                     color='primary'
                                                     onChange={this.handleChange(option.header)}
                                                     value={option.header}
-
                                                 />{'график ' + option.header}
                                             </MenuItem>
                                         </Tooltip  >
@@ -449,6 +450,7 @@ class MenuChart extends Component {
                                         maxHeight: ITEM_HEIGHT * ((this.props.chemical_checked && 10)
                                             + (!this.props.checkedMeteo && 5) + 1),
                                         width: (this.props.checkedMeteo && 150) + (!this.props.checkedMeteo && 300),
+                                 
                                     },
                                 }}>
 
