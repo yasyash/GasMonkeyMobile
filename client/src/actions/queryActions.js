@@ -86,11 +86,32 @@ export function queryEvent(paramstr) {
                     let i = 0;
 
                     if (sensors_list.length == 1) {
+                        var _data = [];
+                        var _tmp = 0;
+                        var counter = 0;
+                        for (var _i = 0; _i < data_list.length; _i += paramstr.averaging) {
+                            _tmp = 0;
+                            counter = 0;
+                            for (var _j = _i; _j < _i + paramstr.averaging; _j++) {
+                                if (_j < data_list.length) {
+                                    _tmp += data_list[_j].measure;
+                                    counter++;
+                                }
+                            }
+                            if (counter) {
+                                data_list[_i].measure = _tmp / counter;
+                                _data.push(data_list[_i]);
+                            }
 
-                        data_list.forEach(element => {
+                        }
+
+                        _data.forEach(element => {
                             let filter = sensors_list.filter((item, i, arr) => {
                                 return item.serialnum == element.serialnum;
                             });
+
+
+
                             if (!isEmpty(filter[0])) { unit_name = filter[0].unit_name }
                             dataTable.push({
                                 id: element.idd,

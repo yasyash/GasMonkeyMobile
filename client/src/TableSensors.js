@@ -20,7 +20,7 @@ import DataIcon from 'material-ui/svg-icons/action/timeline';
 import { addActiveSensorsList, deleteActiveSensorsList } from './actions/sensorsAddAction';
 import { addActiveStationsList, deleteActiveStationsList, getFirstActiveStationsList } from './actions/stationsAddAction';
 
-import  ReactTable from "react-table";
+import ReactTable from "react-table";
 import ReactTableDefaults from "react-table";
 
 
@@ -111,7 +111,8 @@ class TableSensors extends React.Component {
             defaultPageSize: 25,
             selection,
             selectAll: false,
-            isSensor: true
+            isSensor: true,
+            averaging: 1
         };
 
         // this.onClick = this.onRefresh.bind(this);
@@ -262,6 +263,8 @@ class TableSensors extends React.Component {
 
             params.station = this.props.station_actual;
             params.sensors = this.state.sensors_actual;
+            params.averaging = this.state.averaging;
+
             this.props.queryEvent(params).then(data => {
                 if (data) {
                     this.setState({ dataList: data })
@@ -438,7 +441,7 @@ class TableSensors extends React.Component {
                 folded: true,
                 filterable: true
             }];
-            
+
         return (
 
 
@@ -448,7 +451,7 @@ class TableSensors extends React.Component {
                     handleChange={this.handleChange.bind(this)}
                     handleClick={this.handleClick.bind(this)}
                     handleClose={this.handleClose.bind(this)}
-                    auth ={auth}
+                    auth={auth}
 
                 />
                 <br />
@@ -489,7 +492,7 @@ function mapStateToProps(state) {
     let station = '';
     let tmp = '';
     if (state.activeStationsList[1]) {
-        tmp = state.activeStationsList.slice(state.activeStationsList.length - 1, );
+        tmp = state.activeStationsList.slice(state.activeStationsList.length - 1);
         sensors = tmp[0].sensors;
 
     };

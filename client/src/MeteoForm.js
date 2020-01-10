@@ -23,6 +23,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Slider from '@material-ui/core/Slide';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import { withStyles } from '@material-ui/core/styles';
+import { isNumber } from 'util';
 
 
 import ReactTable from "react-table";
@@ -132,7 +133,8 @@ class MeteoForm extends React.Component {
             selection: [],
             selectAll: false,
             isSensor: true,
-            auth: auth
+            auth: auth,
+            averaging: 1
         };
 
 
@@ -240,9 +242,14 @@ class MeteoForm extends React.Component {
 
 
 
-    handleChange(event) {
-        this.setState({ height: event.target.value });
-    };
+   // handleChange(event) {
+   //     this.setState({ height: event.target.value });
+   // };
+   handleChange(name, value) {
+    if (isNumber(parseInt(value))) { var val = parseInt(value) } else { var val = value };
+
+    this.setState({ [name]: val });
+};
 
     handleRowSelection(selectedRows) {
         let id_station = (this.state.stationsList[selectedRows].id);

@@ -10,7 +10,10 @@ import FileFileDownload from 'material-ui/svg-icons/file/file-download';
 import Toggle from 'material-ui/Toggle';
 import Renew from 'material-ui/svg-icons/action/autorenew';
 import Snackbar from '@material-ui/core/Snackbar';
-import Slider from '@material-ui/core/Slide';
+
+import Slider from 'rc-slider';
+import './css/rc-slider.css';
+
 import TextField from '@material-ui/core/TextField';
 import Divider from '@material-ui/core/Divider';
 import Icon from '@material-ui/core/Icon';
@@ -19,7 +22,6 @@ import SaveIcon from './icons/save-icon';
 import BallotIcon from './icons/ballot-recount';
 import RenewIcon from './icons/renew-icon';
 import SettingsIcon from './icons/settings';
-
 
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -32,6 +34,9 @@ import { dateAddAction } from './actions/dateAddAction';
  * Three controlled examples, the first allowing a single selection, the second multiple selections,
  * the third using internal state.
  */
+const wrapperStyle = { width: '90%', margin: 10 };
+const wrapperStyle1 = { width: 150, margin: 0 };
+
 const styles = theme => ({
     root: {
         flexGrow: 1,
@@ -87,8 +92,14 @@ const styles = theme => ({
         marginLeft: '0',
         marginRight: '0',
         width: ' 200px '
+    },
+    rc_slider_mark:
+    {
+        top: '12px'
     }
 });
+
+
 
 
 class MenuTable extends Component {
@@ -142,6 +153,7 @@ class MenuTable extends Component {
             isSensor,
             defaultPageSize,
             hideFiltartion,
+            averaging: 1
 
         };
 
@@ -266,7 +278,7 @@ class MenuTable extends Component {
             //<Paper className={classes.root}>
 
             <nav className="navbar form-control classes.container">
-                <div className="navbar-header">
+                <div className="navbar-header"   >
                     <IconButton
                         className={classes.button}
                         tooltip={'Обновить'}
@@ -284,7 +296,7 @@ class MenuTable extends Component {
                         </IconButton>
                     }
 
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;
                     {(this.state.isSensor) && '  данные с:    '}
                     {(this.state.isSensor) && <TextField
                         id="dateTimeBegin"
@@ -298,7 +310,7 @@ class MenuTable extends Component {
                             shrink: true,
                         }}
                     />}
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;
                     {(this.state.isSensor) && '  по:     '}
                     {(this.state.isSensor) && <TextField
                         id="dateTimeEnd"
@@ -311,9 +323,25 @@ class MenuTable extends Component {
                         InputLabelProps={{
                             shrink: true,
                         }}
-                    />}
+                    />
+                    }
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {(this.state.isSensor) && ' усреднение, мин.:'}
+
+
                 </div>
 
+                <div style={wrapperStyle1}>
+                    {(this.state.isSensor) && <br />}
+
+
+                    {(this.state.isSensor) &&
+                        <Slider min={1} max={20} defaultValue={1} marks={{ 1: '1', 5: '5', 10: '10', 20: '20' }} step={null} 
+                        onChange={(value1) => this.handleChange(name = 'averaging',  { target: {value: value1}})}
+
+                        />
+                    }
+                </div>
                 <div className="navbar-right">
 
                     <IconMenu
