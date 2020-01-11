@@ -337,7 +337,7 @@ export function queryAllDataOperativeEvent(paramstr) {
                     let data_list = data.response[0];
                     let sensors_list = data.response[1];
                     var macsTable = data.response[2];
-                    let logs_list = data.response[3];
+                    let _logs_list = data.response[3];
                     let unit_name = '';
                     let prev = '';
                     let i = 0;
@@ -368,69 +368,79 @@ export function queryAllDataOperativeEvent(paramstr) {
                             is_wind_sensor: element.is_wind_sensor,
                         });
                     });
-                    logs_list.forEach((element, indx) => {
-                        if ((Number(element.type) >= 100) && (Number(element.type) <= 110)) {
-                            alertsTable.push({
-                                date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
-                                type: element.type,
-                                descr: element.descr
-                            });
-                        }
 
-                        if (Number(element.type) == 0) {
-                            if (indx != logs_list.length - 1) {
-                                if (last != element.descr)
+                    var iterator = [0, 100, 200, 404, 500]; //all type error
+
+                    iterator.forEach((i, _ind) => {
+
+                        let logs_list = _logs_list.filter((item, _i, arr) => {
+                            return item.type == i;
+                        });
+
+                        logs_list.forEach((element, indx) => {
+                            if ((Number(element.type) >= 100) && (Number(element.type) <= 110)) {
+                                alertsTable.push({
+                                    date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                    type: element.type,
+                                    descr: element.descr
+                                });
+                            }
+
+                            if (Number(element.type) == 0) {
+                                if (indx != logs_list.length - 1) {
+                                    if (last != element.descr)
+                                        systemTable.push({
+                                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                            type: element.type,
+                                            descr: element.descr,
+                                            is_visible: true
+
+                                        });
+                                } else {
                                     systemTable.push({
                                         date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
                                         type: element.type,
                                         descr: element.descr,
                                         is_visible: true
-
                                     });
-                            } else {
+                                }
+
+                            }
+                            if (Number(element.type) == 200) {
                                 systemTable.push({
                                     date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
                                     type: element.type,
                                     descr: element.descr,
                                     is_visible: true
+
                                 });
                             }
 
-                        }
-                        if (Number(element.type) == 200) {
-                            systemTable.push({
-                                date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
-                                type: element.type,
-                                descr: element.descr,
-                                is_visible: true
+                            if ((Number(element.type) == 500) || ((Number(element.type) == 404))) {
+                                if (indx != logs_list.length - 1) {
+                                    if (last != element.descr)
+                                        systemTable.push({
+                                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                            type: element.type,
+                                            descr: element.descr,
+                                            is_visible: true
 
-                            });
-                        }
+                                        });
 
-                        if (Number(element.type) == 500) {
-                            if (indx != logs_list.length - 1) {
-                                if (last != element.descr)
+                                } else {
                                     systemTable.push({
                                         date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
                                         type: element.type,
                                         descr: element.descr,
                                         is_visible: true
-
                                     });
-                            } else {
-                                systemTable.push({
-                                    date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
-                                    type: element.type,
-                                    descr: element.descr,
-                                    is_visible: true
-                                });
+                                }
+
                             }
 
-                        }
-
-                        last = element.descr;
+                            last = element.descr;
+                        });
                     });
-
 
 
                 }
