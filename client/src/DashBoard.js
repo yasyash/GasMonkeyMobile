@@ -18,6 +18,7 @@ import Language from "@material-ui/icons/Language";
 import DateRange from "@material-ui/icons/DateRange";
 import Backup from '@material-ui/icons/Backup';
 import Place from '@material-ui/icons/Place';
+import Build from '@material-ui/icons/Build';
 import Notifications from "@material-ui/icons/Notifications";
 //import Notifier from './stuff/Notifier';
 import IconButton from '@material-ui/core/IconButton';
@@ -91,7 +92,7 @@ const styles = theme => ({
     textAlign: 'justify',
     fontSize: 10
   },
-  
+
 
 });
 
@@ -114,7 +115,9 @@ class DashBoard extends Component {
       dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
       open: false,
       anchorEl: null,
-      mobileOpen: true
+      mobileOpen: true,
+      door_alert: [],
+      fire_alert: []
 
 
     }
@@ -167,13 +170,44 @@ class DashBoard extends Component {
             let alertsList = data.alertsTable;
             let systemList = data.systemTable;
             let today = new Date();
-
+            let _door_alert = false;
+            let _fire_alert = false;
+            var door_alert = [];
+            let fire_alert = [];
+            let { stationsList } = this.state;
             today -= 600000;
+
+            stationsList.map((_item, _ind) => {
+              dataList.map((item, ind) => {
+                if (_item.id == item.id) {
+
+
+
+                  if (item.typemeasure.includes('Дверь')) {
+                    item.is_alert ? _door_alert = true : _door_alert = false
+                    let obj = {};
+                    obj[item.id] = _door_alert;
+                    door_alert.push(obj);
+                  }
+                  if (item.typemeasure.includes('Пожар')) {
+                    item.is_alert ? _fire_alert = true : _fire_alert = false;
+                    let obj = {};
+                    obj[item.id] = _fire_alert;
+                    fire_alert.push(obj);
+                  }
+                  //door_alert[_item.id] = _door_alert;
+                  //fire_alert[_item.id] = _fire_alert;
+
+                }
+              });
+            });
 
             this.setState({
               dataList, sensorsList, macsList, alertsList, systemList,
               dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
-              dateTimeEnd: new Date().format('Y-MM-ddTHH:mm')
+              dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
+              door_alert: door_alert,
+              fire_alert: fire_alert
             });
             if (isEmpty(this.props.systemList)) {
 
@@ -199,13 +233,25 @@ class DashBoard extends Component {
     const { username, is_admin } = this.props;
 
     const { classes, systemList } = this.props;
-    const { stationsList, macsList, dataList, open, anchorEl, mobileOpen, alertsList } = this.state;
+    const { stationsList, macsList, dataList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert } = this.state;
     var tabs = [];
     var filter = '';
     var measure = 0;
+    var door_alert_filter = '';
+    var fire_alert_filter = '';
+    var voltage;
+
     if (is_admin) {
       if (stationsList) {// if not empty
         stationsList.map((item, i) => (
+
+          door_alert_filter = door_alert.filter((_itm, _in, arr) => {
+            return ((_itm[item.id]));
+          }),
+          fire_alert_filter = fire_alert.filter((_itm, _in, arr) => {
+            return ((_itm[item.id]));
+          }),
+
           tabs.push({
             tabName: item.namestation,
             tabIcon: StationIcon,
@@ -241,7 +287,105 @@ class DashBoard extends Component {
 
 
                   ))}
+                <hr style={{ width: "80%", size: "1" }} />
 
+                {(dataList) &&
+                  
+                    ((filter = dataList.filter((opt, k, arr) => {
+                      return ((opt.typemeasure == 'Напряжение мин.') && (opt.id == item.id));
+                    }), ((filter.length > 0) && (voltage = filter[filter.length - 1])),
+                    (voltage) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_Voltage_min' + item.id}>
+                      <Card>
+                        <CardHeader stats icon >
+                          <CardIcon color={voltage.is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
+                            <Build />
+                          </CardIcon>
+                          <p className={classes.cardCategory}>{voltage.measure.toFixed(1)} </p>
+
+
+                          <h6 className={classes.cardTitle}>{voltage.typemeasure}</h6>
+
+                        </CardHeader>
+                        <CardFooter stats>
+                          <div className={classes.stats}>
+                            <Place />
+                            {item.place} </div>
+                        </CardFooter>
+                      </Card>
+
+                    </GridItem>)
+
+
+                  ))}
+                  {(dataList) &&
+                  
+                    ((filter = dataList.filter((opt, k, arr) => {
+                      return ((opt.typemeasure == 'Напряжение макс.') && (opt.id == item.id));
+                    }), ((filter.length > 0) && (voltage = filter[filter.length - 1])),
+                    (voltage) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_Voltage_max'+item.id}>
+                      <Card>
+                        <CardHeader stats icon >
+                          <CardIcon color={voltage.is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
+                            <Build />
+                          </CardIcon>
+                          <p className={classes.cardCategory}>{voltage.measure.toFixed(1)} </p>
+
+
+                          <h6 className={classes.cardTitle}>{voltage.typemeasure}</h6>
+
+                        </CardHeader>
+                        <CardFooter stats>
+                          <div className={classes.stats}>
+                            <Place />
+                            {item.place} </div>
+                        </CardFooter>
+                      </Card>
+
+                    </GridItem>)
+
+
+                  ))}
+                {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_door'}>
+                  <Card>
+                    <CardHeader stats icon >
+                      <CardIcon color={door_alert_filter ? "danger" : "info"} style={{ padding: "5px" }} >
+                        <Build />
+                      </CardIcon>
+                      <p className={classes.cardCategory}>{door_alert_filter ? "Взлом" : "Норма"}</p>
+
+
+                      <h6 className={classes.cardTitle}>Датчик двери</h6>
+
+                    </CardHeader>
+                    <CardFooter stats>
+                      <div className={classes.stats}>
+                        <Place />
+                        {item.place} </div>
+                    </CardFooter>
+                  </Card>
+
+                </GridItem>)}
+
+                {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_fire'}>
+                  <Card>
+                    <CardHeader stats icon >
+                      <CardIcon color={fire_alert_filter ? "danger" : "info"} style={{ padding: "5px" }} >
+                        <Build />
+                      </CardIcon>
+                      <p className={classes.cardCategory}>{fire_alert_filter ? "Тревога" : "Норма"}</p>
+
+
+                      <h6 className={classes.cardTitle}>Сигнал пожара</h6>
+
+                    </CardHeader>
+                    <CardFooter stats>
+                      <div className={classes.stats}>
+                        <Place />
+                        {item.place} </div>
+                    </CardFooter>
+                  </Card>
+
+                </GridItem>)}
               </GridContainer >
 
             )
@@ -299,7 +443,7 @@ class DashBoard extends Component {
                           className={classes.close}
                           onClick={this.onClose(ind)}
                         >
-                          <CloseIcon className={classes.icon}  />
+                          <CloseIcon className={classes.icon} />
                         </IconButton>,
                       ]}
                       close
