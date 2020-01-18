@@ -10,6 +10,8 @@ import FileFileDownload from 'material-ui/svg-icons/file/file-download';
 import Toggle from 'material-ui/Toggle';
 import Renew from 'material-ui/svg-icons/action/autorenew';
 import Snackbar from '@material-ui/core/Snackbar';
+import SvgIcon from '@material-ui/core/SvgIcon';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import Slider from 'rc-slider';
 import './css/rc-slider.css';
@@ -23,11 +25,16 @@ import BallotIcon from './icons/ballot-recount';
 import RenewIcon from './icons/renew-icon';
 import SettingsIcon from './icons/settings';
 
+import blue from '@material-ui/core/colors/blue';
+import pink from '@material-ui/core/colors/pink';
+
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 
 import { connect } from 'react-redux';
 import isEmpty from 'lodash.isempty';
+
+import { saveAs } from 'file-saver'
 
 import { dateAddAction } from './actions/dateAddAction';
 /**
@@ -96,6 +103,16 @@ const styles = theme => ({
     rc_slider_mark:
     {
         top: '12px'
+    },
+    button: {
+        margin: 0,
+    },
+    icon: {
+        margin: theme.spacing.unit * 2,
+        color: blue[600],
+        width: 30,
+        height: 30,
+        margin: 0
     }
 });
 
@@ -127,7 +144,9 @@ class MenuTable extends Component {
             defaultPageSize,
             hideFiltartion,
             isEdit,
-            isForceToggle
+            isForceToggle,
+            isData,
+            isTableStation
         } = props;
 
         if (isStation) { isNll = true }
@@ -153,7 +172,9 @@ class MenuTable extends Component {
             isSensor,
             defaultPageSize,
             hideFiltartion,
-            averaging: 1
+            averaging: 1,
+            isData,
+            isTableStation
 
         };
 
@@ -169,6 +190,46 @@ class MenuTable extends Component {
         this.handleUpdateSQLClick = this.handleUpdateSQLClick.bind(this);
 
     }
+
+    handleExcelSave = (name) => {
+    
+        const {dateReportEnd} = this.props;
+        var date ='';
+        var chemical = this.state.chemical;
+        
+        
+         var   date =new Date().format('dd-MM-Y_H:mm');
+        var pollution = this.props.dataList;
+        var values = [], data =[];
+
+        values.push({pollution : pollution});
+        data.push({station: this.props.stationName},{values: values});
+        
+         
+         if (!isEmpty(this.props.dataList)) {
+        
+            this.props.reportXlsGen( {report: 'table', station: this.props.stationName, date: date,data_4_report : data, chemical: 'Export'}).then(response =>{
+            //var xhr = new XMLHttpRequest();
+        
+            var type = response.headers['content-type'];
+            var filename = "";
+            var disposition = response.headers['content-disposition'];
+        
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                var matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+            }
+            //var blob = new File([response], filename, { type: type });
+            var blob = new Blob([response.data], { type: type });
+        
+            saveAs(blob, filename);
+        
+            });
+         }
+        
+        };
+        
 
     handleUpdateSQLClick() {
         this.props.handleUpdateData();
@@ -279,7 +340,7 @@ class MenuTable extends Component {
 
             <nav className="navbar form-control classes.container">
                 <div className="navbar-header"   >
-                    <IconButton
+                 {(this.state.isSensor || this.state.isTableStation)  && <IconButton
                         className={classes.button}
                         tooltip={'Обновить'}
                         onClick={this.handleRefresh('all')} //fake parameter for return function call
@@ -288,6 +349,19 @@ class MenuTable extends Component {
                             <RenewIcon />
                         </Icon>
                     </IconButton>
+                 }
+
+            {(this.state.isData) && <Tooltip id="tooltip-charts-view4" title="Экспорт в Excel">
+
+                    <IconButton className={classes.button} onClick = {this.handleExcelSave} aria-label="Экспорт в Excel">
+                        <SvgIcon className={classes.icon}>
+                            <path d="M6,2H14L20,8V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2M13,3.5V9H18.5L13,
+                            3.5M17,11H13V13H14L12,14.67L10,13H11V11H7V13H8L11,15.5L8,18H7V20H11V18H10L12,16.33L14,
+                            18H13V20H17V18H16L13,15.5L16,13H17V11Z" />
+                        </SvgIcon>
+                    </IconButton>
+
+                </Tooltip>}
                     {(this.state.isEdit) && (!this.props.isForceToggle) &&
                         <IconButton className={classes.button} tooltip={'Записать'} aria-label="Записать">
                             <Icon className={classes.icon} color="primary" onClick={this.handleUpdateSQLClick}>
@@ -341,7 +415,10 @@ class MenuTable extends Component {
 
                         />
                     }
+
+                    
                 </div>
+
                 <div className="navbar-right">
 
                     <IconMenu
@@ -393,6 +470,7 @@ class MenuTable extends Component {
                     </IconMenu>
 
                 </div>
+
                 <Snackbar
                     open={this.props.isLoading}
                     // TransitionComponent={<Slider direction="up" />}

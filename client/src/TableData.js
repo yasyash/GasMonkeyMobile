@@ -40,6 +40,9 @@ import Toggle from 'material-ui/Toggle';
 import { withStyles } from '@material-ui/core/styles';
 import { isNull } from 'util';
 
+import { reportGen, reportXlsGen } from './actions/genReportActions';
+
+
 Object.assign(ReactTableDefaults, {
     previousText: 'Предыдущие',
     nextText: 'Следующие',
@@ -128,7 +131,8 @@ class TableData extends React.Component {
             selection: [],
             selectAll: false,
             hideFiltartion: false,
-            isEdit: false
+            isEdit: false,
+            isData: true
         };
 
 
@@ -514,8 +518,11 @@ class TableData extends React.Component {
                     handleClick={this.handleClick.bind(this)}
                     handleClose={this.handleClose.bind(this)}
                     handleUpdateData={this.handleUpdateData.bind(this)}
+                    reportXlsGen={this.props.reportXlsGen.bind(this)}
                     height={this.state.height}
                     auth ={auth}
+                    dataList = {this.props.dataList}
+                    stationName = {this.props.station_actual}
 
                 />
                 <br />
@@ -673,4 +680,4 @@ TableData.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent, addDataList, deleteDataList, updateData })(withRouter(withStyles(styles)(TableData)));
+export default connect(mapStateToProps, { queryEvent, addDataList, deleteDataList, updateData, reportXlsGen })(withRouter(withStyles(styles)(TableData)));

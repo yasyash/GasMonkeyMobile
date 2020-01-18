@@ -155,6 +155,11 @@ router.get('/report_excel', authenticate, (req, resp) => {
         var filename = 'TZA_4_Report_station_' + data.station + '_Substance_' + data.chemical + '_' + data.date + '.xlsx';
         var filereport = 'tza4_templ.xlsx'
     };
+
+    if (data.report == 'table') {
+        var filename = 'Table_' + data.station + '_' + data.chemical + '_' + data.date + '.xlsx';
+        var filereport = 'table_templ.xlsx'
+    };
     var filepath = './reports/';
 
 

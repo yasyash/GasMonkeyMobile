@@ -123,7 +123,8 @@ class TableForm extends React.Component {
             selectAll: false,
 
             isUpdated: false,
-            auth: auth
+            auth: auth,
+            isTableStation: true
         };
 
 
