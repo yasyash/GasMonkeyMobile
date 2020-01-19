@@ -251,7 +251,7 @@ router.post('/soap_insert', authenticate, (req, resp) => {
             if (!isEmpty(arr[0]))
                 id = String(Number(arr[0].id) + 1);
 
-            console.log(id)
+            //console.log(data.idd);
 
             let namestation = data.namestation;
             let address = data.address;

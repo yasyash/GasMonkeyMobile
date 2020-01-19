@@ -37,7 +37,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { ChromePicker } from 'react-color';
 
 
-import shortid from 'shortid';
+import shortid from 'uuid/v1';
 import reactCSS from 'reactcss'
 
 //import './Table.css';
@@ -144,7 +144,7 @@ class EquipmentForm extends React.Component {
 
     setData(data_in) {
         const data = data_in.map(item => {
-            const _id = shortid.generate();
+            const _id = shortid();
 
 
             Object.assign(item, { _id: _id });
@@ -474,7 +474,7 @@ class EquipmentForm extends React.Component {
     }
 
     handleDialogAdd() {
-        this.setState({ serialnum: shortid.generate() });
+        this.setState({ serialnum: shortid() });
 
         this.setState({ openDialog: true });
 

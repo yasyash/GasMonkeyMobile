@@ -42,6 +42,7 @@ function cron_email() {
                     var _port = result_str[0].port;
                     var _usermailer = result_str[0].username;
                     var _passwordmailer = result_str[0].password;
+                    var _address = result_str[0]._address;
 
 
                     LOGS.query('where', 'date_time', '>', _time)
@@ -51,7 +52,7 @@ function cron_email() {
                                 users.forEach(_user => {
                                     
                                     var transporter = nodemailer.createTransport({
-                                        host: "smtp1.mtw.ru",
+                                        host: _address, //smtp server
                                         port: _port,
                                         secure: false, // true for 465, false for other ports
                                         auth: {
@@ -80,7 +81,14 @@ function cron_email() {
                                                 try_email(transporter, element, _user.email);
 
                                                 break;
+                                                case 110:
+                                                        try_email(transporter, element, _user.email); //door alrm
+        
+                                                break;
+                                                case 111:
+                                                try_email(transporter, element, _user.email); //fire alarm
 
+                                                break;
                                             default: break;
                                         }
                                     });

@@ -36,7 +36,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 
-import shortid from 'shortid';
+import shortid from 'uuid/v1';
 //import './Table.css';
 //import './css/rwd-table.css';
 
@@ -122,7 +122,7 @@ class SoapForm extends React.Component {
             login: '',
             password_soap: '',
             updateperiod: 300,
-            idd: shortid.generate(),
+            idd: shortid(),
             namestation: '',
             place:'',
             latitude:0,
@@ -139,7 +139,7 @@ class SoapForm extends React.Component {
 
     setData(data_in) {
         const data = data_in.map(item => {
-            const _id = shortid.generate();
+            const _id = shortid();
 
 
             Object.assign(item, { _id: _id });
