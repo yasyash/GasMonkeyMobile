@@ -173,11 +173,13 @@ class DashBoard extends Component {
             let _door_alert = false;
             let _fire_alert = false;
             var door_alert = [];
-            let fire_alert = [];
+            var fire_alert = [];
             let { stationsList } = this.state;
             today -= 600000;
 
             stationsList.map((_item, _ind) => {
+              var door_alert_tmp = [];
+              var fire_alert_tmp = [];
               dataList.map((item, ind) => {
                 if (_item.id == item.id) {
 
@@ -187,27 +189,31 @@ class DashBoard extends Component {
                     item.is_alert ? _door_alert = true : _door_alert = false
                     let obj = {};
                     obj[item.id] = _door_alert;
-                    door_alert.push(obj);
+                    door_alert_tmp.push(obj);
                   }
                   if (item.typemeasure.includes('Пожар')) {
                     item.is_alert ? _fire_alert = true : _fire_alert = false;
                     let obj = {};
                     obj[item.id] = _fire_alert;
-                    fire_alert.push(obj);
+                    fire_alert_tmp.push(obj);
                   }
                   //door_alert[_item.id] = _door_alert;
                   //fire_alert[_item.id] = _fire_alert;
 
                 }
               });
+              if (fire_alert_tmp.length >0)
+              fire_alert.push(fire_alert_tmp[0]);
+              if (door_alert_tmp.length >0)
+              door_alert.push(door_alert_tmp[0]);
             });
 
             this.setState({
               dataList, sensorsList, macsList, alertsList, systemList,
               dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
               dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
-              door_alert: door_alert,
-              fire_alert: fire_alert
+              door_alert,
+              fire_alert
             });
             if (isEmpty(this.props.systemList)) {
 
@@ -243,6 +249,7 @@ class DashBoard extends Component {
 
     if (is_admin) {
       if (stationsList) {// if not empty
+        
         stationsList.map((item, i) => (
 
           door_alert_filter = door_alert.filter((_itm, _in, arr) => {
@@ -348,10 +355,10 @@ class DashBoard extends Component {
                 {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_door'}>
                   <Card>
                     <CardHeader stats icon >
-                      <CardIcon color={door_alert_filter ? "danger" : "info"} style={{ padding: "5px" }} >
+                      <CardIcon color={((door_alert_filter.length >0) &&(door_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
                         <Build />
                       </CardIcon>
-                      <p className={classes.cardCategory}>{door_alert_filter ? "Взлом" : "Норма"}</p>
+                      <p className={classes.cardCategory}>{((door_alert_filter.length >0) &&(door_alert_filter) )? "Взлом" : "Норма"}</p>
 
 
                       <h6 className={classes.cardTitle}>Датчик двери</h6>
@@ -369,10 +376,10 @@ class DashBoard extends Component {
                 {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_fire'}>
                   <Card>
                     <CardHeader stats icon >
-                      <CardIcon color={fire_alert_filter ? "danger" : "info"} style={{ padding: "5px" }} >
+                      <CardIcon color={((fire_alert_filter.length >0) &&(fire_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
                         <Build />
                       </CardIcon>
-                      <p className={classes.cardCategory}>{fire_alert_filter ? "Тревога" : "Норма"}</p>
+                      <p className={classes.cardCategory}>{((fire_alert_filter.length >0) &&(fire_alert_filter)) ? "Тревога" : "Норма"}</p>
 
 
                       <h6 className={classes.cardTitle}>Сигнал пожара</h6>
