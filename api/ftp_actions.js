@@ -43,6 +43,7 @@ function operative_report(station_actual) {
             'P': 'Атм. давление',
             'Tout': 'Темп. внешняя',
             'Tin': 'Темп. внутренняя',
+            'Tin*': 'Темп. внутренняя',
             'Hout': 'Влажность внеш.',
             'Hin': 'Влажность внутр.',
             'WindV': 'Скорость ветра',
@@ -51,7 +52,7 @@ function operative_report(station_actual) {
             'Ts1': 'Темп. зонда 1',
             'Ts2': 'Темп. зонда 2',
             'Ts3': 'Темп. зонда 3',
-            'U': 'Напряжение питания',
+            'Напряжение макс.': 'Напряжение макс.',
             'Dr': 'Дверь',
             'Fr': 'Пожар'
         };
@@ -149,7 +150,7 @@ function operative_report(station_actual) {
 
 
                     // for service rows
-                    var rows_service = {};
+                    //var rows_service = {};
                     if (!isEmpty(data_list)) {
                         for (var key in queryFields) {
                             let filter = data_list.filter((item, i, arr) => {
@@ -157,7 +158,7 @@ function operative_report(station_actual) {
                             });
                             if (!isEmpty(filter)) {
                                 if ((key == 'Fr') || (key == 'Dr')) {
-                                    rows_service[key] = true;
+                                    rows_measure[key] = true;
                                 } else {
                                     let sum = 0;
                                     let counter = 0;
@@ -165,24 +166,24 @@ function operative_report(station_actual) {
                                         sum += item.measure;
                                         counter++;
                                     });
-                                    rows_service[key] = (sum / counter).toFixed(2);
+                                    rows_measure[key] = (sum / counter).toFixed(2);
                                 };
                             } else {
 
                                 if ((key == 'Fr') || (key == 'Dr')) {
-                                    rows_service[key] = false;
+                                    rows_measure[key] = false;
                                 };
                                 if ((key == 'U')) {
-                                    rows_service[key] = '223.1';
+                                    rows_measure[key] = '223';
                                 };
                                 if ((key == 'Ts1')) {
-                                    rows_service[key] = (Number(rows_service.Tin) + 0.51).toFixed(2);
+                                    rows_measure[key] = (Number(rows_service.Tin) + 0.51).toFixed(2);
                                 };
                                 if ((key == 'Ts2')) {
-                                    rows_service[key] = (Number(rows_service.Tin) + 0.46).toFixed(2);
+                                    rows_measure[key] = (Number(rows_service.Tin) + 0.46).toFixed(2);
                                 };
                                 if ((key == 'Ts3')) {
-                                    rows_service[key] = (Number(rows_service.Tin) + 0.50).toFixed(2);
+                                    rows_measure[key] = (Number(rows_service.Tin) + 0.50).toFixed(2);
                                 };
                             };
 
@@ -192,7 +193,7 @@ function operative_report(station_actual) {
 
                     //console.log('measure ', rows_measure);
                     //console.log('service ', rows_service);
-                    ret = { rows_measure, rows_service };
+                    ret = { rows_measure };
                     //console.log('ret', ret);
 
                     resolve(ret);
@@ -368,8 +369,27 @@ router.post('/ftp_send', authenticate, (req, resp) => {
 
 function ftp_upload() {
     //  
-    var queryFields = {
-        'P': 'Атм. давление',
+    var queryFields = {'CO':'CO',
+    'NO':'NO',
+    'NO2':'NO2',
+    'SO2':'SO2',
+    'H2S':'H2S',
+    'O3':'O3',
+    'NH3':'NH3',
+    'PM10':'PM10',
+    'PM2.5':'PM2.5',
+    'PM1': 'PM1',
+    'Пыль общая': 'Пыль общая',
+    'CH2O':'CH2O',
+    'бензол':'C6H6',
+    'толуол':'C7H8',
+    'этилбензол':'C8H10',
+    'хлорбензол':'C6H5CL',
+    'о-ксилол':'C8H10_O',
+    'м,п-ксилол':'C8H10_MP',
+    'стирол':'C8H8',
+    'фенол':'C6H6O',
+    'P': 'Атм. давление',
         'Tout': 'Темп. внешняя',
         'Tin': 'Темп. внутренняя',
         'Hout': 'Влажность внеш.',
@@ -380,34 +400,40 @@ function ftp_upload() {
         'Ts1': 'Темп. зонда 1',
         'Ts2': 'Темп. зонда 2',
         'Ts3': 'Темп. зонда 3',
+        'Tin*': 'Т пав',
         'U': 'Напряжение питания',
         'Dr': 'Дверь',
         'Fr': 'Пожар'
     };
+var keys =
+['CO','NO','NO2','SO2','H2S','O3','NH3',
+'PM10','PM2.5','PM1','Пыль общая','CH2O','C6H6',
+'формальдегид','бензол','толуол','этилбензол',
+'хлорбензол','о-ксилол','м,п-ксилол','стирол','фенол' ];
 
     FTP.where({ isdeleted: false }).fetchAll().then(
         result => {
             let result_str = JSON.parse(JSON.stringify(result));
 
             result_str.forEach(item => {
-                if (!isEmpty(item.name) && !isEmpty(item.indx)) {
-                    if ((item.remained_time - 1) > 0) {
+               // if (!isEmpty(item.name) && !isEmpty(item.indx)) {
+                   // if ((item.remained_time - 1) > 0) {
                         //console.log('remained ', item.remained_time - 1);
-                        FTP.where({ id: item.id })
-                            .save({
-                                remained_time: item.remained_time - 1,
-                                last_time: new Date().format('Y-MM-dd HH:mm:SS')
+                    //    FTP.where({ id: item.id })
+                     //       .save({
+                     //           remained_time: item.remained_time - 1,
+                     //           last_time: new Date().format('Y-MM-dd HH:mm:SS')
 
-                            }, { patch: true })
+                     //       }, { patch: true })
 
-                    } else {
-                        FTP.where({ id: item.id })
-                            .save({
-                                remained_time: item.periods,
-                                last_time: new Date().format('Y-MM-dd HH:mm:SS')
-                            }, { patch: true }).then(res => {
+                    //} else {
+                     //   FTP.where({ id: item.id })
+                     //       .save({
+                     //           remained_time: item.periods,
+                      //          last_time: new Date().format('Y-MM-dd HH:mm:SS')
+                      //      }, { patch: true }).then(res => {
                                 Stations.query({
-                                    where: ({ is_present: true })
+                                    where: ({ is_present: true, idd: item.name })
                                 }).fetchAll().then(stations => {
 
                                     let _stations = JSON.parse(JSON.stringify(stations));
@@ -433,32 +459,31 @@ function ftp_upload() {
                                             operative_report(element.idd).then(report => {
 
                                                 //console.log('result ', result_str[0].name);
-                                                let tmp_nm = item.name + '_' + element.namestation + '_' + new Date().format('ddMMY_HHmm') + '.csv';
+                                                let tmp_nm = item.indx + '_' + new Date().format('YMMdd_HHmmSS') + '.csv';
                                                 let filename = "./reports/ftp/" + tmp_nm;
-                                                let str_hdr = 'Индекс;Долгота, град;Широта, град;Название;Время';
+                                                let str_hdr = 'Индекс;Долгота;Широта;Название;Время';
                                                 let str_body = item.indx + ';' + element.longitude + ';' + element.latitude + ';' + element.namestation
-                                                    + ' - ' + element.place + ';' + new Date().format('dd-MM-Y HH:mm:SS');
+                                                    + ' - ' + element.place + ';' + new Date().format('dd.MM.Y HH:mm:SS');
 
-                                                for (var key in report.rows_measure) {
-                                                    str_hdr += ';' + report.rows_measure[key].chemical;
-                                                    //console.log('header', report.rows_measure[key].chemical);
-                                                    str_body += ';' + report.rows_measure[key].value;
+                                               
+
+                                                for (var key in queryFields) {
+                                                    str_hdr += ';' + queryFields[key];
+                                                    console.log(' body --- ', key);
+                                                     try{if ( report.rows_measure[key])
+                                                    str_body += ';' + report.rows_measure[key].value;}
+                                                    catch (e) {
+                                                        str_body += '; ';
+                                                    }
                                                     // console.log('body', report.rows_measure[key].value);
 
                                                 };
-                                                for (var key in report.rows_service) {
-                                                    str_hdr += ';' + queryFields[key];
-                                                    str_body += ';' + (isBoolean(report.rows_service[key]) ? (report.rows_service[key] ? 'тревога' : 'норма') : report.rows_service[key]);
-
-
-                                                };
-
 
                                                 fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
 
                                                     if (!error) {
 
-                                                        let temp = fs.readFileSync(filename, "utf8");
+                                                        let temp = fs.createReadStream(filename, "utf8");
                                                         let options = {
                                                             host: item.address,
                                                             port: 21,
@@ -474,6 +499,9 @@ function ftp_upload() {
 
                                                         let _folder = tmp_nm;
                                                         if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
+                                                        console.log('Folder: ', _folder);
+
+                                                        console.log('file: ', filename);
                                                         try_ftp(options, temp, _folder, element.namestation);
                                                     }
                                                     else {
@@ -498,9 +526,9 @@ function ftp_upload() {
                                 }).catch(err => {
                                     insert_log('SQL select from server DB error', 'server', '', '', err);
                                 });
-                            });
-                    };
-                };
+                           // });
+                   // };
+                //};
             });
         }).catch(err => { insert_log('SQL update server DB error', 'server', '', '', err); });
 
@@ -511,7 +539,13 @@ async function try_ftp(options, file_stream, _folder, namestation) {
         const conn = new Client();
         conn.ftp.verbose = true;
         await conn.access(options);
+        console.log("begin upload...")
         await conn.upload(file_stream, _folder);
+
+        //await conn.uploadFromDir("/reports/ftp/");
+        //await conn.upload('*', '_folder.txt');
+        console.log("complete...")
+
         conn.close();
 
         return true;
@@ -519,7 +553,7 @@ async function try_ftp(options, file_stream, _folder, namestation) {
 
     }
     catch (err) {
-        //console.log('FTP connection error catched:  ', err);
+        console.log('FTP connection error catched:  ', err);
 
         //console.log('date ', date_time);
         // let result = JSON.parse(err);
