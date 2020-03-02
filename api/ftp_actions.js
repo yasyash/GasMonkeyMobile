@@ -141,16 +141,14 @@ function operative_report(station_actual) {
                             range_macs = quotient / element.max_m;
 
                             rows_measure.push({
-                                'chemical': element.chemical + ', мг/м.куб.', 'macs': element.max_m,
-                                'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
-                                'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(6)
+                                'chemical': element.chemical, 'value': quotient.toFixed(6)
                             })
                         };
                     });
 
 
                     // for service rows
-                    //var rows_service = {};
+                    var rows_service = {};
                     if (!isEmpty(data_list)) {
                         for (var key in queryFields) {
                             let filter = data_list.filter((item, i, arr) => {
@@ -158,7 +156,9 @@ function operative_report(station_actual) {
                             });
                             if (!isEmpty(filter)) {
                                 if ((key == 'Fr') || (key == 'Dr')) {
-                                    rows_measure[key] = true;
+                                    rows_measure.push({
+                                        'chemical': key, 'value': false
+                                    })
                                 } else {
                                     let sum = 0;
                                     let counter = 0;
@@ -166,24 +166,37 @@ function operative_report(station_actual) {
                                         sum += item.measure;
                                         counter++;
                                     });
-                                    rows_measure[key] = (sum / counter).toFixed(2);
+                                    rows_measure.push({
+                                        'chemical': key, 'value': (sum / counter).toFixed(2)
+                                    })
+
                                 };
                             } else {
 
                                 if ((key == 'Fr') || (key == 'Dr')) {
-                                    rows_measure[key] = false;
+                                    rows_measure.push({
+                                        'chemical': key, 'value': false
+                                    })
                                 };
                                 if ((key == 'U')) {
-                                    rows_measure[key] = '223';
+                                    rows_measure.push({
+                                        'chemical': U, 'value': 223
+                                    })
                                 };
                                 if ((key == 'Ts1')) {
-                                    rows_measure[key] = (Number(rows_service.Tin) + 0.51).toFixed(2);
+                                    rows_measure.push({
+                                        'chemical': key, 'Ts1': (Number(rows_service.Tin) + 0.51).toFixed(2)
+                                    })
                                 };
                                 if ((key == 'Ts2')) {
-                                    rows_measure[key] = (Number(rows_service.Tin) + 0.46).toFixed(2);
+                                    rows_measure.push({
+                                        'chemical': key, 'Ts2': (Number(rows_service.Tin) + 0.46).toFixed(2)
+                                    })
                                 };
                                 if ((key == 'Ts3')) {
-                                    rows_measure[key] = (Number(rows_service.Tin) + 0.50).toFixed(2);
+                                    rows_measure.push({
+                                        'chemical': key, 'Ts3': (Number(rows_service.Tin) + 0.5).toFixed(2)
+                                    })
                                 };
                             };
 
@@ -193,7 +206,7 @@ function operative_report(station_actual) {
 
                     //console.log('measure ', rows_measure);
                     //console.log('service ', rows_service);
-                    ret = { rows_measure };
+                    ret = { rows_measure, rows_service };
                     //console.log('ret', ret);
 
                     resolve(ret);
@@ -369,27 +382,28 @@ router.post('/ftp_send', authenticate, (req, resp) => {
 
 function ftp_upload() {
     //  
-    var queryFields = {'CO':'CO',
-    'NO':'NO',
-    'NO2':'NO2',
-    'SO2':'SO2',
-    'H2S':'H2S',
-    'O3':'O3',
-    'NH3':'NH3',
-    'PM10':'PM10',
-    'PM2.5':'PM2.5',
-    'PM1': 'PM1',
-    'Пыль общая': 'Пыль общая',
-    'CH2O':'CH2O',
-    'бензол':'C6H6',
-    'толуол':'C7H8',
-    'этилбензол':'C8H10',
-    'хлорбензол':'C6H5CL',
-    'о-ксилол':'C8H10_O',
-    'м,п-ксилол':'C8H10_MP',
-    'стирол':'C8H8',
-    'фенол':'C6H6O',
-    'P': 'Атм. давление',
+    var queryFields = {
+        'CO': 'CO',
+        'NO': 'NO',
+        'NO2': 'NO2',
+        'SO2': 'SO2',
+        'H2S': 'H2S',
+        'O3': 'O3',
+        'NH3': 'NH3',
+        'PM10': 'PM10',
+        'PM2.5': 'PM2.5',
+        'PM1': 'PM1',
+        'Пыль общая': 'Пыль общая',
+        'CH2O': 'CH2O',
+        'бензол': 'C6H6',
+        'толуол': 'C7H8',
+        'этилбензол': 'C8H10',
+        'хлорбензол': 'C6H5CL',
+        'о-ксилол': 'C8H10_O',
+        'м,п-ксилол': 'C8H10_MP',
+        'стирол': 'C8H8',
+        'фенол': 'C6H6O',
+        'P': 'Атм. давление',
         'Tout': 'Темп. внешняя',
         'Tin': 'Темп. внутренняя',
         'Hout': 'Влажность внеш.',
@@ -405,129 +419,136 @@ function ftp_upload() {
         'Dr': 'Дверь',
         'Fr': 'Пожар'
     };
-var keys =
-['CO','NO','NO2','SO2','H2S','O3','NH3',
-'PM10','PM2.5','PM1','Пыль общая','CH2O','C6H6',
-'формальдегид','бензол','толуол','этилбензол',
-'хлорбензол','о-ксилол','м,п-ксилол','стирол','фенол' ];
+    var keys =
+        ['CO', 'NO', 'NO2', 'SO2', 'H2S', 'O3', 'NH3',
+            'PM10', 'PM2.5', 'PM1', 'Пыль общая', 'CH2O', 'C6H6',
+            'формальдегид', 'бензол', 'толуол', 'этилбензол',
+            'хлорбензол', 'о-ксилол', 'м,п-ксилол', 'стирол', 'фенол'];
 
     FTP.where({ isdeleted: false }).fetchAll().then(
         result => {
             let result_str = JSON.parse(JSON.stringify(result));
 
             result_str.forEach(item => {
-               // if (!isEmpty(item.name) && !isEmpty(item.indx)) {
-                   // if ((item.remained_time - 1) > 0) {
-                        //console.log('remained ', item.remained_time - 1);
-                    //    FTP.where({ id: item.id })
-                     //       .save({
-                     //           remained_time: item.remained_time - 1,
-                     //           last_time: new Date().format('Y-MM-dd HH:mm:SS')
+                // if (!isEmpty(item.name) && !isEmpty(item.indx)) {
+                // if ((item.remained_time - 1) > 0) {
+                //console.log('remained ', item.remained_time - 1);
+                //    FTP.where({ id: item.id })
+                //       .save({
+                //           remained_time: item.remained_time - 1,
+                //           last_time: new Date().format('Y-MM-dd HH:mm:SS')
 
-                     //       }, { patch: true })
+                //       }, { patch: true })
 
-                    //} else {
-                     //   FTP.where({ id: item.id })
-                     //       .save({
-                     //           remained_time: item.periods,
-                      //          last_time: new Date().format('Y-MM-dd HH:mm:SS')
-                      //      }, { patch: true }).then(res => {
-                                Stations.query({
-                                    where: ({ is_present: true, idd: item.name })
-                                }).fetchAll().then(stations => {
+                //} else {
+                //   FTP.where({ id: item.id })
+                //       .save({
+                //           remained_time: item.periods,
+                //          last_time: new Date().format('Y-MM-dd HH:mm:SS')
+                //      }, { patch: true }).then(res => {
+                Stations.query({
+                    where: ({ is_present: true, idd: item.name })
+                }).fetchAll().then(stations => {
 
-                                    let _stations = JSON.parse(JSON.stringify(stations));
-                                    //console.log(_stations);
-                                    var dataTable = [];
+                    let _stations = JSON.parse(JSON.stringify(stations));
+                    //console.log(_stations);
+                    var dataTable = [];
 
-                                    if (_stations) {
+                    if (_stations) {
 
-                                        // let stations = _stations.stations;
-                                        _stations.forEach(element => {
-                                            dataTable.push({
-                                                id: element.idd,
-                                                code: element.code,
-                                                namestation: element.namestation,
-                                                date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
-                                                date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
-                                                place: element.place,
-                                                latitude: element.latitude,
-                                                longitude: element.longitude
+                        // let stations = _stations.stations;
+                        _stations.forEach(element => {
+                            dataTable.push({
+                                id: element.idd,
+                                code: element.code,
+                                namestation: element.namestation,
+                                date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
+                                date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
+                                place: element.place,
+                                latitude: element.latitude,
+                                longitude: element.longitude
 
-                                            });
-                                            //console.log(element.idd);
-                                            operative_report(element.idd).then(report => {
+                            });
+                            console.log(element.idd);
+                            operative_report(element.idd).then(report => {
 
-                                                //console.log('result ', result_str[0].name);
-                                                let tmp_nm = item.indx + '_' + new Date().format('YMMdd_HHmmSS') + '.csv';
-                                                let filename = "./reports/ftp/" + tmp_nm;
-                                                let str_hdr = 'Индекс;Долгота;Широта;Название;Время';
-                                                let str_body = item.indx + ';' + element.longitude + ';' + element.latitude + ';' + element.namestation
-                                                    + ' - ' + element.place + ';' + new Date().format('dd.MM.Y HH:mm:SS');
-
-                                               
-
-                                                for (var key in queryFields) {
-                                                    str_hdr += ';' + queryFields[key];
-                                                    console.log(' body --- ', key);
-                                                     try{if ( report.rows_measure[key])
-                                                    str_body += ';' + report.rows_measure[key].value;}
-                                                    catch (e) {
-                                                        str_body += '; ';
-                                                    }
-                                                    // console.log('body', report.rows_measure[key].value);
-
-                                                };
-
-                                                fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
-
-                                                    if (!error) {
-
-                                                        let temp = fs.createReadStream(filename, "utf8");
-                                                        let options = {
-                                                            host: item.address,
-                                                            port: 21,
-                                                            user: item.username,
-                                                            password: item.pwd,
-                                                            secure: false
-                                                            //secureOptions: undefined,
-                                                            //connTimeout: undefined,
-                                                            //pasvTimeout: undefined,
-                                                            //aliveTimeout: undefined
-                                                        };
-
-
-                                                        let _folder = tmp_nm;
-                                                        if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
-                                                        console.log('Folder: ', _folder);
-
-                                                        console.log('file: ', filename);
-                                                        try_ftp(options, temp, _folder, element.namestation);
-                                                    }
-                                                    else {
-                                                      //console.log('File creation error: ', error);
-                                                        insert_log('File creation error', 'server', '', '', error + ' or local folder: ./reports/ftp/ does not exist');
-
-                                                    }
-                                                })
+                                //console.log('result ', result_str[0].name);
+                                let tmp_nm = item.indx + '_' + new Date().format('YMMdd_HHmmSS') + '.csv';
+                                let filename = "./reports/ftp/" + tmp_nm;
+                                let str_hdr = 'Индекс;Долгота;Широта;Название;Время';
+                                let str_body = item.indx + ';' + element.longitude + ';' + element.latitude + ';' + element.namestation
+                                    + ' - ' + element.place + ';' + new Date().format('dd.MM.Y HH:mm:SS');
 
 
 
-                                            })
+                                for (var key in queryFields) {
+                                    str_hdr += ';' + queryFields[key];
+                                    var filter = report.rows_measure.filter((item, i, arr) => {
+                                        return item.chemical == key;
+                                    });
+
+                                    //console.log(' body --- ', filter);
+                                    if (!isEmpty(filter)) {
+                                        str_body += ';' + filter[0].value;
+                                        //console.log(' val --- ', filter[0].value);
+                                    }
+                                    else {
+                                        str_body += '; ';
+                                    }
+
+                                    // console.log('body', report.rows_measure[key].value);
+
+                                };
+
+                                fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
+
+                                    if (!error) {
+
+                                        let temp = fs.createReadStream(filename, "utf8");
+                                        let options = {
+                                            host: item.address,
+                                            port: 21,
+                                            user: item.username,
+                                            password: item.pwd,
+                                            secure: false
+                                            //secureOptions: undefined,
+                                            //connTimeout: undefined,
+                                            //pasvTimeout: undefined,
+                                            //aliveTimeout: undefined
+                                        };
+
+
+                                        let _folder = tmp_nm;
+                                        if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
+                                        //console.log('Folder: ', _folder);
+
+                                        //console.log('file: ', filename);
+                                        try_ftp(options, temp, _folder, element.namestation);
+                                    }
+                                    else {
+                                        //console.log('File creation error: ', error);
+                                        insert_log('File creation error', 'server', '', '', error + ' or local folder: ./reports/ftp/ does not exist');
+
+                                    }
+                                })
 
 
 
-                                        });
+                            })
 
 
 
-                                    };
+                        });
 
-                                }).catch(err => {
-                                    insert_log('SQL select from server DB error', 'server', '', '', err);
-                                });
-                           // });
-                   // };
+
+
+                    };
+
+                }).catch(err => {
+                    insert_log('SQL select from server DB error', 'server', '', '', err);
+                });
+                // });
+                // };
                 //};
             });
         }).catch(err => { insert_log('SQL update server DB error', 'server', '', '', err); });
@@ -566,16 +587,16 @@ async function try_ftp(options, file_stream, _folder, namestation) {
 };
 
 async function insert_log(reason, host, user, namestation, err) {
-    
-        let date_time = new Date().format('Y-MM-dd HH:mm:SS');
-        await LOGS.forge({
-            date_time,
-            type: 500, descr: (reason + ' at address: ' + host + '; Login: ' + user + '; Station: ' + namestation + '; Reason: ' + err)
-        }).save();
 
-    };
+    let date_time = new Date().format('Y-MM-dd HH:mm:SS');
+    await LOGS.forge({
+        date_time,
+        type: 500, descr: (reason + ' at address: ' + host + '; Login: ' + user + '; Station: ' + namestation + '; Reason: ' + err)
+    }).save();
 
-    export default ftp_upload;
+};
+
+export default ftp_upload;
 
 
 
