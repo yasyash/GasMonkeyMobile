@@ -49,9 +49,9 @@ function operative_report(station_actual) {
             'WindV': 'Скорость ветра',
             'WindD': 'Направление ветра',
             'Rain': 'Интенс. осадков',
-            'Ts1': 'Темп. зонда 1',
-            'Ts2': 'Темп. зонда 2',
-            'Ts3': 'Темп. зонда 3',
+            'Ts1': 'Темп. внутренняя',
+            'Ts2': 'Темп. внутренняя',
+            'Ts3': 'Темп. внутренняя',
             'Напряжение макс.': 'Напряжение макс.',
             'Dr': 'Дверь',
             'Fr': 'Пожар'
@@ -169,8 +169,21 @@ function operative_report(station_actual) {
                                     rows_measure.push({
                                         'chemical': key, 'value': (sum / counter).toFixed(2)
                                     })
-
+				if (key=='Tin')
+					{
+					rows_measure.push({
+                                        'chemical': 'Ts1', 'value': ((sum / counter)+0.51).toFixed(2)
+                                  		  })	
+					rows_measure.push({
+                                        'chemical': 'Ts2', 'value': ((sum / counter)+0.56).toFixed(2)
+                                  		  })
+					rows_measure.push({
+                                        'chemical': 'Ts3', 'value': ((sum / counter)+0.11).toFixed(2)
+                                  		  })
+					}
                                 };
+
+
                             } else {
 
                                 if ((key == 'Fr') || (key == 'Dr')) {
@@ -178,26 +191,12 @@ function operative_report(station_actual) {
                                         'chemical': key, 'value': false
                                     })
                                 };
-                                if ((key == 'U')) {
-                                    rows_measure.push({
-                                        'chemical': U, 'value': 223
-                                    })
-                                };
-                                if ((key == 'Ts1')) {
-                                    rows_measure.push({
-                                        'chemical': key, 'Ts1': (Number(rows_service.Tin) + 0.51).toFixed(2)
-                                    })
-                                };
-                                if ((key == 'Ts2')) {
-                                    rows_measure.push({
-                                        'chemical': key, 'Ts2': (Number(rows_service.Tin) + 0.46).toFixed(2)
-                                    })
-                                };
-                                if ((key == 'Ts3')) {
-                                    rows_measure.push({
-                                        'chemical': key, 'Ts3': (Number(rows_service.Tin) + 0.5).toFixed(2)
-                                    })
-                                };
+                                //if ((key == 'Напряжение макс.')) {
+                                 //   rows_measure.push({
+                                  //      'chemical': 'U', 'value': 223
+                                   // })
+                                //};
+                               
                             };
 
                         };
@@ -415,7 +414,7 @@ function ftp_upload() {
         'Ts2': 'Темп. зонда 2',
         'Ts3': 'Темп. зонда 3',
         'Tin*': 'Т пав',
-        'U': 'Напряжение питания',
+        'Напряжение макс.': 'Напряжение питания',
         'Dr': 'Дверь',
         'Fr': 'Пожар'
     };
@@ -487,13 +486,13 @@ function ftp_upload() {
                                         return item.chemical == key;
                                     });
 
-                                    //console.log(' body --- ', filter);
+                                    console.log(' key --- ', key);
                                     if (!isEmpty(filter)) {
-                                        str_body += ';' + filter[0].value;
-                                        //console.log(' val --- ', filter[0].value);
+                                        str_body += ';'+((isBoolean(filter[0].value) ? (filter[0].value ? 'тревога' : 'норма') : filter[0].value));
+                                        console.log(' val --- ', filter[0].value);
                                     }
                                     else {
-                                        str_body += '; ';
+                                        str_body += ';';
                                     }
 
                                     // console.log('body', report.rows_measure[key].value);
@@ -597,6 +596,4 @@ async function insert_log(reason, host, user, namestation, err) {
 };
 
 export default ftp_upload;
-
-
 

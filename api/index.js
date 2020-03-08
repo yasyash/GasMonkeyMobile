@@ -57,7 +57,7 @@ app.get('/*', (req, resp) => {
 
 const server = app.listen(3000, () => {
     console.log('Server is started on 3000 port...');
-   const task = cron.schedule('* * * * *', () => {
+   const task = cron.schedule('19,39,59 * * * *', () => {
         //running a task every minute 20 minute
         ftp_upload();
        //cron_email(); /when smtp exist
