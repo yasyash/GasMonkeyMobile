@@ -19,9 +19,10 @@ import ftp_actions from './ftp_actions';
 import cron from 'node-cron';
 import ftp_upload from './ftp_actions';
 import cron_email from './emailer';
+import cors from 'cors';
 
 const app = express();
-
+app.use(cors() );
 //var staticPath = path.join(__dirname, '/');
 //app.use(express.static(staticPath));
 

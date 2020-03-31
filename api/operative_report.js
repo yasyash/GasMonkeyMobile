@@ -135,7 +135,7 @@ router.get('/report_excel', authenticate, (req, resp) => {
     // const between_date = ['2018-05-21 00:00:00', '2018-05-21 19:05:00']
     // console.log('sensors ', data.sensors[0]);
     //if (data.report == 'operative') {
-    //console.log(data.html);
+    console.log("IN ");
     if (data.report == 'operative') {
         var filename = 'OperativeReport_station_' + data.station + '_' + data.date + '.xlsx';
         var filereport = 'operative_templ.xlsx'
@@ -167,13 +167,56 @@ router.get('/report_excel', authenticate, (req, resp) => {
 
     resp.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     resp.setHeader('Content-disposition', 'attachment; filename=' + filename);
-
+    console.log("data is =   ", data.data_4_report);
     carbone.render(path.resolve(filepath + filereport), data.data_4_report, function (err, result) {
         if (err) {
+            console.log("There is error occured...");
             return console.log(err);
         }
         // write the result
+        console.log("complete...");
+        // write the result
+        resp.send(result);
 
+    });
+
+   
+});
+
+router.post('/report_table', authenticate, (req, resp) => {
+    //  
+
+    let query = url.parse(req.url).query;
+    let obj = qs.parse(query);
+    let data = JSON.parse(obj.data);
+    //  if (query) {
+    //    obj = JSON.parse(decodeURIComponent(query))
+    //}
+    //const between_date = [data.period_from, data.period_to];
+    // const between_date = ['2018-05-21 00:00:00', '2018-05-21 19:05:00']
+    // console.log('sensors ', data.sensors[0]);
+    //if (data.report == 'operative') {
+    console.log("IN ");
+   
+    if (data.report == 'table') {
+        var filename = 'Table_' + data.station + '_' + data.chemical + '_' + data.date + '.xlsx';
+        var filereport = 'table_templ.xlsx'
+    };
+    var filepath = './reports/';
+
+
+
+
+    resp.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    resp.setHeader('Content-disposition', 'attachment; filename=' + filename);
+    console.log("data is =   ", data.data_4_report);
+    carbone.render(path.resolve(filepath + filereport), data.data_4_report, function (err, result) {
+        if (err) {
+            console.log("There is error occured...");
+            return console.log(err);
+        }
+        // write the result
+        console.log("complete...");
         // write the result
         resp.send(result);
 

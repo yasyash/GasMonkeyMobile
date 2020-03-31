@@ -37,6 +37,7 @@ import isEmpty from 'lodash.isempty';
 import { saveAs } from 'file-saver'
 
 import { dateAddAction } from './actions/dateAddAction';
+import isDate from 'lodash.isdate';
 /**
  * Three controlled examples, the first allowing a single selection, the second multiple selections,
  * the third using internal state.
@@ -207,25 +208,53 @@ class MenuTable extends Component {
         
          
          if (!isEmpty(this.props.dataList)) {
-        
-            this.props.reportXlsGen( {report: 'table', station: this.props.stationName, date: date,data_4_report : data, chemical: 'Export'}).then(response =>{
-            //var xhr = new XMLHttpRequest();
-        
-            var type = response.headers['content-type'];
-            var filename = "";
-            var disposition = response.headers['content-disposition'];
-        
-            if (disposition && disposition.indexOf('attachment') !== -1) {
-                var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                var matches = filenameRegex.exec(disposition);
-                if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-            }
-            //var blob = new File([response], filename, { type: type });
-            var blob = new Blob([response.data], { type: type });
+    
+                var filename = 'Table_' + this.props.stationName + '_Export' + '_' + date + '.csv';
+              
+            var str_hdr = ';;;Данные наблюдения ПНЗ ;;\r\nВремя;Тип;Значение;Единицы;Тревога;id';
+            var str_body = "";
+            var keys = [];
+
+            data[1].values[0].pollution.forEach(item => {
+                if (item.date_time.indexOf ('Время') == -1){
+                    if (keys.length ==0){
+                        str_body += item.date_time + ";" + item.typemeasure + ";" + item.measure + ";" + item.unit_name + ";" +
+                       item.is_alert + ";" + item.serialnum + ";" + "\r\n";
+                    }
+                    else
+                    {
+                        str_body += item.date_time;
+                        keys.forEach(_item_key => {
+                            str_body += ";"+item[_item_key];
+                        })
+                        str_body += "\r\n";
+                    }
+
+                }
+                    else
+                    {
+                        
+                        str_hdr = ';;Данные наблюдения ПНЗ ;\r\n'+item.date_time;
+                        for (var __key in item)  {
+                            if ((__key !='date_time') &&(__key !='_id'))
+                                {
+                                    keys.push(__key);
+                                    str_hdr +=";"+item[__key];
+                                }
+                        }
+
+
+                }
+            });
+
+
+            var file = [str_hdr + '\r\n' + str_body];
+                 
+            var blob = new Blob([file], { type: "text/plain;charset=utf-8" });
         
             saveAs(blob, filename);
         
-            });
+            
          }
         
         };

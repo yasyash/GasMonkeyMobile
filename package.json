@@ -7,7 +7,7 @@
     "@material-ui/core": "^3.1.2",
     "@material-ui/icons": "^3.0.2",
     "adm-zip": "^0.4.11",
-    "axios": "^0.18.0",
+    "axios": "^0.19.2",
     "babel-cli": "^6.26.0",
     "babel-loader": "^7.1.4",
     "basic-ftp": "^3.8.1",
@@ -27,6 +27,7 @@
     "child_process": "^1.0.2",
     "classnames": "^2.2.5",
     "contextify": "^1.0.0",
+    "cors": "^2.8.5",
     "css-loader": "^0.28.11",
     "cssstyle": "^0.3.1",
     "date-and-time": "^0.6.2",
@@ -53,6 +54,7 @@
     "leaflet": "^1.4.0",
     "leaflet-draw": "^1.0.4",
     "leaflet.markercluster": "^1.4.1",
+    "lodash.isdate": "^4.0.1",
     "lodash.isempty": "^4.4.0",
     "material-dashboard-react": "^1.4.1",
     "material-ui": "^0.20.0",
@@ -106,7 +108,7 @@
     "webpack-hot-middleware": "^2.22.1"
   },
   "scripts": {
-    "server": "nodemon --watch server --exec babel-node -- api/index.js",
+    "server": "babel-node --max-old-space-size=3072 -- api/index.js",
     "production": "NODE_ENV=production nodemon --watch server --exec babel-node -- api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
