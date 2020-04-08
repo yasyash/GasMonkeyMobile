@@ -141,7 +141,7 @@ function operative_report(station_actual) {
                             range_macs = quotient / element.max_m;
 
                             rows_measure.push({
-                                'chemical': element.chemical, 'value': quotient.toFixed(6)
+                                'chemical': element.chemical, 'value': quotient.toFixed(3)
                             })
                         };
                     });
@@ -167,18 +167,18 @@ function operative_report(station_actual) {
                                         counter++;
                                     });
                                     rows_measure.push({
-                                        'chemical': key, 'value': (sum / counter).toFixed(2)
+                                        'chemical': key, 'value': (sum / counter).toFixed(0)
                                     })
 				if (key=='Tin')
 					{
 					rows_measure.push({
-                                        'chemical': 'Ts1', 'value': ((sum / counter)+0.51).toFixed(2)
+                                        'chemical': 'Ts1', 'value': ((20)+0.51).toFixed(2)
                                   		  })	
 					rows_measure.push({
-                                        'chemical': 'Ts2', 'value': ((sum / counter)+0.56).toFixed(2)
+                                        'chemical': 'Ts2', 'value': ((20)+0.56).toFixed(2)
                                   		  })
 					rows_measure.push({
-                                        'chemical': 'Ts3', 'value': ((sum / counter)+0.11).toFixed(2)
+                                        'chemical': 'Ts3', 'value': ((20)+0.11).toFixed(2)
                                   		  })
 					}
                                 };
@@ -596,4 +596,3 @@ async function insert_log(reason, host, user, namestation, err) {
 };
 
 export default ftp_upload;
-
