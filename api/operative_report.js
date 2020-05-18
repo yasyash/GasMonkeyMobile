@@ -135,7 +135,7 @@ router.get('/report_excel', authenticate, (req, resp) => {
     // const between_date = ['2018-05-21 00:00:00', '2018-05-21 19:05:00']
     // console.log('sensors ', data.sensors[0]);
     //if (data.report == 'operative') {
-    console.log("IN ");
+    //console.log(data.html);
     if (data.report == 'operative') {
         var filename = 'OperativeReport_station_' + data.station + '_' + data.date + '.xlsx';
         var filereport = 'operative_templ.xlsx'
@@ -167,56 +167,13 @@ router.get('/report_excel', authenticate, (req, resp) => {
 
     resp.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     resp.setHeader('Content-disposition', 'attachment; filename=' + filename);
-    console.log("data is =   ", data.data_4_report);
+
     carbone.render(path.resolve(filepath + filereport), data.data_4_report, function (err, result) {
         if (err) {
-            console.log("There is error occured...");
             return console.log(err);
         }
         // write the result
-        console.log("complete...");
-        // write the result
-        resp.send(result);
 
-    });
-
-   
-});
-
-router.post('/report_table', authenticate, (req, resp) => {
-    //  
-
-    let query = url.parse(req.url).query;
-    let obj = qs.parse(query);
-    let data = JSON.parse(obj.data);
-    //  if (query) {
-    //    obj = JSON.parse(decodeURIComponent(query))
-    //}
-    //const between_date = [data.period_from, data.period_to];
-    // const between_date = ['2018-05-21 00:00:00', '2018-05-21 19:05:00']
-    // console.log('sensors ', data.sensors[0]);
-    //if (data.report == 'operative') {
-    console.log("IN ");
-   
-    if (data.report == 'table') {
-        var filename = 'Table_' + data.station + '_' + data.chemical + '_' + data.date + '.xlsx';
-        var filereport = 'table_templ.xlsx'
-    };
-    var filepath = './reports/';
-
-
-
-
-    resp.setHeader('Content-type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    resp.setHeader('Content-disposition', 'attachment; filename=' + filename);
-    console.log("data is =   ", data.data_4_report);
-    carbone.render(path.resolve(filepath + filereport), data.data_4_report, function (err, result) {
-        if (err) {
-            console.log("There is error occured...");
-            return console.log(err);
-        }
-        // write the result
-        console.log("complete...");
         // write the result
         resp.send(result);
 
@@ -268,7 +225,7 @@ async function loadData_tza(station, between_date, station_name, chemic) {
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
         Sensors.query({
-            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor'],
+            select: ['serialnum', 'typemeasure', 'unit_name', 'measure_class'],
             where: ({ is_present: true }),
             andWhere: ({ idd: station }),
         })
@@ -306,7 +263,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         let result_parse2 = JSON.stringify(result[2]);
         let arr2 = JSON.parse(result_parse2);
 
-        const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая', 'бензол', 'толуол', 'этилбензол', 'м,п-ксилол', 'о-ксилол', 'хлорбензол', 'стирол', 'фенол'];
+        const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая'];
 
         let dataList = arr0;
         let sensorsList = arr1;
@@ -339,9 +296,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
             (element.chemical == 'SO2') || (element.chemical == 'H2S') ||
             (element.chemical == 'O3') || (element.chemical == 'CO') || (element.chemical == 'CH2O') ||
             (element.chemical == 'PM1') || (element.chemical == 'PM2.5') ||
-            (element.chemical == 'PM10') || (element.chemical == 'Пыль общая') || (element.chemical == 'бензол') ||
-            (element.chemical == 'толуол') || (element.chemical == 'этилбензол') || (element.chemical == 'м,п-ксилол') ||
-            (element.chemical == 'о-ксилол') || (element.chemical == 'хлорбензол') || (element.chemical == 'стирол') || (element.chemical == 'фенол')) {
+            (element.chemical == 'PM10') || (element.chemical == 'Пыль общая')) {
 
 
 
@@ -582,10 +537,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
             pollution.push({
                 time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueNH3: element.NH3, valueSO2: element.SO2,
                         valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO,valueCH2O: element.CH2O, valuePM1: element.PM1,
-                        valuePM25: element['PM2.5'],valuePM10: element.PM10, valueTSP: element['Пыль общая'],
-                        valueC6H6: element['бензол'], valueC7H8: element['толуол'], valueC8H10: element['этилбензол'],
-                        valueC8H10MP: element['м,п-ксилол'], valueC8H10O: element['о-ксилол'], valueC6H5Cl: element['хлорбензол'],
-                        valueC8H8: element['стирол'], valueC6H5OH: element['фенол']
+                        valuePM25: element['PM2.5'],valuePM10: element.PM10, valueTSP: element['Пыль общая']
             });
         })
         // values.push({
@@ -598,10 +550,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 pollution.push({
                     time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3],valueSO2: element[4],
                     valueH2S: element[5], valueO3: element[6], valueCO: element[7], valueCH2O: element[8], valuePM1: element[9],
-                    valuePM25: element[10], valuePM10: element[11], valueTSP: element[12],
-                    valueC6H6: element[13], valueC7H8: element[14], valueC8H10: element[15],
-                    valueC8H10MP: element[16], valueC8H10O: element[17], valueC6H5Cl: element[18],
-                    valueC8H8:element[19], valueC6H5OH: element[20]
+                    valuePM25: element[10], valuePM10: element[11], valueTSP: element[12]
 
                 });
             }
@@ -653,7 +602,7 @@ router.get('/get_tza4', authenticate, (req, resp) => {
         var result_parse2 = JSON.stringify(result[2]);
         var arr2 = JSON.parse(result_parse2);
 
-        const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая',  'бензол', 'толуол', 'этилбензол', 'м,п-ксилол', 'о-ксилол', 'хлорбензол', 'стирол', 'фенол' ];
+        const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая'];
 
         var dataList = arr0;
         var sensorsList = arr1;
@@ -709,7 +658,17 @@ router.get('/get_tza4', authenticate, (req, resp) => {
         var tza4_templ = [];
         var dataDayList = [];
 
-        //console.log('between ', between_date);
+        var chemical_one = sensorsList.filter((item, i, arr) => {
+            return (item.typemeasure == chemic);
+        });
+
+        //if weather calculations
+        if (chemical_one[0].measure_class != 'data')
+            var signs = 1;
+            else
+            var signs = 3;
+
+        //console.log('between ', chemical_one[0]);
         time_frame.forEach((element, indx) => { //step by day
 
             temp_day.push(indx + 1);
@@ -744,38 +703,44 @@ router.get('/get_tza4', authenticate, (req, resp) => {
                             //let up_sec = tmp[0] * 3600 + tmp[1] * 60;
 
                             // console.log('raw ' + up_sec);
-                            sum += item.measure;
-                            local_cnt++;
+                            let _date = date.format(new Date(item.date_time), 'mm');
 
-                            if (item.measure > Qmax) {
-                                Qmax = item.measure;
-                                Qmax_time = date.format(new Date(item.date_time), 'HH:mm:ss');
+                            if (_date < 21) {
+                                sum += item.measure;
+                                local_cnt++;
+
+
+                                if (item.measure >= macs_one.max_m) {
+                                    console.log('alert');
+
+                                    if (!alert_macs) {
+                                        n_daily++;
+                                        period_in = new Date(item.date_time).getHours() * 3600 +
+                                            new Date(item.date_time).getMinutes() * 60 + new Date(item.date_time).getSeconds();
+                                        //time in seconds
+                                    };
+
+                                    alert_macs = true;
+                                } else {
+                                    if (alert_macs) {
+                                        Tq_day = Tq_day + (new Date(item.date_time).getHours() * 3600 +
+                                            new Date(item.date_time).getMinutes() * 60 + new Date(item.date_time).getSeconds()) - period_in;
+                                        //time in seconds
+                                        period_in = 0;
+                                    };
+                                    alert_macs = false;
+                                };
                             }
-
-                            if (item.measure >= macs_one.max_m) {
-                                console.log('alert');
-
-                                if (!alert_macs) {
-                                    n_daily++;
-                                    period_in = new Date(item.date_time).getHours() * 3600 +
-                                        new Date(item.date_time).getMinutes() * 60 + new Date(item.date_time).getSeconds();
-                                    //time in seconds
-                                };
-
-                                alert_macs = true;
-                            } else {
-                                if (alert_macs) {
-                                    Tq_day = Tq_day + (new Date(item.date_time).getHours() * 3600 +
-                                        new Date(item.date_time).getMinutes() * 60 + new Date(item.date_time).getSeconds()) - period_in;
-                                    //time in seconds
-                                    period_in = 0;
-                                };
-                                alert_macs = false;
-                            };
                         });
 
                         sum = sum / local_cnt;
-                        temp_day.push(sum.toFixed(3));
+
+                                if (sum > Qmax) {
+                                    Qmax = sum;
+                                    Qmax_time = time_in/3600 + ':19:59';//'01:01:01';//toString(hour/3600) + ':19:59';  +//date.format(new Date(time_now), 'HH:19:59');
+                                }
+
+                        temp_day.push(sum.toFixed(signs));
                         sumQc += sum;
                     } else {
                         temp_day[1] = 'нет';
@@ -803,7 +768,7 @@ router.get('/get_tza4', authenticate, (req, resp) => {
             if (Qc >= macs_one.max_d)
                 counter_macs1++;
 
-            temp_day.push(sumQc.toFixed(3), n_daily, Qc.toFixed(3), Qmax.toFixed(3), Qmax_time, Tq_day.toFixed(0));
+            temp_day.push(sumQc.toFixed(signs), n_daily, Qc.toFixed(signs), Qmax.toFixed(signs), Qmax_time, Tq_day.toFixed(0));
             tza4_templ.push(temp_day);
             //push data should above this code
             Qmax = 0;
@@ -875,7 +840,6 @@ router.get('/get_tza4', authenticate, (req, resp) => {
 
 
 export default router;
-
 
 
 

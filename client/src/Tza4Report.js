@@ -253,7 +253,7 @@ class Tza4Report extends React.Component {
                     <table style={{ "width": '100%' }} id="tza4_report_table_header">
                         <tbody>
                             <tr>
-                                <td style={{ 'width': '45%' }}>Станция: {this.state.station_name} &nbsp; &nbsp; Примесь: {this.state.chemical}  </td>
+                                <td style={{ 'width': '45%' }}>Станция: {this.state.station_name} &nbsp; &nbsp; Компонент: {this.state.chemical}  </td>
 
                                 <td style={{ 'width': '45%', 'textAlign': 'right' }}>год {new Date(this.props.dateReportBegin).format('Y')} месяц {new Date(this.props.dateReportBegin).format('MM')} </td>
                                 <td style={{ 'width': '5%' }}>&nbsp;</td>

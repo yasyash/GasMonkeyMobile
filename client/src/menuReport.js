@@ -241,7 +241,9 @@ class MenuReport extends Component {
             station_name,
             report_type,
             data_4_report,
-            chemical_list : ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая',  'бензол', 'толуол', 'этилбензол', 'м,п-ксилол', 'о-ксилол', 'хлорбензол', 'стирол', 'фенол'   ],
+            chemical_list : ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая', 
+             'бензол', 'толуол', 'этилбензол', 'м,п-ксилол', 'о-ксилол', 'хлорбензол', 'стирол', 'фенол', 'Атм. давление', 'Темп. внешняя',  
+            'Скорость ветра', 'Влажность внеш.', 'Направление ветра', 'Интенс. осадков'],
             chemical:''
         };
 
@@ -536,6 +538,7 @@ if (this.props.report_type =='tza4')
  
  if (!isEmpty(this.props.data_4_report)) {
 
+    if (this.props.report_type !='tza4') {
     this.props.reportXlsGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: this.translit(chemical)}).then(response =>{
     //var xhr = new XMLHttpRequest();
 
@@ -554,8 +557,65 @@ if (this.props.report_type =='tza4')
     saveAs(blob, filename);
 
     });
- }
+ 
+    } 
+    
+        else 
+    
+    {
+        var filename= this.props.report_type + '_report_station_' + this.props.station_name + '_substance_'+ this.translit(chemical) +'_' + date + '.csv';//TZA_4_Report_station_PNZ 1_Substance_CO_03-2020.xlsx"
+        var data = this.props.data_4_report;
+        var pollution = data[0].values[0].pollution;
 
+        var str_hdr = ';;;;;;;;;;;;;;;;Таблица;«ТЗА-4»;;;;;;;;;;;;;;;;\r\n';
+ 
+        str_hdr += ';;;;;;;;;;;;;;;;;;;;;;;;;;год '+ data[0].values[0].year +'; месяц ;'+data[0].values[0].month  +';;;;;\r\n';
+        str_hdr += 'D;P;01 час;02  час;03  час;04  час;05  час;06  час;07  час;08  час;09  час;10  час;11  час;12  час;13  час;14  час;15  час;16  час;17  час;18  час;19  час;20  час;21  час;22  час;23  час;24  час;Sum Qc;n;Qc;Qm;T Qm;Tq\r\n';
+
+        var str_body = '';
+        var legend =['D – дата, P – признак непрерывности,'];
+        legend.push('SumQc – сумма концентраций за сутки,');
+        legend.push('n – число случаев за сутки,');
+        legend.push('Qc – средняя концентрация за сутки,');
+        legend.push(' Qm – максимальная концентрация за сутки,');
+        legend.push('TQm – время наступления максимальной концентрации за сутки,');
+        legend.push(' Tq – продолжительность периода при Q > ПДК,');
+        legend.push('М – число случаев за месяц (SumQc, n, Qc),');
+        legend.push('Max Qc – максимальная среднесуточная концентрация за месяц,');
+        legend.push('TmaxQc – дата наблюдения MaxQc,');
+        legend.push('SumDcc – количество дней с Qс > ПДКсс.');
+        var i= 0;
+
+        pollution.forEach(item => {
+            
+            str_body += item.time + ';' + item.P + ';' + item.h1 + ';' + item.h2 + ';' + item.h3 + ';' + item.h4 +
+            ';' + item.h5 + ';' + item.h6 + ';' + item.h7 + ';' + item.h8 + ';' + item.h9 + ';' + item.h10 + ';' + item.h11 +
+             ';' + item.h12 + ';' + item.h13 + ';' + item.h14 + ';' + item.h15 + ';' + item.h16 + ';' + item.h17 + ';' + item.h18 +
+             ';' + item.h19 + ';' + item.h20 + ';' + item.h21 + ';' + item.h22 + ';' + item.h23 + ';' + item.h24 + ';' + item.SumQc +
+              ';' + item.n + ';' + item.Qc + ';' + item.Qm + ';' + item.Tm + ';' + item.Tq;
+              
+              if (i < legend.length)
+                str_body += ';' + legend[i];
+              
+              i++;
+
+              str_body +='\r\n';
+        });
+        str_body +=';;;;;;;;;;;;;;;;;;;;;;;;;M;'+data[0].values[0].M_SumQc+';'+ data[0].values[0].M_n +';'+data[0].values[0].M_Qc+'\r\n';
+        str_body +=';;;;;;;;;;;;;;;;;;;;;;;;;Max Qc;'+data[0].values[0].Max_Qc+';;;\r\n';
+        str_body +=';;;;;;;;;;;;;;;;;;;;;;;;;Tmax Qc;'+data[0].values[0].Tmax_Qc+';;;\r\n';
+        str_body +=';;;;;;;;;;;;;;;;;;;;;;;;;Sum Dcc;'+data[0].values[0].Sum_Dcc+';;;\r\n';
+        //'D – дата, P – признак непрерывности, SumQc – сумма концентраций за сутки, n – число случаев за сутки, Qc – средняя концентрация за сутки, Qm – максимальная концентрация за сутки, TQm – время наступления максимальной концентрации за сутки, Tq – продолжительность периода при Q > ПДК, М – число случаев за месяц (SumQc, n, Qc), Max Qc – максимальная среднесуточная концентрация за месяц, TmaxQc – дата наблюдения MaxQc, SumDcc – количество дней с Qс > ПДКсс.';
+
+
+        var file = [str_hdr + '\r\n' + str_body];
+                 
+        var blob = new Blob([file], { type: "text/plain;charset=utf-8" });
+
+        saveAs(blob, filename);
+    }                                                                                                                                                                                                                                                                                                                                                                                                                       
+
+}
 };
 
 handleClose = () => {
@@ -776,7 +836,7 @@ handleClose = () => {
                     />}
                    {(this.state.report_type =='tza4') &&  <form className={classes.root} autoComplete="off">
                    <FormControl className={classes.formControl}>
-                   <InputLabel htmlFor="chemical" >примесь</InputLabel>
+                   <InputLabel htmlFor="chemical" >компонент</InputLabel>
                               <Select
                                     value={this.state.chemical}
                                    onChange={this.handleSelectChemicalChange}
@@ -795,29 +855,6 @@ handleClose = () => {
                               </form>}
 
                         <div className={classes.root}>
-                            <Tooltip id="tooltip-charts-view3" title="Экспорт в PDF">
-                            <IconButton className={classes.button} onClick = {this.handleClick} aria-label="Экспорт в PDF">
-
-                            <SvgIcon className={classes.icon}>
-                                    <path  d="M14,9H19.5L14,3.5V9M7,2H15L21,8V20A2,2 0 0,1 19,22H7C5.89,22 
-                                    5,21.1 5,20V4A2,2 0 0,1 7,2M11.93,12.44C12.34,13.34 12.86,14.08
-                                     13.46,14.59L13.87,14.91C13,15.07 11.8,15.35 10.53,15.84V15.84L10.42,15.88L10.92,14.84C11.37,13.97
-                                      11.7,13.18 11.93,12.44M18.41,16.25C18.59,16.07 18.68,15.84 18.69,15.59C18.72,15.39 18.67,15.2
-                                       18.57,15.04C18.28,14.57 17.53,14.35 16.29,14.35L15,14.42L14.13,13.84C13.5,13.32 12.93,12.41 
-                                       12.53,11.28L12.57,11.14C12.9,9.81 13.21,8.2 12.55,7.54C12.39,7.38 12.17,7.3 
-                                       11.94,7.3H11.7C11.33,7.3 11,7.69 10.91,8.07C10.54,9.4 10.76,10.13 11.13,11.34V11.35C10.88,12.23
-                                        10.56,13.25 10.05,14.28L9.09,16.08L8.2,16.57C7,17.32 6.43,18.16 6.32,18.69C6.28,18.88 6.3,19.05
-                                         6.37,19.23L6.4,19.28L6.88,19.59L7.32,19.7C8.13,19.7 9.05,18.75 10.29,16.63L10.47,16.56C11.5,16.23
-                                          12.78,16 14.5,15.81C15.53,16.32 16.74,16.55 17.5,16.55C17.94,16.55 18.24,16.44 
-                                          18.41,16.25M18,15.54L18.09,15.65C18.08,15.75 18.05,15.76 18,15.78H17.96L17.77,15.8C17.31,15.8
-                                           16.6,15.61 15.87,15.29C15.96,15.19 16,15.19 16.1,15.19C17.5,15.19 17.9,15.44 
-                                           18,15.54M8.83,17C8.18,18.19 7.59,18.85 7.14,19C7.19,18.62 7.64,17.96
-                                            8.35,17.31L8.83,17M11.85,10.09C11.62,9.19 11.61,8.46 
-                                    11.78,8.04L11.85,7.92L12,7.97C12.17,8.21 12.19,8.53 12.09,9.07L12.06,9.23L11.9,10.05L11.85,10.09Z"/>
-                                </SvgIcon>
-                                </IconButton>
-                            </Tooltip>
-
                            
 
                             <Tooltip id="tooltip-charts-view4" title="Экспорт в Word">
