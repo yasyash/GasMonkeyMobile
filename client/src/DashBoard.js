@@ -44,8 +44,8 @@ import Divider from '@material-ui/core/Divider';
 
 import isEmpty from 'lodash.isempty';
 
-import Sidebar from 'material-dashboard-react/components/Sidebar/Sidebar';
-import appRoutes from 'material-dashboard-react/routes/index';
+//import Sidebar from 'material-dashboard-react/components/Sidebar/Sidebar';
+//import appRoutes from 'material-dashboard-react/routes/index';
 
 import dashboardStyle from "material-dashboard-react/assets/jss/material-dashboard-react/views/dashboardStyle";
 
