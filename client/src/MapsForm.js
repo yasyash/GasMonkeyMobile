@@ -215,10 +215,10 @@ class MapsForm extends React.Component {
                                 var prcnt = range_macs * 100;
 
                                 if (class_css != 'alert_success') {
-                                    popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) + " % ПДК)" + '</div>';
+                                    popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " % ПДК)" + '</div>';
                                 }
                                 else {
-                                    popupContent += element.chemical + " : " + quotient.toFixed(4) + " (" + prcnt.toFixed(1) + " % ПДК)" + "<br/>";
+                                    popupContent += element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " % ПДК)" + "<br/>";
 
                                 }
                             };
@@ -240,8 +240,9 @@ class MapsForm extends React.Component {
 
                         }
 
-                        if (!isEmpty(popupContent))
-                            marker.bindPopup(popupContent, { autoClose: false });
+                        if (!isEmpty(popupContent)) {
+                            popupContent += "<br/>";
+                        }
 
                         let dir_wind = dataList.filter((item, i, arr) => {
                             return item.typemeasure == 'Направление ветра';
@@ -252,17 +253,49 @@ class MapsForm extends React.Component {
                             dir_wind.forEach(_item => {
                                 sum += _item.measure;
                             });
-                            let avrg = (sum / dir_wind.length)* Math.PI / 180;
-                            let arr_hi = (180 - sum / dir_wind.length - 20)* Math.PI / 180;
-                            let arr_low = (-90 + sum / dir_wind.length - 20)* Math.PI / 180;
+                            let avrg = (sum / dir_wind.length) * Math.PI / 180;
+                            let arr_hi = (180 - sum / dir_wind.length - 20) * Math.PI / 180;
+                            let arr_low = (-90 + sum / dir_wind.length - 20) * Math.PI / 180;
                             let line = [
                                 [item.latitude, item.longitude],
-                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004, item.longitude + Math.cos(Math.PI  - avrg) * 0.004],
-                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004 - Math.cos(arr_low)*0.0012, item.longitude + Math.cos(Math.PI  - avrg) * 0.004 - Math.sin(arr_low)*0.0012],
-                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004, item.longitude + Math.cos(Math.PI  - avrg) * 0.004],
-                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004 - Math.sin(arr_hi)*0.0012 , item.longitude + Math.cos(Math.PI  - avrg) * 0.004 - Math.cos(arr_hi)*0.0012]                            ];
+                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004, item.longitude + Math.cos(Math.PI - avrg) * 0.004],
+                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004 - Math.cos(arr_low) * 0.0012, item.longitude + Math.cos(Math.PI - avrg) * 0.004 - Math.sin(arr_low) * 0.0012],
+                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004, item.longitude + Math.cos(Math.PI - avrg) * 0.004],
+                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004 - Math.sin(arr_hi) * 0.0012, item.longitude + Math.cos(Math.PI - avrg) * 0.004 - Math.cos(arr_hi) * 0.0012]];
 
-                            L.polyline(line, {color: 'red', weight: 1}).addTo(lmap);
+                            L.polyline(line, { color: 'red', weight: 1 }).addTo(lmap);
+
+                            popupContent += "Напр. ветра: " + (sum / dir_wind.length).toFixed(0) + " град.<br/>";
+
+                            let bar = dataList.filter((item, i, arr) => {
+                                return item.typemeasure == 'Атм. давление';
+                            });
+                            sum = 0;
+                            bar.forEach(_item => {
+                                sum += _item.measure;
+                            });
+                            popupContent += "Атм. давление: " + (sum / bar.length).toFixed(0) + " мм.рт.ст.<br/>";
+                            
+                            let temp = dataList.filter((item, i, arr) => {
+                                return item.typemeasure == 'Темп. внешняя';
+                            });
+                            sum = 0;
+                            temp.forEach(_item => {
+                                sum += _item.measure;
+                            });
+                            popupContent += "Темп. внешняя: " + (sum / temp.length).toFixed(1) + " С<br/>";
+
+                            let hum = dataList.filter((item, i, arr) => {
+                                return item.typemeasure == 'Влажность внеш.';
+                            });
+                            sum = 0;
+                            hum.forEach(_item => {
+                                sum += _item.measure;
+                            });
+                            popupContent += "Влажность внеш.: " + (sum / hum.length).toFixed(1) + " %<br/>";
+
+                            marker.bindPopup(popupContent, { autoClose: false });
+
                         };
                     }
                 });
