@@ -253,15 +253,14 @@ class MapsForm extends React.Component {
                                 sum += _item.measure;
                             });
                             let avrg = (sum / dir_wind.length)* Math.PI / 180;
-                            let arr_hi = (90 - sum / dir_wind.length - 20)* Math.PI / 180;
-                            let arr_low = (sum / dir_wind.length - 20)* Math.PI / 180;
+                            let arr_hi = (180 - sum / dir_wind.length - 20)* Math.PI / 180;
+                            let arr_low = (-90 + sum / dir_wind.length - 20)* Math.PI / 180;
                             let line = [
                                 [item.latitude, item.longitude],
-                                [item.latitude + Math.cos(avrg) * 0.004, item.longitude + Math.sin(avrg) * 0.004],
-                                [item.latitude + Math.cos(avrg) * 0.004 - Math.cos(arr_low)*0.0012, item.longitude +Math.sin(avrg) * 0.004 - Math.sin(arr_low)*0.0012],
-                                [item.latitude + Math.cos(avrg) * 0.004, item.longitude + Math.sin(avrg) * 0.004],
-                                [item.latitude + Math.cos(avrg) * 0.004 - Math.sin(arr_hi)*0.0012, item.longitude + Math.sin(avrg) * 0.004 - Math.cos(arr_hi)*0.0012]
-                            ];
+                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004, item.longitude + Math.cos(Math.PI  - avrg) * 0.004],
+                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004 - Math.cos(arr_low)*0.0012, item.longitude + Math.cos(Math.PI  - avrg) * 0.004 - Math.sin(arr_low)*0.0012],
+                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004, item.longitude + Math.cos(Math.PI  - avrg) * 0.004],
+                                [item.latitude + Math.sin(Math.PI  - avrg) * 0.004 - Math.sin(arr_hi)*0.0012 , item.longitude + Math.cos(Math.PI  - avrg) * 0.004 - Math.cos(arr_hi)*0.0012]                            ];
 
                             L.polyline(line, {color: 'red', weight: 1}).addTo(lmap);
                         };
