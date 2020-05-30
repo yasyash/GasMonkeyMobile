@@ -292,6 +292,7 @@ class MenuReport extends Component {
     transl['Э']='E';    transl['э']='e';
     transl['Ю']='Yu';    transl['ю']='yu';
     transl['Я']='Ya';    transl['я']='ya';
+    transl['№']='No';
 
     var out = '';
 
@@ -486,7 +487,11 @@ if (this.props.report_type =='tza4')
 
 if (!isEmpty(this.props.data_4_report)) {
 
-    this.props.reportGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: this.translit(chemical)}).then(response =>{
+    let {data_4_report} = this.props;
+
+    data_4_report[0].station = this.translit(data_4_report[0].station);
+
+    this.props.reportGen( {report: this.props.report_type, station: this.translit(this.props.station_name), date: date,data_4_report : data_4_report, chemical: this.translit(chemical)}).then(response =>{
     //var xhr = new XMLHttpRequest();
 
     var type = response.headers['content-type'];
@@ -538,8 +543,12 @@ if (this.props.report_type =='tza4')
  
  if (!isEmpty(this.props.data_4_report)) {
 
+    let {data_4_report} = this.props;
+
+    data_4_report[0].station = this.translit(data_4_report[0].station);
+
     if (this.props.report_type !='tza4') {
-    this.props.reportXlsGen( {report: this.props.report_type, station: this.props.station_name, date: date,data_4_report : this.props.data_4_report, chemical: this.translit(chemical)}).then(response =>{
+    this.props.reportXlsGen( {report: this.props.report_type, station: this.translit(this.props.station_name), date: date,data_4_report : data_4_report, chemical: this.translit(chemical)}).then(response =>{
     //var xhr = new XMLHttpRequest();
 
     var type = response.headers['content-type'];
@@ -563,7 +572,7 @@ if (this.props.report_type =='tza4')
         else 
     
     {
-        var filename= this.props.report_type + '_report_station_' + this.props.station_name + '_substance_'+ this.translit(chemical) +'_' + date + '.csv';//TZA_4_Report_station_PNZ 1_Substance_CO_03-2020.xlsx"
+        var filename= this.props.report_type + '_report_station_' + this.translit(this.props.station_name) + '_substance_'+ this.translit(chemical) +'_' + date + '.csv';//TZA_4_Report_station_PNZ 1_Substance_CO_03-2020.xlsx"
         var data = this.props.data_4_report;
         var pollution = data[0].values[0].pollution;
 

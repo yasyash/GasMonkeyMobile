@@ -292,7 +292,7 @@ class MapsForm extends React.Component {
                             hum.forEach(_item => {
                                 sum += _item.measure;
                             });
-                            popupContent += "Влажность внеш.: " + (sum / hum.length).toFixed(1) + " %<br/>";
+                            popupContent += "Влажность внеш.: " + (sum / hum.length).toFixed(0) + " %<br/>";
 
                             marker.bindPopup(popupContent, { autoClose: false });
 

@@ -22,7 +22,7 @@ import cron_email from './emailer';
 import cors from 'cors';
 
 const app = express();
-app.use(cors() );
+app.use(cors());
 //var staticPath = path.join(__dirname, '/');
 //app.use(express.static(staticPath));
 
@@ -58,10 +58,10 @@ app.get('/*', (req, resp) => {
 
 const server = app.listen(3000, () => {
     console.log('Server is started on 3000 port...');
-   const task = cron.schedule('19,39,59 * * * *', () => {
+    const task = cron.schedule('19,39,59 * * * *', () => {
         //running a task every minute 20 minute
         ftp_upload();
-       //cron_email(); /when smtp exist
+        cron_email(); //when smtp exist
 
     });
 });

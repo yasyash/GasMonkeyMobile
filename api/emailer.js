@@ -17,15 +17,9 @@ import fs from 'fs';
 import path from 'path';
 import mime from 'mime';
 
-import FTP from '../models/ftp';
-import SOAP from '../models/soap';
+
 import USERS from '../models/user';
-import METEO from '../models/meteostations';
-import DEV from '../models/devices';
-import Stations from '../models/stations'
-import Macs from '../models/macs';
-import Sensors from '../models/sensors';
-import Data from '../models/data';
+import DATA from '../models/sensors_data';
 import LOGS from '../models/logs';
 import CRON from '../models/cron';
 
@@ -33,24 +27,26 @@ function cron_email() {
     USERS.query('where', 'is_admin', '=', 'true').orderBy('id', 'DESC').fetchAll()
         .then(users_res => {
             var users = JSON.parse(JSON.stringify(users_res));
-
-            CRON.fetchAll().then(
+       
+            CRON.query('where', 'id', '>' ,'-1').orderBy('date_time', 'DESC').fetchAll().then(
                 result => {
                     let result_str = JSON.parse(JSON.stringify(result));
 
-                    var _time = result_str[0].date_time;
+                    var _time = new Date(result_str[0].date_time).format('Y-MM-dd HH:mm:SS');
                     var _port = result_str[0].port;
                     var _usermailer = result_str[0].username;
                     var _passwordmailer = result_str[0].password;
-                    var _address = result_str[0]._address;
+                    var _address = result_str[0].address;
 
+console.log('result  ', result_str);
+console.log('result time ', _time);
 
-                    LOGS.query('where', 'date_time', '>', _time)
+                    LOGS.query('where', 'date_time', '>', _time,)
                         .orderBy('date_time', 'ASC').fetchAll().then(
                             resp => {
                                 let resp_str = JSON.parse(JSON.stringify(resp));
                                 users.forEach(_user => {
-                                    
+
                                     var transporter = nodemailer.createTransport({
                                         host: _address, //smtp server
                                         port: _port,
@@ -64,37 +60,51 @@ function cron_email() {
                                     resp_str.forEach(element => {
                                         if (last_time < element.date_time)
                                             last_time = element.date_time;
+                                            
+                                        console.log('Time element = ', element.date_time);
 
                                         switch (element.type) {
-                                            case 100:
-                                                //console.log('element   ---   ', element.descr);
+                                            /*case 100:
+                                                //chemical alert - concentration exceeds 5 times less
                                                 try_email(transporter, element, _user.email);
 
 
                                                 break;
                                             case 101:
+                                                //chemical alert - concentration exceeds between 5 to 10 times 
+
                                                 try_email(transporter, element, _user.email);
 
                                                 break;
 
                                             case 102:
+                                               // chemical alert - concentration exceeds more than 10 times 
+
                                                 try_email(transporter, element, _user.email);
 
+                                                break;*/
+
+                                            case 110:
+                                                try_email(transporter, element, _user.email); //door alrm
+
                                                 break;
-                                                case 110:
-                                                        try_email(transporter, element, _user.email); //door alrm
-        
-                                                break;
-                                                case 111:
+                                            case 111:
                                                 try_email(transporter, element, _user.email); //fire alarm
 
                                                 break;
+
+                                            case 120:
+                                                try_email(transporter, element, _user.email); //internal temp. alarm
+
+                                                break;
+
                                             default: break;
                                         }
                                     });
+                                   // console.log('Time is : ', last_time);
 
                                     CRON.where({ id: 0 }).save({
-                                        date_time: last_time
+                                        date_time: new Date(last_time).format('Y-MM-dd HH:mm:SS')
                                     }, { patch: true }).catch(err => {
                                         console.log('SQL update CRON table issue: ', err);
                                     });
@@ -108,10 +118,10 @@ function cron_email() {
 async function try_email(transporter, element, email) {
     try {
         let info = await transporter.sendMail({
-            from: '"GazMonkey" <test@ilit.ru>', // sender address
+            from: '"GazMonkey" ' + email, // sender address
             to: email, // list of receivers
-            subject: "Тревога ПДК...", // Subject line
-            text: element.date_time + '   ' + element.descr  // plain text body
+            subject: "Тревога...", // Subject line
+            text: new Date(element.date_time).format('Y-MM-dd HH:mm:SS') + '   ' + element.descr  // plain text body
             //html: "<b>Hello world?</b>" // html body
         });
         console.log("Message sent: %s", info.messageId);

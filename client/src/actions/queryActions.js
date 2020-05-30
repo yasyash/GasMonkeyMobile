@@ -109,6 +109,7 @@ export function queryEvent(paramstr) {
                             let filter = sensors_list.filter((item, i, arr) => {
                                 return item.serialnum == element.serialnum;
                             });
+                            //console.log('element  ', element);
 
 
 

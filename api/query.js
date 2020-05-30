@@ -65,6 +65,9 @@ router.get('/', authenticate, (req, resp) => {
                     .catch(err => resp.status(500).json({ error: err })),
                 ((data_list, data_sensors, consentration) => {
                     let response = [data_list, data_sensors, consentration];
+                    var _data_list = JSON.parse(JSON.stringify(data_list));
+
+                    //console.log("data list ", _data_list);
                     resp.json({ response });
                 })
 
