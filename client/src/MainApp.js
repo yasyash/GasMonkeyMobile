@@ -21,7 +21,7 @@ class MainApp extends Component {
                 <div className = "form-control">
                     <footer className="App-footer"></footer>
                     <p className="App App-intro">
-                        Developed by ILIT.RU, 2017-2020. (version 1.04)
+                        Developed by Yaroslav Shkliar & ILIT.RU, 2017-2020. (version 1.04)
                               </p>
                 </div>
             </div >

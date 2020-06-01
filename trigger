@@ -42,7 +42,7 @@ DECLARE
 			ELSE
 					IF ((NEW.measure) > 35) THEN
 					 INSERT INTO logs (  date_time, type, descr)  VALUES (NEW.date_time, 120, 
-					 ( 'Превышение '|| NEW.typemeasure || ' - зафиксировано станцией наблюдения '|| station.namestation||' . Значение внутренней температуры ' || NEW.measure || ' C.'));
+					 ( 'Превышение '|| NEW.typemeasure || ' - зафиксировано станцией наблюдения '|| station.namestation||' по адресу '|| station.place ||'. Значение внутренней температуры ' || NEW.measure || ' C.'));
 					 NEW.is_alert := true;
 					END IF;
 					RETURN NEW;
@@ -50,6 +50,8 @@ DECLARE
 			END IF;
 	 	END IF;
 	END;
+
+
 
 /*___________________________________________________________________________________________________*/
 /*fire_alrm*/

@@ -38,8 +38,6 @@ function cron_email() {
                     var _passwordmailer = result_str[0].password;
                     var _address = result_str[0].address;
 
-console.log('result  ', result_str);
-console.log('result time ', _time);
 
                     LOGS.query('where', 'date_time', '>', _time,)
                         .orderBy('date_time', 'ASC').fetchAll().then(
@@ -61,7 +59,7 @@ console.log('result time ', _time);
                                         if (last_time < element.date_time)
                                             last_time = element.date_time;
                                             
-                                        console.log('Time element = ', element.date_time);
+                                        //console.log('Time element = ', element.date_time);
 
                                         switch (element.type) {
                                             /*case 100:
