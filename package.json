@@ -58,6 +58,7 @@
     "lodash.isempty": "^4.4.0",
     "material-dashboard-react": "^1.4.1",
     "material-ui": "^0.20.0",
+    "moment": "^2.26.0",
     "mysql-json": "^0.1.3",
     "node-cron": "^2.0.3",
     "node.date-time": "^1.2.2",

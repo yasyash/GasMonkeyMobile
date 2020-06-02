@@ -169,18 +169,17 @@ function operative_report(station_actual) {
                                     rows_measure.push({
                                         'chemical': key, 'value': (sum / counter).toFixed(0)
                                     })
-				if (key=='Tin')
-					{
-					rows_measure.push({
-                                        'chemical': 'Ts1', 'value': ((20)+0.51).toFixed(2)
-                                  		  })	
-					rows_measure.push({
-                                        'chemical': 'Ts2', 'value': ((20)+0.56).toFixed(2)
-                                  		  })
-					rows_measure.push({
-                                        'chemical': 'Ts3', 'value': ((20)+0.11).toFixed(2)
-                                  		  })
-					}
+                                    if (key == 'Tin') {
+                                        rows_measure.push({
+                                            'chemical': 'Ts1', 'value': ((20) + 0.51).toFixed(2)
+                                        })
+                                        rows_measure.push({
+                                            'chemical': 'Ts2', 'value': ((20) + 0.56).toFixed(2)
+                                        })
+                                        rows_measure.push({
+                                            'chemical': 'Ts3', 'value': ((20) + 0.11).toFixed(2)
+                                        })
+                                    }
                                 };
 
 
@@ -192,11 +191,11 @@ function operative_report(station_actual) {
                                     })
                                 };
                                 //if ((key == 'Напряжение макс.')) {
-                                 //   rows_measure.push({
-                                  //      'chemical': 'U', 'value': 223
-                                   // })
+                                //   rows_measure.push({
+                                //      'chemical': 'U', 'value': 223
+                                // })
                                 //};
-                               
+
                             };
 
                         };
@@ -482,21 +481,22 @@ function ftp_upload() {
 
                                 for (var key in queryFields) {
                                     str_hdr += ';' + queryFields[key];
-                                    var filter = report.rows_measure.filter((item, i, arr) => {
-                                        return item.chemical == key;
-                                    });
+                                    if (report != 0) {
+                                        var filter = report.rows_measure.filter((item, i, arr) => {
+                                            return item.chemical == key;
+                                        });
 
-                                    console.log(' key --- ', key);
-                                    if (!isEmpty(filter)) {
-                                        str_body += ';'+((isBoolean(filter[0].value) ? (filter[0].value ? 'тревога' : 'норма') : filter[0].value));
-                                        console.log(' val --- ', filter[0].value);
+                                        console.log(' key --- ', key);
+                                        if (!isEmpty(filter)) {
+                                            str_body += ';' + ((isBoolean(filter[0].value) ? (filter[0].value ? 'тревога' : 'норма') : filter[0].value));
+                                            console.log(' val --- ', filter[0].value);
+                                        }
+                                        else {
+                                            str_body += ';';
+                                        }
+
+                                        // console.log('body', report.rows_measure[key].value);
                                     }
-                                    else {
-                                        str_body += ';';
-                                    }
-
-                                    // console.log('body', report.rows_measure[key].value);
-
                                 };
 
                                 fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {

@@ -439,7 +439,7 @@ class MenuTable extends Component {
 
 
                     {(this.state.isSensor) &&
-                        <Slider min={1} max={20} defaultValue={1} marks={{ 1: '1', 5: '5', 10: '10', 20: '20' }} step={null} 
+                        <Slider min={1} max={60} defaultValue={1} marks={{ 1: '1', 5: '5', 10: '10', 20: '20', 60: '60' }} step={null} 
                         onChange={(value1) => this.handleChange(name = 'averaging',  { target: {value: value1}})}
 
                         />

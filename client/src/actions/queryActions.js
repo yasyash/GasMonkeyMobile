@@ -8,6 +8,7 @@ import { addConsentrationList } from './consentrationAddAction';
 
 import shortid from 'shortid';
 import isEmpty from 'lodash.isempty';
+import moment from 'moment';
 
 function wrapData(data_in) {
     const data = data_in.map(item => {
@@ -89,19 +90,33 @@ export function queryEvent(paramstr) {
                         var _data = [];
                         var _tmp = 0;
                         var counter = 0;
-                        for (var _i = 0; _i < data_list.length; _i += paramstr.averaging) {
+                        var units = 0;
+                        var first_date = data_list[0].date_time;
+                        var last_date = data_list[data_list.length - 1].date_time;
+                        var first_hour = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                        var first_minute = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                        var work_date = moment(first_date);
+
+                        var _i = 0;
+                        var _j = 0;
+                        while (work_date.isBefore(last_date)) { //averaging data
                             _tmp = 0;
                             counter = 0;
-                            for (var _j = _i; _j < _i + paramstr.averaging; _j++) {
-                                if (_j < data_list.length) {
-                                    _tmp += data_list[_j].measure;
-                                    counter++;
-                                }
+                            work_date.add(paramstr.averaging, 'minutes');
+                            for (_j = _i; ((_j < data_list.length) && (!work_date.isBefore(data_list[_j].date_time))); _j++) {
+
+                                _tmp += data_list[_j].measure;
+                                counter++;
+
                             }
+
                             if (counter) {
                                 data_list[_i].measure = _tmp / counter;
+                                data_list[_i].date_time = new Date(first_date).format('Y-MM-dd HH:mm:SS');
                                 _data.push(data_list[_i]);
                             }
+                            _i = _j;
+                            first_date = new Date(work_date).format('Y-MM-dd HH:mm:SS');
 
                         }
 
@@ -120,7 +135,7 @@ export function queryEvent(paramstr) {
                                 serialnum: element.serialnum,
                                 date_time: new Date(element.date_time).format('Y-MM-dd HH:mm:SS'),
                                 unit_name: unit_name,
-                                measure: element.measure,
+                                measure: element.measure.toFixed(3),
                                 is_alert: element.is_alert ? 'тревога' : 'нет',
                             });
 
@@ -136,32 +151,64 @@ export function queryEvent(paramstr) {
                         });
 
                         dataTable.push(obj); //insert first element
+                        var units = 0;
+                        var _data = [];
 
+                        sensors_list.forEach(_id => {
 
-                        let tmp_arr = data_list;
-
-                        while (tmp_arr.length > 0) {
-                            let obj = {};
-                            let one = tmp_arr[0];
-                            let nex_arr = [];
-
-                            tmp_arr.forEach(element => {
-
-                                if (element.date_time !== one.date_time) {
-                                    nex_arr.push(element);
-                                }
-                                else {
-                                    obj['date_time'] = new Date(element.date_time).format('Y-MM-dd HH:mm:SS');
-                                    obj[element.serialnum] = element.measure;
-                                }
-
-
-
-
+                            var _data_list_filter = data_list.filter((item, i, arr) => {
+                                return item.serialnum == _id.serialnum;
                             });
-                            tmp_arr = nex_arr;
-                            dataTable.push(obj);
-                        }
+
+                            var _tmp = 0;
+                            var counter = 0;
+                            var first_date = data_list[0].date_time;
+                            var last_date = data_list[data_list.length - 1].date_time;
+                            var work_date = moment(first_date);
+
+
+                            var _i = 0;
+                            var _j = 0;
+                            while (work_date.isBefore(last_date)) { //averaging data
+                                _tmp = 0;
+                                counter = 0;
+                                work_date.add(paramstr.averaging, 'minutes');
+                                for (_j = _i; ((_j < _data_list_filter.length) && (!work_date.isBefore(_data_list_filter[_j].date_time))); _j++) {
+
+                                    _tmp += _data_list_filter[_j].measure;
+                                    counter++;
+
+                                }
+
+                                if (counter) {
+                                    _data_list_filter[_i].measure = _tmp / counter;
+                                    if (units) {
+                                        let _find_date = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                        _data.filter((__item, __i, __arr) => {
+                                            if (__item.date_time == _find_date) {
+                                                let obj = {};
+                                                //obj[_data_list_filter[_i].serialnum] = _data_list_filter[_i].measure;
+                                                _data[__i][_data_list_filter[_i].serialnum] = _data_list_filter[_i].measure.toFixed(3);
+                                            }
+                                        });
+                                    } else {
+                                        let obj = {};
+                                        obj['date_time'] = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                        obj[_data_list_filter[_i].serialnum] = _data_list_filter[_i].measure.toFixed(3);
+                                        _data.push(obj);
+                                    };
+                                }
+                                _i = _j;
+                                first_date = new Date(work_date).format('Y-MM-dd HH:mm:SS');
+
+                            }
+
+                            units++;
+
+                        });
+                        _data.forEach(_element => {
+                            dataTable.push(_element); //add all elements
+                        });
 
                     };
 
@@ -370,7 +417,7 @@ export function queryAllDataOperativeEvent(paramstr) {
                         });
                     });
 
-                    var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115 , 200, 404, 500]; //all type error
+                    var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115, 200, 404, 500]; //all type error
 
                     iterator.forEach((i, _ind) => {
 
