@@ -11,7 +11,7 @@ import isUUid from 'validator/lib/isUUID';
 import url from 'url';
 import qs from 'querystring';
 
-
+import INJ from '../models/injection';
 import FTP from '../models/ftp';
 import SOAP from '../models/soap';
 import USERS from '../models/user';
@@ -23,9 +23,114 @@ import DATA from '../models/data';
 import { isString } from 'util';
 
 let router = express.Router();
+router.post('/api_insert', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+    //console.log(data.address);
+
+    //  console.log(req.body);
+
+    INJ.query('where', 'id', '>', '0').orderBy('id', 'DESC').fetchAll()
+        .then(result => {
+            var result_parse0 = JSON.stringify(result);
+            var arr = JSON.parse(result_parse0);
+            let id = 1;
+            console.log(String(Number(arr[0].id) + 1))
+            if (!isEmpty(arr[0]))
+                id = String(Number(arr[0].id) + 1);
+
+            let idd = data.idd;
+            let indx = data.indx;
+            let code = data.code;
+            let token = data.token;
+            let uri = data.uri;
+            let date_time = new Date().format('Y-MM-dd HH:mm:SS');
+            let last_time = new Date().format('Y-MM-dd HH:mm:SS');
+
+            let is_present = false;
+            let msg_id = 0;
+
+            //let id = Number(arr[0].idd) + 1;
+          //     console.log({  idd, indx, code, token, uri, date_time, last_time })
+            INJ.forge({ id }).save({
+                idd, indx, code, token, uri, date_time, last_time, msg_id, is_present
+
+            }, { method: 'insert' })
+                .then(result => resp.json({ success: true }))
+                .catch(err => resp.status(500).json({ error: err }));
+
+
+            //      console.log(arr[0].idd);
 
 
 
+        }).catch(err => resp.status(500).json({ error: err }));
+    // write the result
+
+})
+
+router.post('/api_del', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+    //console.log(data.idd);
+
+    INJ.where({ id: data.id })
+        .save({
+            is_present: false
+        }, { patch: true })
+        .then(result => {
+            resp.json({ result });
+        }).catch(err => resp.status(500).json({ error: err }));
+    // write the result
+
+})
+
+router.post('/api_update', authenticate, (req, resp) => {
+
+    let data = req.body;
+    //console.log( data.last_time);
+
+
+    INJ.where({ id: data.id })
+        .save({
+            indx: data.indx,
+            token: data.token,
+            uri: data.uri,
+            code: String(data.code),
+            msg_id: data.msg_id,
+            last_time: data.last_time,
+            date_time: data.date_time,
+            idd: data.idd
+
+        }, { patch: true })
+        .then(result => {
+            resp.json({ result });
+        }).catch(err => resp.status(500).json({ error: err }));
+    // write the result
+
+})
+
+router.get('/api_get', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    //let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+
+    INJ.fetchAll().then(api_list => {
+        resp.json({ api_list });
+    }).catch(err => resp.status(500).json({ error: err }));
+    // write the result
+
+});
 
 router.get('/ftp_get', authenticate, (req, resp) => {
     //  
@@ -751,7 +856,7 @@ async function updateSQL(element, date_time, value) {
                     if (_arr.length == 0) {
                         DEV.query('where', 'serialnum', '=', element).fetchAll()
                             .then(result => {
-                                
+
                                 var result_parse0 = JSON.stringify(result);
                                 var arr = JSON.parse(result_parse0);
 

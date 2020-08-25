@@ -37,7 +37,7 @@ import isEmpty from 'lodash.isempty';
 import { saveAs } from 'file-saver'
 
 import { dateAddAction } from './actions/dateAddAction';
-import isDate from 'lodash.isdate';
+//import isDate from 'lodash.isdate';
 /**
  * Three controlled examples, the first allowing a single selection, the second multiple selections,
  * the third using internal state.

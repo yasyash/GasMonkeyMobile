@@ -78,7 +78,7 @@
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^4.0.8",
     "react-scripts": "1.1.4",
-    "react-table": "^6.8.6",
+    "react-table": "^6.11.5",
     "react-tap-event-plugin": "^3.0.2",
     "readable-stream": "^2.3.6",
     "redux": "^4.0.4",

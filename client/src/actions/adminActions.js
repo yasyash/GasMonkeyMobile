@@ -16,7 +16,70 @@ function wrapData(data_in) {
     return data;
 }
 
+export function insertApi(paramstr) {
 
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/api_insert', paramstr)
+            .then(resp => resp)
+    };
+};
+
+export function deleteApi(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/api_del', { id: paramstr })
+            .then(resp => resp)
+    };
+};
+
+
+export function updateApi(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/api_update', ...paramstr)
+            .then(resp => resp)
+    };
+};
+
+export function getApi() {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.get('/api/admin/api_get')
+            .then(resp => {
+                let api_list = [];
+                let data = resp.data.api_list;
+
+                data.forEach(element => {
+                    api_list.push({
+                        indx: element.indx,
+                        token: element.token,
+                        uri: element.uri,
+                        code: element.code,
+                        msg_id: element.msg_id,
+                        last_time: new Date(element.last_time).format('dd-MM-Y HH:mm:SS'),
+                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                        idd: String(element.idd),
+                        id: String(element.id),
+                        is_present: element.is_present ? "включен" : "выключен"
+                    })
+
+                });
+
+
+                return wrapData(api_list);
+            })
+    };
+};
+
+//FTP API
 export function getFtp() {
 
     // const data = JSON.stringify(paramstr);
