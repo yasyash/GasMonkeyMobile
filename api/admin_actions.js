@@ -11,6 +11,7 @@ import isUUid from 'validator/lib/isUUID';
 import url from 'url';
 import qs from 'querystring';
 
+import SRV from '../models/service';
 import INJ from '../models/injection';
 import FTP from '../models/ftp';
 import SOAP from '../models/soap';
@@ -23,6 +24,121 @@ import DATA from '../models/data';
 import { isString } from 'util';
 
 let router = express.Router();
+
+router.post('/srv_del', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+    //console.log(data.idd);
+
+    SRV.where({ id: data.id })
+        .save({
+            is_present: false
+        }, { patch: true })
+        .then(result => {
+            resp.json({ result });
+        }).catch(err => resp.status(500).json({ error: ' '+ err }));
+    // write the result
+
+})
+
+router.post('/srv_update', authenticate, (req, resp) => {
+
+    let data = req.body;
+    //console.log( data.last_time);
+
+    let date_time = data.date_time;
+    if (isEmpty(date_time))
+        date_time = new Date().format('dd-mm-Y H:mm:SS');
+    let serialnum = data.serialnum;
+    let name = data.name;
+    let result = data.result;
+    let person = data.person;
+    let note = data.note;
+    let inv_num = data.inv_num;
+    let is_present = true;
+    SRV.where({ id: data.id })
+        .save({
+            date_time, serialnum, name, result, person, note, inv_num
+
+
+        }, { patch: true })
+        .then(result => {
+            resp.json({ result });
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+    // write the result
+
+})
+router.post('/srv_insert', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+    console.log(data);
+
+    //  console.log(req.body);
+
+    SRV.query('where', 'id', '>', '0').orderBy('date_time', 'DESC').fetchAll()
+        .then(res => {
+            var result_parse0 = JSON.stringify(res);
+            var arr = JSON.parse(result_parse0);
+            let id = 1;
+            // console.log(String(Number(arr[0].id) + 1))
+            if (!isEmpty(arr[0]))
+                id = String(Number(arr[0].id) + 1);
+
+            let date_time = data.date_time;
+            if (isEmpty(date_time))
+                date_time = new Date().format('dd-mm-Y H:mm:SS');
+            let serialnum = data.serialnum;
+            let name = data.name;
+            let result = data.result;
+            let person = data.person;
+            let note = data.note;
+            let inv_num = data.inv_num;
+            let is_present = true;
+            //let id = Number(arr[0].idd) + 1;
+            //    console.log({  date_time, serialnum, name, result, person, note, inv_num, is_present })
+            SRV.forge({ id }).save({
+                date_time, serialnum, name, result, person, note, inv_num, is_present
+
+            }, { method: 'insert' })
+                .then(result => resp.json({ success: true }))
+                .catch(err => resp.status(500).json({ error: err }));
+
+
+            //      console.log(arr[0].idd);
+
+
+
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+    // write the result
+
+})
+
+
+router.get('/srv_get', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    //let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+
+    SRV.query('where', 'is_present', '=', 'true').orderBy('date_time', 'DESC').fetchAll().then(srv_list => {
+        resp.json({ srv_list });
+    }).catch(err => {
+
+        resp.status(500).json({ error: err })
+    });
+    // write the result
+
+});
+//REST api
 router.post('/api_insert', authenticate, (req, resp) => {
     //  
 
@@ -55,7 +171,7 @@ router.post('/api_insert', authenticate, (req, resp) => {
             let msg_id = 0;
 
             //let id = Number(arr[0].idd) + 1;
-          //     console.log({  idd, indx, code, token, uri, date_time, last_time })
+            //     console.log({  idd, indx, code, token, uri, date_time, last_time })
             INJ.forge({ id }).save({
                 idd, indx, code, token, uri, date_time, last_time, msg_id, is_present
 

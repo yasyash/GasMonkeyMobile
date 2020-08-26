@@ -14,17 +14,16 @@ export default class FormDialog extends React.Component {
         super(props);
         const { openDialog, title, id_station } = props;
 
-        this.state = { id_station };
 
         this.state = {
-            openDialog, title: 'Введите данные REST API:'
+            openDialog, title: 'Введите данные по обслуживанию оборудования:'
         };
         if (!isEmpty(title)) this.state.title = title;
     };
 
     componentWillMount() {
 
-
+this.setState({date_time: this.props.date_time});
 
 
 

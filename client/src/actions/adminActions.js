@@ -15,7 +15,67 @@ function wrapData(data_in) {
     });
     return data;
 }
+export function deleteSrv(paramstr) {
 
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/srv_del', { id: paramstr })
+            .then(resp => resp)
+    };
+};
+export function updateSrv(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/srv_update', ...paramstr)
+            .then(resp => resp)
+    };
+};
+export function insertSrv(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/srv_insert', paramstr)
+            .then(resp => {
+
+                return resp})
+    };
+};
+
+export function getSrv() {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.get('/api/admin/srv_get')
+            .then(resp => {
+                let srv_list = [];
+                let data = resp.data.srv_list;
+                data.forEach(element => {
+                    srv_list.push({
+
+                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                        serialnum: element.serialnum,
+                        id: String(element.id),
+                        name: element.name,
+                        result: element.result,
+                        person: element.person,
+                        note: element.note,
+                        inv_num: element.inv_num
+                    })
+
+                });
+
+
+                return wrapData(srv_list);
+            })
+    };
+};
+
+//REST API 
 export function insertApi(paramstr) {
 
     // const data = JSON.stringify(paramstr);
@@ -370,7 +430,7 @@ export function getDev() {
                         filter = stns.filter((item, i, arr) => {
                             return item.idd == element.idd;
                         });
-                       
+
                         idd_old = filter[0].idd;
                     }
                     macs_filter = macs.filter((item, i, arr) => {
@@ -435,6 +495,6 @@ export function updateData(paramstr) {
 
     return dispatch => {
         return Axios.post('/api/admin/data_update', paramstr)
-            .then(resp => {return (!resp.data.errcount ? true : false )});
+            .then(resp => { return (!resp.data.errcount ? true : false) });
     };
 };

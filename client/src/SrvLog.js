@@ -27,7 +27,7 @@ import ReactTable from "react-table";
 import checkboxHOC from "react-table/lib/hoc/selectTable";
 import "react-table/react-table.css";
 import isEmpty from 'lodash.isempty';
-import { getApi, updateApi, deleteApi, insertApi} from './actions/adminActions';
+import { getSrv, insertSrv, updateSrv, deleteSrv} from './actions/adminActions';
 
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -43,7 +43,7 @@ import shortid from 'shortid';
 
 import TextField from 'material-ui/TextField';
 import Toggle from 'material-ui/Toggle';
-import ApiDialog from './stuff/ApiDialog';
+import SrvDialog from './stuff/SrvDialog';
 
 import PlayListAdd from '@material-ui/icons/PlaylistAdd';
 import Icon from '@material-ui/core/Icon';
@@ -60,7 +60,7 @@ const styles = theme => ({
 
 
 
-class ApiForm extends React.Component {
+class SrvLog extends React.Component {
     constructor(props) {
         super(props);
         const {
@@ -81,7 +81,7 @@ class ApiForm extends React.Component {
             dataList,
             dateTimeBegin,
             dateTimeEnd,
-            api_list
+            srv_list
 
 
         } = props;
@@ -118,12 +118,9 @@ class ApiForm extends React.Component {
             selectAll: false,
 
             isUpdated: false,
-            api_list,
+            srv_list,
             openDialog: false,
-            address: '',
-            username: '',
-            pwd: '',
-            periods: 1200
+
 
         };
 
@@ -234,12 +231,12 @@ class ApiForm extends React.Component {
 
 
 
-    handleChange(event) {
-        this.setState({ height: event.target.value });
-    };
+    //handleChange(event) {
+    //   this.setState({ height: event.target.value });
+    //};
 
     handleRowSelection(selectedRows) {
-        let ftp = (this.state.api_list[selectedRows].id);
+        let ftp = (this.state.srv_list[selectedRows].id);
 
         this.setState({
             selected: selectedRows,
@@ -299,23 +296,23 @@ class ApiForm extends React.Component {
                 contentEditable
                 suppressContentEditableWarning
                 onBlur={e => {
-                    const data = [...this.state.api_list];
+                    const data = [...this.state.srv_list];
                     data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-                    this.setState({ api_list: data });
+                    this.setState({ srv_list: data });
                 }}
                 dangerouslySetInnerHTML={{
-                    __html: this.state.api_list[cellInfo.index][cellInfo.column.id]
+                    __html: this.state.srv_list[cellInfo.index][cellInfo.column.id]
                 }}
             />
         );
     } I
 
-    async    load_api() {
+    async    load_srv() {
         let params = {};
         // 0 - all stations, 1- all sensors of the station, 2 - selected sensors
         //3 - macs table
 
-        let data = await (this.props.getApi());
+        let data = await (this.props.getSrv());
         //console.log(data);
         return data;
     };
@@ -328,15 +325,15 @@ class ApiForm extends React.Component {
 
     handleUpdate() {
         if (!isEmpty(this.state.api_actual)) {
-            const { api_list } = this.state;
-            let filter = api_list.filter((item, i, arr) => {
+            const { srv_list } = this.state;
+            let filter = srv_list.filter((item, i, arr) => {
                 return item.id == this.state.api_actual;
             });
-            this.props.updateApi(filter).then(resp => {
+            this.props.updateSrv(filter).then(resp => {
                 if (resp.status == 200) {
-                    this.load_api().then(data => {
+                    this.load_srv().then(data => {
                         if (data)
-                            this.setState({ api_list: data });
+                            this.setState({ srv_list: data });
                         this.setState({ api_actual: '' });
 
                         this.setState({ isLoading: true });
@@ -355,11 +352,11 @@ class ApiForm extends React.Component {
             var isReal = confirm("Вы уверены?...");
 
             if (isReal) {
-                this.props.deleteApi(this.state.api_actual).then(resp => {
+                this.props.deleteSrv(this.state.api_actual).then(resp => {
                     if (resp.status == 200) {
-                        this.load_api().then(data => {
+                        this.load_srv().then(data => {
                             if (data)
-                                this.setState({ api_list: data });
+                                this.setState({ srv_list: data });
                             this.setState({ api_actual: '' });
 
                             this.setState({ isLoading: true });
@@ -384,24 +381,38 @@ class ApiForm extends React.Component {
     };
 
     handleChange = name => event => {
-        //getFTPFunc
+        //getSRVFunc
         this.setState({
             [name]: event.target.value,
         });
     };
 
-    handleAdd() {            
+    handleAdd() {
 
         //insert action
-        let { idd, indx, code, token, uri } = this.state;
-        this.props.insertApi({ idd, indx, code, token, uri })
+        const { date_time,
+            serialnum,
+            name,
+            result,
+            person,
+            note,
+            inv_num } = this.state;
+
+        this.props.insertSrv({
+            serialnum,
+            name,
+            result,
+            person,
+            note,
+            inv_num, date_time
+        })
             .then(resp => {
                 this.setState({ openDialog: false });
 
                 if (resp.status == 200) {
-                    this.load_api().then(data => {
+                    this.load_srv().then(data => {
                         if (data)
-                            this.setState({ api_list: data });
+                            this.setState({ srv_list: data });
 
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Данные успешно добавлены...' });
@@ -419,9 +430,9 @@ class ApiForm extends React.Component {
     componentWillMount() {
 
 
-        this.load_api().then(data => {
+        this.load_srv().then(data => {
             if (data)
-                this.setState({ api_list: data });
+                this.setState({ srv_list: data });
         });
 
 
@@ -432,7 +443,7 @@ class ApiForm extends React.Component {
 
 
     render() {
-        const { api_list } = this.state;
+        const { srv_list } = this.state;
         const { snack_msg, isLoading } = this.state;
 
         const { toggleSelection, toggleAll, isSelected } = this;
@@ -481,84 +492,66 @@ class ApiForm extends React.Component {
             </div>;
         const Title = [
             {
-                Header: "Перечень REST Api",
+                Header: "Журнал обслуживания оборудования ПНЗ",
                 columns: [
                     {
-                        Header: "ID станции",
-                        id: "idd",
-                        accessor: "idd",
-                        Cell: this.renderEditable,
-                        filterable: true
-
-                    },
-                    {
-                        Header: "Индекс станции",
-                        id: "indx",
-                        accessor: d => d.id,
-                        Cell: this.renderEditable,
-                        filterable: true
-
-                    },
-
-                    {
-                        Header: "Адрес uri",
-                        id: "uri",
-                        accessor: "uri",
-                        accessor: d => d.id,
-                        Cell: this.renderEditable,
-                        filterable: true
-
-                    },
-                    {
-                        Header: "Токен",
-                        id: "token",
-                        accessor: "token",
-                        Cell: this.renderEditable,
-                        filterable: true
-
-                    },
-                    {
-                        Header: "Код станции",
-                        id: "code",
-                        accessor: "code",
-                        Cell: this.renderEditable
-
-                    },
-
-
-                    {
-                        Header: "Время репликации",
-                        id: "last_time",
-                        accessor: "last_time",
-                        Cell: this.renderEditable,
-
-                    },
-                    {
-                        Header: "Время последних данных",
+                        Header: "Время",
                         id: "date_time",
                         accessor: "date_time",
                         Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
-                        Header: "ID сообщения",
-                        id: "msg_id",
-                        accessor: "msg_id",
+                        Header: "Серийный номер",
+                        id: "serialnum",
+                        accessor: "serialnum",
+                        Cell: this.renderEditable,
+                        filterable: true
 
+                    },
+
+                    {
+                        Header: "Инвентарный номер",
+                        id: "inv_num",
+                        accessor: "inv_num",
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
-                        Header: "ID записи",
-                        id: "id",
-                        accessor: "id",
-
+                        Header: "Наименование",
+                        id: "name",
+                        accessor: "name",
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     },
                     {
-                        Header: "Включена",
-                        id: "is_present",
-                        accessor: "is_present",
+                        Header: "Перечень работ",
+                        id: "note",
+                        accessor: "note",
+                        Cell: this.renderEditable,
+                        filterable: true
 
+
+                    },
+
+
+                    {
+                        Header: "Результаты работ",
+                        id: "result",
+                        accessor: "result",
+                        Cell: this.renderEditable,
+                        filterable: true
+
+                    },
+                    {
+                        Header: "Отвественный",
+                        id: "person",
+                        accessor: "person",
+                        Cell: this.renderEditable,
+                        filterable: true
 
                     }
 
@@ -584,9 +577,9 @@ class ApiForm extends React.Component {
                 />
 
 
-                <ApiDialog openDialog={this.state.openDialog}
-                    id_station={this.state.api_list ? this.state.api_list[0].idd : ''}
+                <SrvDialog openDialog={this.state.openDialog}
                     handleDialogClose={this.handleDialogClose.bind(this)}
+                    date_time ={ new Date().format('dd-mm-Y H:mm:SS')}
                     handleAdd={this.handleAdd.bind(this)}
                     handleChange={this.handleChange.bind(this)} />
 
@@ -595,7 +588,7 @@ class ApiForm extends React.Component {
                     <CheckboxTable
                         ref={r => (this.checkboxTable = r)}
                         {...checkboxProps}
-                        data={api_list}
+                        data={srv_list}
                         columns={Title}
                         defaultPageSize={7}
                         previousText={'Предыдущие'}
@@ -645,15 +638,16 @@ function mapStateToProps(state) {
 }
 
 
-ApiForm.propTypes = {
-    getApi: PropTypes.func.isRequired,
+SrvLog.propTypes = {
+    getSrv: PropTypes.func.isRequired,
+    insertSrv: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired
 }
 
-ApiForm.contextType = {
+SrvLog.contextType = {
     router: PropTypes.object.isRequired
 }
 
 export default connect(null, {
-    getApi, updateApi, deleteApi, insertApi
-})(withRouter(withStyles(styles)(ApiForm)));
+    getSrv, insertSrv, updateSrv, deleteSrv
+})(withRouter(withStyles(styles)(SrvLog)));

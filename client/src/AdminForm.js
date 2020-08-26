@@ -34,8 +34,9 @@ import toUpper from 'lodash/toUpper';
 import "react-table/react-table.css";
 import isNumber from 'lodash.isnumber';
 
-import { getApi, getFtp, getSoap, getUser, getMeteo, getDev } from './actions/adminActions';
+import { getSrv,getApi, getFtp, getSoap, getUser, getMeteo, getDev } from './actions/adminActions';
 
+import SrvLog from './SrvLog';
 import ApiForm from './ApiForm';
 import FtpForm from './FtpForm';
 import SoapForm from './SoapForm';
@@ -198,6 +199,12 @@ class AdminForm extends React.Component {
                         <ApiForm
                             {...this.state}
                             getApi={getApi}
+                        />
+                    </Tab>
+                    <Tab label="Журнал" >
+                        <SrvLog
+                            {...this.state}
+                            getSrv={getSrv}
                         />
                     </Tab>
                 </Tabs>
