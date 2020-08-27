@@ -23,7 +23,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar, Line, Pie, Radar } from 'react-chartjs-2';
 
 import shortid from 'shortid';
 import isEmpty from 'lodash.isempty';
@@ -32,7 +32,7 @@ import "react-table/react-table.css";
 import isNumber from 'lodash.isnumber';
 
 import MenuChart from './menuChart';
-
+import deepcopy from 'lodash';
 
 const styles = theme => ({
     root: {
@@ -90,7 +90,8 @@ class ChartForm extends React.Component {
             options: [],
             barThickness: null,
             beginChartData: [],
-            meteoOptions: []
+            meteoOptions: [],
+            consentration: 0
         };
 
 
@@ -107,7 +108,29 @@ class ChartForm extends React.Component {
         legendPosition: 'right',
         locations: ''
     };
+    handleChangeExhaust = (name, event) => {
+        this.setState({ [name]: event.target.value });
 
+    };
+
+    handleClickExhaust() {
+        var _datasets = this.state.chartData.datasets;
+        var { chartData } = this.state;
+        var len = this.state.chartData.datasets.length;
+        const _consentration = Number(this.state.consentration);
+        if (len > 0) {
+            //var _obj =Object.create( _datasets[len - 1]);
+            //_obj=_datasets[len-1];
+            _datasets[len - 1].label = 'ПДВ: ' + _consentration;
+            _datasets[len - 1].hidden = false;
+            _datasets[len - 1].data = [];
+            _datasets[0].data.forEach((element, key) =>
+                _datasets[len - 1].data.push(_consentration));
+
+        }
+        this.setState({ chartData });
+
+    }
     ////////////    
     handleChangeToggle = (name, event) => {
         this.setState({ [name]: event.target.checked });
@@ -491,12 +514,31 @@ class ChartForm extends React.Component {
                 });
 
                 obj = obj.concat(obj_macs);
+                var _tmp = [];
+                let _emptydatasets =
+                {
+                    label: 'ПДВ',
+                    fill: false,
+                    borderColor: '#000000',
+                    backgroundColor: '#000000',
+                    data: [],
+                    pointStyle: 'circle',
+                    radius: 0,
+                    borderWidth: this.state.borderWidth + 2,
+                    borderDash: [10, 10],
+                    hidden: true
+                };
+
+                _tmp.push(_emptydatasets);
+                obj = obj.concat(_tmp);
+
                 Object.assign(beginChartData, obj);
                 Object.assign(chartData.datasets, obj);
                 Object.assign(chartData.labels, _timeaxis);
 
             }; // end fetch section when data is exist
             //console.log('data = ', chartData.datasets[0].data);
+
 
             this.setState({ beginChartData });
             if (isEmpty(this.state.options[0]))
@@ -595,7 +637,7 @@ class ChartForm extends React.Component {
         //var button = document.getElementById('sv-bt');
         //button.download = img;
         var link = document.getElementById('link_report');
-        link.setAttribute('download', this.props.station_actual + '_' + this.state.dateTimeEnd+ '.png');
+        link.setAttribute('download', this.props.station_actual + '_' + this.state.dateTimeEnd + '.png');
         link.setAttribute('href', img);
         link.click();
     };
@@ -648,10 +690,12 @@ class ChartForm extends React.Component {
                 <a id="link_report"></a>
                 <MenuChart
                     {...this.state}
+                    handleChangeExhaust={this.handleChangeExhaust.bind(this)}
                     handleChangeToggle={this.handleChangeToggle.bind(this)}
                     handleClickPdf={this.handleClickPdf.bind(this)}
                     hideLine={this.hideLine.bind(this)}
                     handleClickPdf={this.handleClickPdf.bind(this)}
+                    handleClickExhaust={this.handleClickExhaust.bind(this)}
                     value="checkedLine"
                     valueMeteo="checkedMeteo"
                 />

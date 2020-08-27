@@ -5,7 +5,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Settings from 'material-ui/svg-icons/action/settings';
 import ContentFilter from 'material-ui/svg-icons/content/filter-list';
 import FileFileDownload from 'material-ui/svg-icons/file/file-download';
-import TextField from 'material-ui/TextField';
+import TextField from '@material-ui/core/TextField';
 import Toggle from 'material-ui/Toggle';
 import Renew from 'material-ui/svg-icons/action/autorenew';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -47,6 +47,7 @@ import canvas2pdf from 'canvas2pdf/src/canvas2pdf';
 import { connect } from 'react-redux';
 
 
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 
 const ITEM_HEIGHT = 48;
 
@@ -60,13 +61,13 @@ const styles = theme => ({
     icon: {
         margin: theme.spacing.unit * 2,
         color: blue[600],
-   
+
     },
     icon_mnu: {
         margin: theme.spacing.unit * 2,
         color: blue[600],
         margin: 0
-   
+
     },
     iOSSwitchBase: {
         '&$iOSChecked': {
@@ -147,7 +148,8 @@ class MenuChart extends Component {
             anchorEl: null,
             options,
             meteoOptions,
-            checked: []
+            checked: [],
+            consentration: ''
         };
 
 
@@ -158,13 +160,31 @@ class MenuChart extends Component {
         // this.handleChange = this.handleChange.bind (this);
 
     }
-    handleLocalChangeToggle = name => event =>{
-       // const{meteoOptions} = this.props;
-       // const{options} = this.props;
 
-        this.props.handleChangeToggle (name, event);
-       // this.setState({meteoOptions});
-       // this.setState({options});
+    handleLocalChangeExhaust = name => event => {
+        // const{meteoOptions} = this.props;
+        // const{options} = this.props;
+        //if (isNumber(Number(event.target.value)))
+        //{
+        this.setState({ [name]: event.target.value });
+
+        this.props.handleChangeExhaust(name, event);
+        // } else
+        // {
+        //  this.setState({ [name]: 'цифровое значение' });
+
+        //}
+        // this.setState({meteoOptions});
+        // this.setState({options});
+
+    };
+    handleLocalChangeToggle = name => event => {
+        // const{meteoOptions} = this.props;
+        // const{options} = this.props;
+
+        this.props.handleChangeToggle(name, event);
+        // this.setState({meteoOptions});
+        // this.setState({options});
 
     };
 
@@ -180,35 +200,35 @@ class MenuChart extends Component {
 
     };
     handleChange = name => event => {
-        if (this.props.checkedMeteo){
-        const { options } = this.state;
+        if (this.props.checkedMeteo) {
+            const { options } = this.state;
 
-        // indx = options.chemical.indexOf(name);
-        for (var key in options) {
-            if (options[key].chemical === name) {
-                options[key]['visible'] = event.target.checked;
+            // indx = options.chemical.indexOf(name);
+            for (var key in options) {
+                if (options[key].chemical === name) {
+                    options[key]['visible'] = event.target.checked;
 
+                };
             };
-        };
-    
-        this.setState({ options });
-        this.props.hideLine({ options });
 
-    } else {
-        const { meteoOptions } = this.state;
+            this.setState({ options });
+            this.props.hideLine({ options });
 
-        // indx = options.chemical.indexOf(name);
-        for (var key in meteoOptions) {
-            if (meteoOptions[key].header === name) {
-                meteoOptions[key]['visible'] = event.target.checked;
+        } else {
+            const { meteoOptions } = this.state;
 
+            // indx = options.chemical.indexOf(name);
+            for (var key in meteoOptions) {
+                if (meteoOptions[key].header === name) {
+                    meteoOptions[key]['visible'] = event.target.checked;
+
+                };
             };
-        };
-    
-        this.setState({ meteoOptions });
-        this.props.hideLine({ meteoOptions });
 
-    };
+            this.setState({ meteoOptions });
+            this.props.hideLine({ meteoOptions });
+
+        };
     };
 
     handlePdfClick = (name) => {
@@ -217,44 +237,44 @@ class MenuChart extends Component {
             orientation: 'landscape',
             unit: 'mm',
             format: 'a4'
-          })
-        
-                    //var _html =  document.getElementById('line_chart');
-                    //var dom = document.createElement('line_chart');
-     //   var cnvs =  document.getElementById("chartjs-render-monitor ");
-       var cnvs =  document.getElementById("chrts");
-       console.log(this.refs.chart.chrts);
-       var img = cnvs.toDataURL("image/png");
+        })
 
-       
+        //var _html =  document.getElementById('line_chart');
+        //var dom = document.createElement('line_chart');
+        //   var cnvs =  document.getElementById("chartjs-render-monitor ");
+        var cnvs = document.getElementById("chrts");
+        console.log(this.refs.chart.chrts);
+        var img = cnvs.toDataURL("image/png");
+
+
         dom.operative_report = _html;
         //let pdfHTML = _html.childNodes[0];
         let canvas = doc.canvas;
         canvas.height = 210;
-        canvas.width= 290;
-        canvas.style= {width: 290, height: 210};
-        
-        const {dateTimeEnd} = this.state;
+        canvas.width = 290;
+        canvas.style = { width: 290, height: 210 };
+
+        const { dateTimeEnd } = this.state;
         //canvas.pdf = doc;
-        
-       // html2canvas(_html).then(function(_canvas) {
-                   
-        
+
+        // html2canvas(_html).then(function(_canvas) {
+
+
         //});
         var opt = {
-            margin:       15,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 5 },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-          };
+            margin: 15,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 5 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
 
-       //   var worker = html2pdf().from(_html.innerHTML).set(opt).save('Chart_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
-        
-         
+        //   var worker = html2pdf().from(_html.innerHTML).set(opt).save('Chart_'+new Date(dateTimeEnd).format('dd-MM-Y_H:mm')+'.pdf');
 
-            
-        }
-   
+
+
+
+    }
+
 
     render() {
 
@@ -262,7 +282,7 @@ class MenuChart extends Component {
         const { anchorEl } = this.state;
         const { options } = this.state;
         const { meteoOptions } = this.state;
-        const {checkedMeteo} = this.props;
+        const { checkedMeteo } = this.props;
 
         /*let { fixedHeader,
             fixedFooter,
@@ -306,93 +326,116 @@ class MenuChart extends Component {
                                     PaperProps={{
                                         style: {
                                             maxHeight: ITEM_HEIGHT * ((this.props.checkedMeteo && options.length)
-                                            + (!this.props.checkedMeteo && 5) + 1),
-                                            width: (this.props.checkedMeteo && 250)+(!this.props.checkedMeteo && 300),
+                                                + (!this.props.checkedMeteo && 5) + 1),
+                                            width: (this.props.checkedMeteo && 250) + (!this.props.checkedMeteo && 300),
                                         },
                                     }}
                                 >
 
-                                   {(options)&&
-                                        options.map((option, i) => (this.props.checkedMeteo && 
+                                    {(options) &&
+                                        options.map((option, i) => (this.props.checkedMeteo &&
 
 
-                                        //<MenuItem key={option.chemical} onClick={this.handleClose.bind(this)}>
-                                        <MenuItem key={'chart_menu_' + option.chemical}>
+                                            //<MenuItem key={option.chemical} onClick={this.handleClose.bind(this)}>
+                                            <MenuItem key={'chart_menu_' + option.chemical}>
 
-                                            <Checkbox
-                                                key={option.chemical}
-                                                checked={option.visible}
-                                                color='primary'
-                                                onChange={this.handleChange(option.chemical)}
-                                                value={option.chemical}
+                                                <Checkbox
+                                                    key={option.chemical}
+                                                    checked={option.visible}
+                                                    color='primary'
+                                                    onChange={this.handleChange(option.chemical)}
+                                                    value={option.chemical}
 
-                                            />{'график ' + option.chemical}
-                                        </MenuItem>
-
-
-                                        // 
-                                    ))}
-                                    { (meteoOptions)&&// if not empty
-                                        meteoOptions.map((option, i) => (!this.props.checkedMeteo && 
+                                                />{'график ' + option.chemical}
+                                            </MenuItem>
 
 
-                                        //<MenuItem key={option.chemical} onClick={this.handleClose.bind(this)}>
-                                        <Tooltip key ={'tooltip_' + option.id} title={option.header}>
+                                            // 
+                                        ))}
+                                    {(meteoOptions) &&// if not empty
+                                        meteoOptions.map((option, i) => (!this.props.checkedMeteo &&
 
-                                        <MenuItem key={'chart_meteo_' + option.id}>
 
-                                            <Checkbox
-                                                key={option.id}
-                                                checked={option.visible}
-                                                color='primary'
-                                                onChange={this.handleChange(option.header)}
-                                                value={option.header}
+                                            //<MenuItem key={option.chemical} onClick={this.handleClose.bind(this)}>
+                                            <Tooltip key={'tooltip_' + option.id} title={option.header}>
 
-                                            />{'график ' + option.header}
-                                        </MenuItem>
-                                        </Tooltip  >
+                                                <MenuItem key={'chart_meteo_' + option.id}>
 
-                                        // 
-                                    ))
-                                }
+                                                    <Checkbox
+                                                        key={option.id}
+                                                        checked={option.visible}
+                                                        color='primary'
+                                                        onChange={this.handleChange(option.header)}
+                                                        value={option.header}
+
+                                                    />{'график ' + option.header}
+                                                </MenuItem>
+                                            </Tooltip  >
+
+                                            // 
+                                        ))
+                                    }
 
                                 </Menu>
+
                             </div>
-
-
                         </div>
+                        <div className={classes.root}>
+                            <div>
 
+                                <TextField
+                                    margin="dense"
+                                    id="consentration"
+                                    label="ПДВ"
+                                    type="text"
+                                    fullWidth
+                                    value={this.state.consentration}
+                                    onChange={this.handleLocalChangeExhaust('consentration')}
+                                />
+
+
+                            </div><div>
+                                <Tooltip id="tooltip-charts-viewchk" title="Применить">
+                                    <IconButton className={classes.icon_mnu} id="chk-bt" onClick={this.props.handleClickExhaust} aria-label="Применить" style={{ width: 37, height: 37, padding: 0 }}>
+
+
+                                        <CheckCircleOutlineIcon className={classes.icon_mnu} style={{ width: 35, height: 35 }} />
+
+                                    </IconButton>
+                                </Tooltip>
+                            </div>
+                        </div>
                         <div className={classes.root}>
 
-                        {(checkedMeteo) &&   
-                            <Tooltip id="tooltip-charts-rangePrcnt" title="Отображение в % от ПДК">
-                                <span  className={classes.icon}> отображение в %</span>
-                            </Tooltip>}
+                            {(checkedMeteo) &&
+                                <Tooltip id="tooltip-charts-rangePrcnt" title="Отображение в % от ПДК">
+                                    <span className={classes.icon}> отображение в %</span>
+                                </Tooltip>}
 
-                        { (checkedMeteo)  &&  
+                            {(checkedMeteo) &&
 
-                              <Switch  classes={{
+                                <Switch classes={{
                                     switchBase: classes.iOSSwitchBase,
                                     bar: classes.iOSBar,
                                     icon: classes.iOSIcon,
                                     iconChecked: classes.iOSIconChecked,
                                     checked: classes.iOSChecked,
                                 }}
-                                disableRipple
-                                checked={this.props.whatsRange}
-                                onChange={this.handleLocalChangeToggle('whatsRange')}
-                                value={this.props.valueMeteo}
-                            />}
+                                    disableRipple
+                                    checked={this.props.whatsRange}
+                                    onChange={this.handleLocalChangeToggle('whatsRange')}
+                                    value={this.props.valueMeteo}
+                                />}
 
 
-                         {(checkedMeteo) && <Tooltip id="tooltip-charts-rangeMg" title="Отображение в мг/м3">
-                              <span  className={classes.icon}>в  мг/м3</span>
+                            {(checkedMeteo) && <Tooltip id="tooltip-charts-rangeMg" title="Отображение в мг/м3">
+                                <span className={classes.icon}>в  мг/м3</span>
                             </Tooltip>}
-                            
+
 
                             <Tooltip id="tooltip-charts-view3" title="Метеоданные">
-                            <SvgIcon className={classes.icon}>
-                                    <path  d="M6,6L6.69,6.06C7.32,3.72 9.46,2 12,2A5.5,5.5 0 0,1 
+                                <SvgIcon className={classes.icon}>
+                                    <path d="M6,6L6.69,6.06C7.32,3.72 9.46,2 12,2A5.5,5.5 0 0,1 
                                     17.5,7.5L17.42,8.45C17.88,8.16 18.42,8 19,8A3,3 0 0,1 22,11A3,3
                                      0 0,1 19,14H6A4,4 0 0,1 2,10A4,4 0 0,1 6,6M6,8A2,2 0 0,0
                                       4,10A2,2 0 0,0 6,12H19A1,1 0 0,0 20,11A1,1 0 0,0 

@@ -1,6 +1,6 @@
 {
   "name": "meteo-server",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "main": "index.js",
   "dependencies": {
@@ -67,9 +67,10 @@
     "officegen": "^0.4.5",
     "path": "^0.12.7",
     "pg": "^7.4.3",
+    "ramda": "^0.27.1",
     "rc-slider": "^8.7.1",
     "react": "^16.4.2",
-    "react-chartjs-2": "^2.7.2",
+    "react-chartjs-2": "^2.10.0",
     "react-color": "^2.14.1",
     "react-dom": "^16.3.1",
     "react-html-table-to-excel": "^2.0.0",
