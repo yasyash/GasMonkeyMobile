@@ -16,6 +16,7 @@ import  AdminPage from './AdminPage';
 import DashBoard from './DashBoard';
 import MapsPage from './MapsPage';
 import Divider from 'material-ui/Divider';
+import StatPage from './StatPage';
 
 export default (
     <div><Divider/>
@@ -31,6 +32,7 @@ export default (
                 <Route path="/charts" component={requireAuth(ChartPage)} />
                 <Route path="/reports" component={requireAuth(ReportPage)} />
                 <Route path="/admin" component={requireAuth(AdminPage)} />
+                <Route path="/stats" component={requireAuth(StatPage)} />
 
             </Switch>
         </div>

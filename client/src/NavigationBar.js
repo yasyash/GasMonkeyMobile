@@ -46,6 +46,7 @@ class NavigationBar extends React.Component {
 
           <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
+          <Link to="/stats">Статистика  &nbsp; &nbsp;</Link>
           <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
           <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
           <Link to="/maps">Карты  &nbsp; &nbsp;</Link>

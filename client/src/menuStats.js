@@ -16,6 +16,8 @@ import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
 
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
@@ -33,6 +35,7 @@ import Switch from '@material-ui/core/Switch';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import Tooltip from '@material-ui/core/Tooltip';
+import PagesIcon from '@material-ui/icons/Pages';
 
 import CheckBox from '@material-ui/icons/CheckBox';
 import blue from '@material-ui/core/colors/blue';
@@ -48,6 +51,9 @@ import { connect } from 'react-redux';
 
 
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import TrackChangesIcon from '@material-ui/icons/TrackChanges';
+
+import isEmpty from 'lodash.isempty';
 
 const ITEM_HEIGHT = 48;
 
@@ -121,7 +127,7 @@ const styles = theme => ({
 
 
 
-class MenuChart extends Component {
+class MenuStats extends Component {
 
     constructor(props) {
         let isNll = false;
@@ -134,7 +140,11 @@ class MenuChart extends Component {
             snack_msg,
             value,
             options,
-            meteoOptions
+            meteoOptions,
+            stationsList,
+            dateTimeBegin,
+            dateTimeEnd,
+            checkedMeteo
         } = props;
 
         if (isStation) { isNll = true }
@@ -149,7 +159,21 @@ class MenuChart extends Component {
             options,
             meteoOptions,
             checked: [],
-            consentration: ''
+            consentration: '',
+            chemical_list: ['Направление ветра', 'NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая',
+                'бензол', 'толуол', 'этилбензол', 'м,п-ксилол', 'о-ксилол', 'хлорбензол', 'стирол', 'фенол'],
+            chemical: '',
+            station_actual: '',
+            station_id: '',
+            stationsList,
+            sensorsList: '',
+            sensors_actual: '',
+            dateTimeBegin,
+            dateTimeEnd,
+            dataList: {},
+            dateTime: new Date().format('Y-MM-dd'),
+            checkedMeteo
+
         };
 
 
@@ -161,6 +185,92 @@ class MenuChart extends Component {
 
     }
 
+    handleSelectChemicalChange = event => {
+
+        this.setState({ [event.target.name]: event.target.value });
+        const { sensorsList } = this.state;
+        if (sensorsList) {
+            let filter = sensorsList.filter((item, i, arr) => {
+                return item.typemeasure == event.target.value;
+            });
+
+            this.setState({ sensors_actual: filter[0].serialnum });
+            this.props.handleChangeParent('sensors_actual', [filter[0].serialnum]);
+            this.loadData(2, filter[0].id, filter[0].serialnum).then(_data => {
+                if (_data.length > 0) {
+                    this.setState({ dataList: _data, isLoading: true, snack_msg: 'Данные загружены. Выберите диаграмму...' });
+                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                } else {
+                    this.setState({ dataList: [], isLoading: true, snack_msg: 'Данные отстутствуют...' });
+                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                }
+            })
+        }
+    };
+    handleSelectChange = event => {
+        if (event.target.name == 'station_actual') {
+
+            const { stationsList } = this.props;
+            let filter = stationsList.filter((item, i, arr) => {
+                return item.namestation == event.target.value;
+            });
+            this.setState({ [event.target.name]: event.target.value });
+
+            this.setState({ station_id: filter[0].id });
+
+            this.loadData(1, filter[0].id).then(_data => {
+                if (_data)
+                    this.setState({ sensorsList: _data });
+
+                if (this.state.sensors_actual) { //if we have sensors already
+                    let filter = _data.filter((item, i, arr) => {
+                        return item.typemeasure == this.state.chemical;
+                    });
+
+                    this.setState({ sensors_actual: filter[0].serialnum });
+
+                    this.loadData(2, filter[0].id, filter[0].serialnum).then(_data => {
+                        if (this.props.dataList.length > 0) {
+                            this.setState({ dataList: _data, isLoading: true, snack_msg: 'Данные загружены. Выберите диаграмму...' });
+                            this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                        } else {
+                            this.setState({ dataList: [], isLoading: true, snack_msg: 'Данные отстутствуют...' });
+                            this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                        }
+                    })
+                }
+            })
+
+        }
+
+
+    };
+    handleSnkClose() {
+        this.setState({ isLoading: false });
+        // this.setState({ isUpdated: false });
+
+    };
+
+    handlePickerChange = (event) => {
+        const value = event.target.value;
+        const id = event.target.id;
+        this.setState({ 'dateTimeBegin': event.target.value + 'T' + '00:00:00' });
+        this.setState({ 'dateTimeEnd': event.target.value + 'T' + '23:59:59' });
+        if (this.state.sensors_actual && this.state.station_actual) {
+            this.loadData(2, this.state.station_id, this.state.sensors_actual, event.target.value + 'T' + '00:00:00', event.target.value + 'T' + '23:59:59').then(_data => {
+                if (_data.length > 0) {
+                    this.setState({ dataList: _data, isLoading: true, snack_msg: 'Данные загружены. Выберите диаграмму...' });
+                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                }
+                else {
+                    this.setState({ dataList: [], isLoading: true, snack_msg: 'Данные отстутствуют...' });
+                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                }
+
+            })
+        }
+        //  dateAddAction({ [id]: value });
+    };
     handleLocalChangeExhaust = name => event => {
         // const{meteoOptions} = this.props;
         // const{options} = this.props;
@@ -200,7 +310,7 @@ class MenuChart extends Component {
 
     };
     handleChange = name => event => {
-        if (this.props.checkedMeteo) {
+        if (this.props.isMeteo) {
             const { options } = this.state;
 
             // indx = options.chemical.indexOf(name);
@@ -216,7 +326,6 @@ class MenuChart extends Component {
 
         } else {
             const { meteoOptions } = this.state;
-
             // indx = options.chemical.indexOf(name);
             for (var key in meteoOptions) {
                 if (meteoOptions[key].header === name) {
@@ -274,15 +383,53 @@ class MenuChart extends Component {
 
 
     }
+    async    loadData(qtype, _params_stations, _params_sensors, _dtBegin, _dtEnd) {
+        var params = {};
+        // 0 - all stations, 1- all sensors of the station, 2 - selected sensors
+        //console.log('loaddata111')            
+        if (isEmpty(_dtBegin)) {
+            params.period_from = this.state.dateTimeBegin;
+            params.period_to = this.state.dateTimeEnd;
+        } else {
+            params.period_from = _dtBegin;
+            params.period_to = _dtEnd;
+        }
 
+        if (qtype > 0) {
+
+            params.station = _params_stations;
+        }
+        if (qtype > 1) {
+            params.sensors = [_params_sensors];
+            params.averaging = 1;
+        };
+
+        var data = await (this.props.queryFullEvent(params));
+        //console.log(data);
+        if (data.length > 0) {
+            if (data[0].typemeasure) {
+                if (data[0].typemeasure == 'Направление ветра') {
+                    this.props.handleChangeParent('isMeteo', true);
+                    this.props.handleChangeParent('whatsRange', true);
+
+                } else {
+                    this.props.handleChangeParent('isMeteo', false);
+                    this.props.handleChangeParent('whatsRange', false);
+
+
+                }
+            }
+        }
+        return data;
+    };
 
     render() {
 
         const { classes } = this.props;
         const { anchorEl } = this.state;
-        const { options } = this.state;
+        const { options, chemical_list } = this.state;
         const { meteoOptions } = this.state;
-        const { checkedMeteo } = this.props;
+        const { checkedMeteo, stationsList, isMeteo } = this.props;
 
         /*let { fixedHeader,
             fixedFooter,
@@ -325,15 +472,15 @@ class MenuChart extends Component {
                                     onClose={this.handleClose}
                                     PaperProps={{
                                         style: {
-                                            maxHeight: ITEM_HEIGHT * ((this.props.checkedMeteo && options.length)
-                                                + (!this.props.checkedMeteo && 5) + 1),
-                                            width: (this.props.checkedMeteo && 250) + (!this.props.checkedMeteo && 300),
+                                            maxHeight: ITEM_HEIGHT * ((this.props.isMeteo && options.length)
+                                                + (!this.props.isMeteo && 5) + 1),
+                                            width: (this.props.isMeteo && 250) + (!this.props.isMeteo && 300),
                                         },
                                     }}
                                 >
 
                                     {(options) &&
-                                        options.map((option, i) => (this.props.checkedMeteo &&
+                                        options.map((option, i) => (this.props.isMeteo &&
 
 
                                             //<MenuItem key={option.chemical} onClick={this.handleClose.bind(this)}>
@@ -353,7 +500,7 @@ class MenuChart extends Component {
                                             // 
                                         ))}
                                     {(meteoOptions) &&// if not empty
-                                        meteoOptions.map((option, i) => (!this.props.checkedMeteo &&
+                                        meteoOptions.map((option, i) => (!this.props.isMeteo &&
 
 
                                             //<MenuItem key={option.chemical} onClick={this.handleClose.bind(this)}>
@@ -378,134 +525,114 @@ class MenuChart extends Component {
 
                                 </Menu>
 
+
                             </div>
                         </div>
+                        <div className={classes.root} style={{ width: 130 }}>
+                            <FormControl className={classes.formControl}>
+
+                                <InputLabel htmlFor="station_actual" >пост</InputLabel>
+
+                                <Select
+                                    value={this.state.station_actual}
+                                    onChange={this.handleSelectChange}
+                                    inputProps={{
+                                        name: 'station_actual',
+                                        id: 'station_actual',
+                                    }}
+                                    style={{ width: 150 }}>
+                                    {(stationsList) &&// if not empty
+                                        stationsList.map((option, i) => (
+                                            <MenuItem key={option.namestation} value={option.namestation}>
+                                                {option.namestation}
+                                            </MenuItem>
+                                        ))
+                                    }
+
+                                </Select>
+
+
+                            </FormControl></div>
                         <div className={classes.root}>
+
                             <div>
 
+                                <FormControl className={classes.formControl}>
+                                    <InputLabel htmlFor="chemical" >компонент</InputLabel>
+                                    <Select
+                                        value={this.state.chemical}
+                                        onChange={this.handleSelectChemicalChange}
+                                        inputProps={{
+                                            name: 'chemical',
+                                            id: 'chemical',
+                                        }}
+                                        style={{ width: 130 }}
+                                    >
+                                        {chemical_list.map((option, i) => (
+                                            <MenuItem key={option} value={option}>
+                                                {option}
+                                            </MenuItem>
+                                        ))
+                                        }
+                                    </Select>
+                                </FormControl>
                                 <TextField
-                                    margin="dense"
-                                    id="consentration"
-                                    label="ПДВ"
-                                    type="text"
-                                    fullWidth
-                                    value={this.state.consentration}
-                                    onChange={this.handleLocalChangeExhaust('consentration')}
+                                    id="dateTime"
+                                    label="выборка за"
+                                    type="date"
+                                    defaultValue={this.state.dateTime}
+                                    className={classes.textField}
+                                    //selectProps={this.state.dateTime}
+                                    onChange={(event) => { this.handlePickerChange(event) }}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                    }}
+                                    style={{ width: 140 }}
+
                                 />
 
-
-                            </div><div>
-                                <Tooltip id="tooltip-charts-viewchk" title="Применить">
-                                    <IconButton className={classes.icon_mnu} id="chk-bt" onClick={this.props.handleClickExhaust} aria-label="Применить" style={{ width: 37, height: 37, padding: 0 }}>
-
-
-                                        <CheckCircleOutlineIcon className={classes.icon_mnu} style={{ width: 35, height: 35 }} />
-
-                                    </IconButton>
-                                </Tooltip>
                             </div>
                         </div>
                         <div className={classes.root}>
 
-                            {(checkedMeteo) &&
+                            {!isMeteo &&
                                 <Tooltip id="tooltip-charts-rangePrcnt" title="Отображение в % от ПДК">
                                     <span className={classes.icon}> отображение в %</span>
                                 </Tooltip>}
 
-                            {(checkedMeteo) &&
-
-                                <Switch classes={{
-                                    switchBase: classes.iOSSwitchBase,
-                                    bar: classes.iOSBar,
-                                    icon: classes.iOSIcon,
-                                    iconChecked: classes.iOSIconChecked,
-                                    checked: classes.iOSChecked,
-                                }}
-                                    disableRipple
-                                    checked={this.props.whatsRange}
-                                    onChange={this.handleLocalChangeToggle('whatsRange')}
-                                    value={this.props.valueMeteo}
-                                />}
 
 
-                            {(checkedMeteo) && <Tooltip id="tooltip-charts-rangeMg" title="Отображение в мг/м3">
+                            {!isMeteo && <Switch classes={{
+                                switchBase: classes.iOSSwitchBase,
+                                bar: classes.iOSBar,
+                                icon: classes.iOSIcon,
+                                iconChecked: classes.iOSIconChecked,
+                                checked: classes.iOSChecked,
+                            }}
+                                disableRipple
+                                checked={this.props.whatsRange}
+                                onChange={this.handleLocalChangeToggle('whatsRange')}
+                            //value={this.props.valueMeteo}
+                            />}
+
+
+                            {!isMeteo && <Tooltip id="tooltip-charts-rangeMg" title="Отображение в мг/м3">
                                 <span className={classes.icon}>в  мг/м3</span>
-                            </Tooltip>}
+                            </Tooltip>
+                            }
 
+                            <Tooltip id="tooltip-charts-view4" title="Роза ветров">
+                                <IconButton className={classes.icon_mnu} id="roze-bt" onClick={this.props.handleClickPdf} aria-label="Роза ветров">
+                                    <PagesIcon className={classes.icon_mnu} style={{ width: 30, height: 30 }} />
 
-                            <Tooltip id="tooltip-charts-view3" title="Метеоданные">
-                                <SvgIcon className={classes.icon}>
-                                    <path d="M6,6L6.69,6.06C7.32,3.72 9.46,2 12,2A5.5,5.5 0 0,1 
-                                    17.5,7.5L17.42,8.45C17.88,8.16 18.42,8 19,8A3,3 0 0,1 22,11A3,3
-                                     0 0,1 19,14H6A4,4 0 0,1 2,10A4,4 0 0,1 6,6M6,8A2,2 0 0,0
-                                      4,10A2,2 0 0,0 6,12H19A1,1 0 0,0 20,11A1,1 0 0,0 
-                                      19,10H15.5V7.5A3.5,3.5 0 0,0 12,4A3.5,3.5 0 0,0 8.5,7.5V8H6M18,
-                                      18H4A1,1 0 0,1 3,17A1,1 0 0,1 4,16H18A3,3 0 0,1 21,19A3,3 0 0,1
-                                       18,22C17.17,22 16.42,21.66 15.88,21.12C15.5,20.73 15.5,20.1
-                                        15.88,19.71C16.27,19.32 16.9,19.32 17.29,19.71C17.47,19.89
-                                         17.72,20 18,20A1,1 0 0,0 19,19A1,1 0 0,0 18,18Z"/>
-                                </SvgIcon>
+                                </IconButton>
                             </Tooltip>
 
-                            <Switch
+                            <Tooltip id="tooltip-charts-view5" title="Средняя концентрация">
+                                <IconButton className={classes.icon_mnu} id="consentration-bt" onClick={this.props.handleClickPdf} aria-label="Средняя концентрация">
+                                    <TrackChangesIcon className={classes.icon_mnu} style={{ width: 30, height: 30 }} />
 
-                                classes={{
-                                    switchBase: classes.iOSSwitchBase,
-                                    bar: classes.iOSBar,
-                                    icon: classes.iOSIcon,
-                                    iconChecked: classes.iOSIconChecked,
-                                    checked: classes.iOSChecked,
-                                }}
-                                disableRipple
-                                checked={this.props.checkedMeteo}
-                                onChange={this.handleLocalChangeToggle('checkedMeteo')}
-                                value={this.props.valueMeteo}
-                            />
-
-
-                            <Tooltip id="tooltip-charts-view4" title="Газоаналитические данные">
-                                <SvgIcon className={classes.icon}>
-                                    <path d="M5,19A1,1 0 0,0 6,20H18A1,1 0 0,0 19,19C19,18.79 18.93,18.59
-                                     18.82,18.43L13,8.35V4H11V8.35L5.18,18.43C5.07,18.59 5,18.79 5,19M6,22A3,3
-                                      0 0,1 3,19C3,18.4 3.18,17.84 3.5,17.37L9,7.81V6A1,1 0 0,1 8,5V4A2,2 0 0,1 
-                                      10,2H14A2,2 0 0,1 16,4V5A1,1 0 0,1 15,6V7.81L20.5,17.37C20.82,17.84 21,18.4 
-                                      21,19A3,3 0 0,1 18,22H6M13,16L14.34,14.66L16.27,18H7.73L10.39,13.39L13,16M12.5,
-                                      12A0.5,0.5 0 0,1 13,12.5A0.5,0.5 0 0,1 12.5,13A0.5,0.5 0 0,1 12,12.5A0.5,0.5 0 0,1 12.5,12Z" />
-                                </SvgIcon>
-                            </Tooltip>
-
-
-
-
-
-
-                            <Tooltip id="tooltip-charts-view1" title="Столбчатый график">
-
-                                <SvgIcon className={classes.icon}>
-                                    <path d="M22,21H2V3H4V19H6V10H10V19H12V6H16V19H18V14H22V21Z" />
-                                </SvgIcon>
-                            </Tooltip>
-                            <Switch
-
-                                classes={{
-                                    switchBase: classes.iOSSwitchBase,
-                                    bar: classes.iOSBar,
-                                    icon: classes.iOSIcon,
-                                    iconChecked: classes.iOSIconChecked,
-                                    checked: classes.iOSChecked,
-                                }}
-                                disableRipple
-                                checked={this.props.checkedLine}
-                                onChange={this.handleLocalChangeToggle('checkedLine')}
-                                value={this.props.value}
-                            />
-                            <Tooltip id="tooltip-charts-view2" title="Линейный график">
-
-
-                                <SvgIcon className={classes.icon}>
-                                    <path d="M16,11.78L20.24,4.45L21.97,5.45L16.74,14.5L10.23,10.75L5.46,19H22V21H2V3H4V17.54L9.5,8L16,11.78Z" />
-                                </SvgIcon>
-
+                                </IconButton>
                             </Tooltip>
 
                             <Tooltip id="tooltip-charts-view3" title="Сохранить">
@@ -519,7 +646,7 @@ class MenuChart extends Component {
                             </Tooltip>
 
 
-                            
+
                         </div>
 
 
@@ -531,6 +658,15 @@ class MenuChart extends Component {
                             onClose={this.props.handleClose}
 
                             message={<span id="message-id">{this.props.snack_msg}</span>}
+
+                        />
+                        <Snackbar
+                            open={this.state.isLoading}
+                            // TransitionComponent={<Slider direction="up" />}
+                            autoHideDuration={4000}
+                            onClose={this.handleSnkClose.bind(this)}
+
+                            message={<span id="message-id-mnu">{this.state.snack_msg}</span>}
 
                         />
                     </nav>
@@ -561,9 +697,9 @@ function mapStateToProps(state) {
     };
 }
 
-MenuChart.propTypes = {
+MenuStats.propTypes = {
 
     classes: PropTypes.object.isRequired
 }
 
-export default withStyles(styles)(MenuChart);
+export default withStyles(styles)(MenuStats);
