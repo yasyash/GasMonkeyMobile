@@ -69,7 +69,7 @@ class StatsForm extends React.Component {
 
             dateTimeBegin: new Date().format('Y-MM-ddT') + '00:00:00',
             dateTimeEnd: new Date().format('Y-MM-ddT') + '23:59:59',
-            
+
             station_actual: '',
             sensors_actual: [],
             stationsList,
@@ -81,9 +81,9 @@ class StatsForm extends React.Component {
             chartData,
             locations: '',
             checkedLine: true,
-            checkedMeteo: true, 
+            checkedMeteo: true,
             whatsRange: false, //false corresponds to % range of MACs
-            isMeteo:false,//false corresponds to gazanalytic data
+            isMeteo: false,//false corresponds to gazanalytic data
             pointStyle: 'crossRot',
             radius: 2,
             borderWidth: 1,
@@ -93,7 +93,8 @@ class StatsForm extends React.Component {
             barThickness: null,
             beginChartData: [],
             meteoOptions: [],
-            consentration: 0
+            consentration: 0,
+            rdrData: []
         };
 
 
@@ -111,11 +112,20 @@ class StatsForm extends React.Component {
         locations: ''
     };
 
+    handleRose = (name, event) => {
+        const { dataList } = this.props;
+
+        if (dataList.length > 0) {
+            this.setState({ checkedLine: false });
+            this.getRadarData(true, true);
+        }
+    }
+
     handleChangeExhaust = (name, event) => {
         this.setState({ [name]: event.target.value });
 
     };
-    handleChangeParent  (name, value)  {
+    handleChangeParent(name, value) {
         this.setState({ [name]: value });
 
     };
@@ -245,6 +255,150 @@ class StatsForm extends React.Component {
         this.setState({ chartData });
         // chrt.update();
     };
+    getRadarData(_state, _range) {
+        // Ajax calls here
+        const { dataList } = this.props;
+        const { meteoList } = this.props;
+        const { sensors_actual } = this.state;
+        const { sensorsList } = this.props;
+        const { selectedSensors } = this.props;
+        const { macs } = this.props;
+        const {namestation} =this.state.stationsList[0].namestation;
+
+
+        let beginChartData = [];
+        let obj = [];
+        let _boderColor = 'rgba(102, 0, 204, 0.6)';
+        let colour_pairs = [];
+        let options = [];//checkbox init state
+        // Chart.defaults.global.layout.padding.top = 50;
+
+        let chartData = {
+            labels: ['С', ' ', 'ССВ', ' ', 'СВ', ' ', 'СВВ', ' ', 'В', ' ', 'ВЮВ', ' ', 'ЮВ', ' ', 'ЮВЮ', ' ', 'Ю', ' ', 'ЮЮЗ', ' ', 'ЮЗ', ' ', 'ЮЗЗ', ' ', 'З', ' ',
+                'ЗСЗ', ' ', 'СЗ', ' ', 'СЗС', ' '],
+            //0-27, 28 - 45, 46 - 90
+            datasets: [
+                {
+                    label: 'Загрузите данные',
+                    fill: false,
+                    borderColor: _boderColor,
+                    backgroundColor: _boderColor,
+                    pointBorderColor: '#fff',
+                    pointBackgroundColor: 'rgba(255,99,132,1)',
+
+                    data: [
+
+                    ],
+
+                }
+            ],
+
+
+        };
+
+        let chartOptions = {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Min and Max Settings'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                        suggestedMin: 10,
+                        // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                        suggestedMax: 100
+                    }
+                }]
+            }
+        };
+
+        var N = 0, NNEL = 0, NNE = 0, NNER = 0, NE = 0, NEEL = 0, NEE = 0, NEER = 0, E = 0, ESEL = 0, ESE = 0, ESER = 0, SE = 0, SESL = 0,
+            SES = 0, SESR = 0, S = 0, SSWL = 0, SSW = 0, SSWR = 0, SW = 0, SWWL = 0, SWW = 0, SWWR = 0, W = 0, WNWL = 0, WNW = 0, WNWR = 0,
+            NW = 0, NWNL = 0, NWN = 0, NWNR = 0, SUM = dataList.length;
+
+        dataList.forEach((item, indx) => {
+            if ((item.measure >= 0) && (item.measure <= 11.2))
+                N++;
+            if ((item.measure > 11.2) && (item.measure <= 22.4))
+                NNEL++;
+            if ((item.measure > 22.4) && (item.measure <= 33.6))
+                NNE++;
+            if ((item.measure > 33.6) && (item.measure <= 44.8))
+                NNER++;
+            if ((item.measure > 44.8) && (item.measure <= 56.2))
+                NE++;
+            if ((item.measure > 56.2) && (item.measure <= 67.4))
+                NEEL++;
+            if ((item.measure > 67.4) && (item.measure <= 78.6))
+                NEE++;
+            if ((item.measure > 78.6) && (item.measure <= 89.8))
+                NEER++;
+            if ((item.measure > 89.8) && (item.measure <= 101.2))
+                E++;
+            if ((item.measure > 101.2) && (item.measure <= 112.4))
+                ESEL++;
+            if ((item.measure > 112.4) && (item.measure <= 123.6))
+                ESE++;
+            if ((item.measure > 123.6) && (item.measure <= 134.8))
+                ESER++;
+            if ((item.measure > 134.8) && (item.measure <= 145.2))
+                SE++;
+            if ((item.measure > 145.2) && (item.measure <= 156.4))
+                SESL++;
+            if ((item.measure > 156.4) && (item.measure <= 167.6))
+                SES++;
+            if ((item.measure > 167.6) && (item.measure <= 178.8))
+                SESR++;
+            if ((item.measure > 178.8) && (item.measure <= 190.2))
+                S++;
+            if ((item.measure > 190.2) && (item.measure <= 201.4))
+                SSWL++;
+            if ((item.measure > 201.4) && (item.measure <= 212.6))
+                SSW++;
+            if ((item.measure > 212.6) && (item.measure <= 223.8))
+                SSWR++;
+            if ((item.measure > 223.8) && (item.measure <= 235.2))
+                SW++;
+            if ((item.measure > 235.2) && (item.measure <= 246.4))
+                SWWL++;
+            if ((item.measure > 246.4) && (item.measure <= 257.6))
+                SWW++;
+            if ((item.measure > 257.6) && (item.measure <= 268.8))
+                SWWR++;
+            if ((item.measure > 268.8) && (item.measure <= 280.2))
+                W++;
+            if ((item.measure > 280.2) && (item.measure <= 291.4))
+                WNWL++;
+            if ((item.measure > 291.4) && (item.measure <= 302.6))
+                WNW++;
+            if ((item.measure > 302.6) && (item.measure <= 313.8))
+                WNWR++;
+            if ((item.measure > 313.8) && (item.measure <= 325.2))
+                NW++;
+            if ((item.measure > 325.2) && (item.measure <= 336.4))
+                NWNL++;
+            if ((item.measure > 336.4) && (item.measure <= 347.6))
+                NWN++;
+            if ((item.measure > 347.6) && (item.measure <= 358.8))
+                NWNR++;
+            if ((item.measure > 358.8) && (item.measure <= 360))
+                N++;
+
+        })
+        chartData.datasets[0].data = [Number.parseInt(N / SUM * 100), Number.parseInt(NNEL / SUM * 100), Number.parseInt(NNE / SUM * 100), Number.parseInt(NNER / SUM * 100),
+        Number.parseInt(NE / SUM * 100), Number.parseInt(NEEL / SUM * 100), Number.parseInt(NEE / SUM * 100), Number.parseInt(NEER / SUM * 100),
+        Number.parseInt(E / SUM * 100), Number.parseInt(ESEL / SUM * 100), Number.parseInt(ESE / SUM * 100), Number.parseInt(ESER / SUM * 100), Number.parseInt(SE / SUM * 100),
+        Number.parseInt(SESL / SUM * 100), Number.parseInt(SES / SUM * 100), Number.parseInt(SESR / SUM * 100), Number.parseInt(S / SUM * 100), Number.parseInt(SSWL / SUM * 100), Number.parseInt(SSW / SUM * 100),
+        Number.parseInt(SSWR / SUM * 100), Number.parseInt(SW / SUM * 100), Number.parseInt(SWWL / SUM * 100), Number.parseInt(SWW / SUM * 100), Number.parseInt(SWWR / SUM * 100), Number.parseInt(W / SUM * 100),
+        Number.parseInt(WNWL / SUM * 100), Number.parseInt(WNW / SUM * 100), Number.parseInt(WNWR / SUM * 100), Number.parseInt(NW / SUM * 100), Number.parseInt(NWNL / SUM * 100), Number.parseInt(NWN / SUM * 100),
+        Number.parseInt(NWNR / SUM * 100)];
+        if (_state) chartData.datasets[0].label = dataList[0].typemeasure;
+
+        this.setState({ rdrData: chartData });
+
+    }
 
     getChartData(_state, _range) {
         // Ajax calls here
@@ -398,11 +552,11 @@ class StatsForm extends React.Component {
                                 title += ' (% от ПДК)';
                             };
                             //this.setState({ 'locations': title });
-                            if (isEmpty(stateOptions[0])) {//if first rendering - not simple switch
-                                options.push({ chemical: filter[0].typemeasure, visible: true, id: counter });
-                            } else {
-                                emptydatasets['hidden'] = !stateOptions[counter].visible;
-                            };
+                            //if (isEmpty(stateOptions[0])) {//if first rendering - not simple switch
+                            options.push({ chemical: filter[0].typemeasure, visible: true, id: counter });
+                            //} else {
+                            emptydatasets['hidden'] = !stateOptions[counter].visible;
+                            //};
                             obj.push(emptydatasets);
 
                             label = '';
@@ -460,11 +614,11 @@ class StatsForm extends React.Component {
 
                     }
 
-                    if (isEmpty(stateOptions[0])) {
-                        options.push({ chemical: (dataList[0].typemeasure), visible: true, id: 0 });
-                    } else {
-                        emptydatasets['hidden'] = !stateOptions[0].visible;
-                    };
+                    // if (isEmpty(stateOptions[0])) {
+                    options.push({ chemical: (dataList[0].typemeasure), visible: true, id: 0 });
+                    //} else {
+                    // emptydatasets['hidden'] = !stateOptions[0].visible;
+                    //};
 
                     obj.push(emptydatasets);
                     counter = 1;
@@ -478,6 +632,8 @@ class StatsForm extends React.Component {
                 let obj_macs = [];
                 let _arr = [];
                 i = 0;
+                // if (!this.state.isMeteo) {
+
                 selectedSensors.forEach(element => {
                     let filter = macs.filter((_item, i, arr) => {
                         return _item.chemical === element.typemeasure;
@@ -508,35 +664,39 @@ class StatsForm extends React.Component {
                         };
 
 
-                        if (isEmpty(stateOptions[0])) {
-                            options.push({ chemical: (element.typemeasure + ' ПДК'), visible: true, id: selectedSensors.length + i });
-                        } else {
-                            emptydatasets['hidden'] = !stateOptions[counter + i].visible;
-                        };
+                        //if (isEmpty(stateOptions[0])) {
+                        options.push({ chemical: (element.typemeasure + ' ПДК'), visible: true, id: selectedSensors.length + i });
+                        //} else {
+                        //   emptydatasets['hidden'] = !stateOptions[counter + i].visible;
+                        //};
                         obj_macs.push(emptydatasets);
 
                         i++;
                     };
                 });
+                //} else {
+                //   this.setState({options: meteoOptions });
+
+                // }
 
                 obj = obj.concat(obj_macs);
-               /* var _tmp = [];
-                let _emptydatasets =
-                {
-                    label: 'ПДВ',
-                    fill: false,
-                    borderColor: '#000000',
-                    backgroundColor: '#000000',
-                    data: [],
-                    pointStyle: 'circle',
-                    radius: 0,
-                    borderWidth: this.state.borderWidth + 2,
-                    borderDash: [10, 10],
-                    hidden: true
-                };
-
-                _tmp.push(_emptydatasets);
-                obj = obj.concat(_tmp);*/
+                /* var _tmp = [];
+                 let _emptydatasets =
+                 {
+                     label: 'ПДВ',
+                     fill: false,
+                     borderColor: '#000000',
+                     backgroundColor: '#000000',
+                     data: [],
+                     pointStyle: 'circle',
+                     radius: 0,
+                     borderWidth: this.state.borderWidth + 2,
+                     borderDash: [10, 10],
+                     hidden: true
+                 };
+    
+                 _tmp.push(_emptydatasets);
+                 obj = obj.concat(_tmp);*/
 
                 Object.assign(beginChartData, obj);
                 Object.assign(chartData.datasets, obj);
@@ -550,10 +710,13 @@ class StatsForm extends React.Component {
 
             this.setState({ chartData });
 
-            if (isEmpty(this.state.options[0]))
-                this.setState({ options });
+            // if (isEmpty(this.state.options[0]))
+            this.setState({ options });
 
             this.setState({ 'locations': title });
+            this.setState({ checkedLine: true });
+            this.setState({ dateTimeBegin: new Date(dataList[0].date_time).format('dd-MM-Y') });
+            this.setState({ dateTimeEnd: new Date(dataList[dataList.length - 1].date_time).format('dd-MM-Y') });
 
         } else //end gazoanalitic section
         {//begin of meteosection
@@ -621,9 +784,9 @@ class StatsForm extends React.Component {
                 Object.assign(chartData.datasets, obj);
                 Object.assign(chartData.labels, _timeaxis);
                 title = 'метеонаблюдений';
-                if (isEmpty(stateMeteoOption[0])) {
-                    this.setState({ meteoOptions });
-                };
+                //if (isEmpty(stateMeteoOption[0])) {
+                this.setState({ meteoOptions });
+                //};
 
             };
 
@@ -641,13 +804,26 @@ class StatsForm extends React.Component {
     };
 
     handleClickPdf() {
+        const {namestation} =this.state.stationsList[0];
+
         var cnvs = this.refs.chrts.chartInstance.canvas;
         console.log(this.refs.chrts);
         var img = cnvs.toDataURL("image/png").replace("image/png", "image/octet-stream");
         //var button = document.getElementById('sv-bt');
         //button.download = img;
         var link = document.getElementById('link_report');
-        link.setAttribute('download', this.props.station_actual + '_' + this.state.dateTimeEnd + '.png');
+
+        if (this.state.checkedLine) {
+            link.setAttribute('download', 'График ' + this.state.locations + '_' + this.state.dateTimeEnd + '.png');
+        } else {
+
+            if (this.state.dateTimeBegin == this.state.dateTimeEnd) {
+                link.setAttribute('download', 'Роза_ветров_'+namestation+'_за_' + this.state.dateTimeEnd + '.png');
+            } else {
+                link.setAttribute('download', 'Роза_ветров_'+namestation+'_с_' + this.state.dateTimeBegin + '_по_' + this.state.dateTimeEnd + '.png');
+
+            }
+        }
         link.setAttribute('href', img);
         link.click();
     };
@@ -687,8 +863,19 @@ class StatsForm extends React.Component {
                 _title = 'График метеоданных не загружен...'
             };
         } else {
+            if (this.state.checkedLine) {
+                _title = 'График ' + this.state.locations;
+            } else {
 
-            _title = 'График ' + this.state.locations;
+                _title = 'Роза ветров '+ stationsList[0].namestation;
+
+                if (this.state.dateTimeBegin == this.state.dateTimeEnd) {
+                    _title += ' за ' + this.state.dateTimeBegin;
+                } else {
+                    _title += ' c ' + this.state.dateTimeBegin + ' по ' + this.state.dateTimeEnd;
+
+                }
+            }
         };
         titles = {
             display: this.props.displayTitle,
@@ -709,17 +896,30 @@ class StatsForm extends React.Component {
                     handleClickPdf={this.handleClickPdf.bind(this)}
                     hideLine={this.hideLine.bind(this)}
                     handleClickPdf={this.handleClickPdf.bind(this)}
-                    queryFullEvent = {this.props.queryFullEvent.bind(this)}
-                    getChartData = {this.getChartData.bind(this)}
+                    queryFullEvent={this.props.queryFullEvent.bind(this)}
+                    getChartData={this.getChartData.bind(this)}
+                    handleRose={this.handleRose.bind(this)}
                     //handleClickExhaust={this.handleClickExhaust.bind(this)}
                     value="checkedLine"
-                    //valueMeteo="checkedMeteo"
+                //valueMeteo="checkedMeteo"
                 />
 
                 {(this.state.checkedLine) &&
                     <Line
                         ref='chrts'
                         data={this.state.chartData}
+                        options={{
+                            title: titles,
+                            legend: {
+                                display: this.props.displayLegend,
+                                position: this.props.legendPosition
+                            }
+                        }}
+                    />}
+                {(!this.state.checkedLine) &&
+                    <Radar
+                        ref='chrts'
+                        data={this.state.rdrData}
                         options={{
                             title: titles,
                             legend: {

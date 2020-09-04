@@ -65,12 +65,12 @@ const styles = theme => ({
         alignItems: 'flex-end',
     },
     icon: {
-        margin: theme.spacing.unit * 2,
+        margin: theme.spacing.unit / 2,
         color: blue[600],
 
     },
     icon_mnu: {
-        margin: theme.spacing.unit * 2,
+        margin: theme.spacing.unit,
         color: blue[600],
         margin: 0
 
@@ -96,10 +96,10 @@ const styles = theme => ({
     },
     iOSBar: {
         borderRadius: 13,
-        width: 42,
-        height: 26,
-        marginTop: -13,
-        marginLeft: -21,
+        width: 38,
+        height: 23,
+        marginTop: -12,
+        marginLeft: -20,
         border: 'solid 1px',
         borderColor: theme.palette.grey[400],
         backgroundColor: theme.palette.grey[50],
@@ -107,8 +107,8 @@ const styles = theme => ({
         transition: theme.transitions.create(['background-color', 'border']),
     },
     iOSIcon: {
-        width: 24,
-        height: 24,
+        width: 20,
+        height: 20,
     },
     iOSIconChecked: {
         boxShadow: theme.shadows[1],
@@ -254,20 +254,37 @@ class MenuStats extends Component {
     handlePickerChange = (event) => {
         const value = event.target.value;
         const id = event.target.id;
-        this.setState({ 'dateTimeBegin': event.target.value + 'T' + '00:00:00' });
-        this.setState({ 'dateTimeEnd': event.target.value + 'T' + '23:59:59' });
-        if (this.state.sensors_actual && this.state.station_actual) {
-            this.loadData(2, this.state.station_id, this.state.sensors_actual, event.target.value + 'T' + '00:00:00', event.target.value + 'T' + '23:59:59').then(_data => {
-                if (_data.length > 0) {
-                    this.setState({ dataList: _data, isLoading: true, snack_msg: 'Данные загружены. Выберите диаграмму...' });
-                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
-                }
-                else {
-                    this.setState({ dataList: [], isLoading: true, snack_msg: 'Данные отстутствуют...' });
-                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
-                }
+        var __timein = '';
+        var __timeout = '';
+        var __time = '';
 
-            })
+        if (id == 'dateTimeBegin') {
+            __time = event.target.value + 'T' + '00:00:00';
+            __timein = __time;
+            __timeout = this.state.dateTimeEnd;
+        }
+        if (id == 'dateTimeEnd') {
+            __time = event.target.value + 'T' + '23:59:59';
+            __timein = this.state.dateTimeBegin;
+            __timeout = __time;
+
+        }
+        this.setState({ [id]: __time });
+
+        if (this.state.sensors_actual && this.state.station_actual) {
+
+                    this.loadData(2, this.state.station_id, this.state.sensors_actual, __timein, __timeout).then(_data => {
+                        if (_data.length > 0) {
+                            this.setState({ dataList: _data, isLoading: true, snack_msg: 'Данные загружены. Выберите диаграмму...' });
+                            this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                        }
+                        else {
+                            this.setState({ dataList: [], isLoading: true, snack_msg: 'Данные отстутствуют...' });
+                            this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                        }
+
+                    })
+
         }
         //  dateAddAction({ [id]: value });
     };
@@ -310,7 +327,7 @@ class MenuStats extends Component {
 
     };
     handleChange = name => event => {
-        if (this.props.isMeteo) {
+        if (this.props.checkedMeteo) {
             const { options } = this.state;
 
             // indx = options.chemical.indexOf(name);
@@ -406,7 +423,7 @@ class MenuStats extends Component {
 
         var data = await (this.props.queryFullEvent(params));
         //console.log(data);
-        if (data.length > 0) {
+        if ((data.length > 0) && (qtype > 1)) {
             if (data[0].typemeasure) {
                 if (data[0].typemeasure == 'Направление ветра') {
                     this.props.handleChangeParent('isMeteo', true);
@@ -480,7 +497,7 @@ class MenuStats extends Component {
                                 >
 
                                     {(options) &&
-                                        options.map((option, i) => (this.props.isMeteo &&
+                                        options.map((option, i) => (
 
 
                                             //<MenuItem key={option.chemical} onClick={this.handleClose.bind(this)}>
@@ -540,7 +557,7 @@ class MenuStats extends Component {
                                         name: 'station_actual',
                                         id: 'station_actual',
                                     }}
-                                    style={{ width: 150 }}>
+                                    style={{ width: 120 }}>
                                     {(stationsList) &&// if not empty
                                         stationsList.map((option, i) => (
                                             <MenuItem key={option.namestation} value={option.namestation}>
@@ -555,43 +572,59 @@ class MenuStats extends Component {
                             </FormControl></div>
                         <div className={classes.root}>
 
-                            <div>
 
-                                <FormControl className={classes.formControl}>
-                                    <InputLabel htmlFor="chemical" >компонент</InputLabel>
-                                    <Select
-                                        value={this.state.chemical}
-                                        onChange={this.handleSelectChemicalChange}
-                                        inputProps={{
-                                            name: 'chemical',
-                                            id: 'chemical',
-                                        }}
-                                        style={{ width: 130 }}
-                                    >
-                                        {chemical_list.map((option, i) => (
-                                            <MenuItem key={option} value={option}>
-                                                {option}
-                                            </MenuItem>
-                                        ))
-                                        }
-                                    </Select>
-                                </FormControl>
-                                <TextField
-                                    id="dateTime"
-                                    label="выборка за"
-                                    type="date"
-                                    defaultValue={this.state.dateTime}
-                                    className={classes.textField}
-                                    //selectProps={this.state.dateTime}
-                                    onChange={(event) => { this.handlePickerChange(event) }}
-                                    InputLabelProps={{
-                                        shrink: true,
+                            <FormControl className={classes.formControl}>
+                                <InputLabel htmlFor="chemical" >компонент</InputLabel>
+                                <Select
+                                    value={this.state.chemical}
+                                    onChange={this.handleSelectChemicalChange}
+                                    inputProps={{
+                                        name: 'chemical',
+                                        id: 'chemical',
                                     }}
-                                    style={{ width: 140 }}
+                                    style={{ width: 130 }}
+                                >
+                                    {chemical_list.map((option, i) => (
+                                        <MenuItem key={option} value={option}>
+                                            {option}
+                                        </MenuItem>
+                                    ))
+                                    }
+                                </Select>
+                            </FormControl>
 
-                                />
 
-                            </div>
+                        </div>
+                        <div className={classes.root}>
+
+                            <TextField
+                                id="dateTimeBegin"
+                                label="выборка c"
+                                type="date"
+                                defaultValue={this.state.dateTime}
+                                className={classes.textField}
+                                //selectProps={this.state.dateTime}
+                                onChange={(event) => { this.handlePickerChange(event) }}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                style={{ width: 135 }}
+
+                            />
+                            <TextField
+                                id="dateTimeEnd"
+                                label="по"
+                                type="date"
+                                defaultValue={new Date(this.state.dateTimeEnd).format('Y-MM-dd')}
+                                className={classes.textField}
+                                //selectProps={this.state.dateTime}
+                                onChange={(event) => { this.handlePickerChange(event) }}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                                style={{ width: 135 }}
+
+                            />
                         </div>
                         <div className={classes.root}>
 
@@ -622,7 +655,7 @@ class MenuStats extends Component {
                             }
 
                             <Tooltip id="tooltip-charts-view4" title="Роза ветров">
-                                <IconButton className={classes.icon_mnu} id="roze-bt" onClick={this.props.handleClickPdf} aria-label="Роза ветров">
+                                <IconButton className={classes.icon_mnu} id="roze-bt" onClick={this.props.handleRose} aria-label="Роза ветров">
                                     <PagesIcon className={classes.icon_mnu} style={{ width: 30, height: 30 }} />
 
                                 </IconButton>
