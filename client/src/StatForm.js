@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import format from 'node.date-time';
 
-import { queryMeteoEvent, queryFullEvent } from './actions/queryActions';
+import { queryMeteoEvent, queryFullEvent, queryLocalEvent } from './actions/queryActions';
 
 import { Tabs, Tab } from 'material-ui/Tabs';
 import FontIcon from 'material-ui/FontIcon';
@@ -112,12 +112,12 @@ class StatsForm extends React.Component {
         locations: ''
     };
 
+
     handleRose = (name, event) => {
         const { dataList } = this.props;
 
         if (dataList.length > 0) {
-            this.setState({ checkedLine: false });
-            this.getRadarData(true, true);
+            this.getRadarData(true, false);
         }
     }
 
@@ -255,7 +255,10 @@ class StatsForm extends React.Component {
         this.setState({ chartData });
         // chrt.update();
     };
-    getRadarData(_state, _range) {
+
+
+
+    getRadarData(_state, _windData) {
         // Ajax calls here
         const { dataList } = this.props;
         const { meteoList } = this.props;
@@ -263,7 +266,7 @@ class StatsForm extends React.Component {
         const { sensorsList } = this.props;
         const { selectedSensors } = this.props;
         const { macs } = this.props;
-        const {namestation} =this.state.stationsList[0].namestation;
+        const { namestation } = this.state.stationsList[0].namestation;
 
 
         let beginChartData = [];
@@ -278,19 +281,7 @@ class StatsForm extends React.Component {
                 'ЗСЗ', ' ', 'СЗ', ' ', 'СЗС', ' '],
             //0-27, 28 - 45, 46 - 90
             datasets: [
-                {
-                    label: 'Загрузите данные',
-                    fill: false,
-                    borderColor: _boderColor,
-                    backgroundColor: _boderColor,
-                    pointBorderColor: '#fff',
-                    pointBackgroundColor: 'rgba(255,99,132,1)',
 
-                    data: [
-
-                    ],
-
-                }
             ],
 
 
@@ -317,89 +308,312 @@ class StatsForm extends React.Component {
         var N = 0, NNEL = 0, NNE = 0, NNER = 0, NE = 0, NEEL = 0, NEE = 0, NEER = 0, E = 0, ESEL = 0, ESE = 0, ESER = 0, SE = 0, SESL = 0,
             SES = 0, SESR = 0, S = 0, SSWL = 0, SSW = 0, SSWR = 0, SW = 0, SWWL = 0, SWW = 0, SWWR = 0, W = 0, WNWL = 0, WNW = 0, WNWR = 0,
             NW = 0, NWNL = 0, NWN = 0, NWNR = 0, SUM = dataList.length;
+        if (_state) {
+            dataList.forEach((item, indx) => {
+                if ((item.measure >= 0) && (item.measure <= 11.2))
+                    N++;
+                if ((item.measure > 11.2) && (item.measure <= 22.4))
+                    NNEL++;
+                if ((item.measure > 22.4) && (item.measure <= 33.6))
+                    NNE++;
+                if ((item.measure > 33.6) && (item.measure <= 44.8))
+                    NNER++;
+                if ((item.measure > 44.8) && (item.measure <= 56.2))
+                    NE++;
+                if ((item.measure > 56.2) && (item.measure <= 67.4))
+                    NEEL++;
+                if ((item.measure > 67.4) && (item.measure <= 78.6))
+                    NEE++;
+                if ((item.measure > 78.6) && (item.measure <= 89.8))
+                    NEER++;
+                if ((item.measure > 89.8) && (item.measure <= 101.2))
+                    E++;
+                if ((item.measure > 101.2) && (item.measure <= 112.4))
+                    ESEL++;
+                if ((item.measure > 112.4) && (item.measure <= 123.6))
+                    ESE++;
+                if ((item.measure > 123.6) && (item.measure <= 134.8))
+                    ESER++;
+                if ((item.measure > 134.8) && (item.measure <= 145.2))
+                    SE++;
+                if ((item.measure > 145.2) && (item.measure <= 156.4))
+                    SESL++;
+                if ((item.measure > 156.4) && (item.measure <= 167.6))
+                    SES++;
+                if ((item.measure > 167.6) && (item.measure <= 178.8))
+                    SESR++;
+                if ((item.measure > 178.8) && (item.measure <= 190.2))
+                    S++;
+                if ((item.measure > 190.2) && (item.measure <= 201.4))
+                    SSWL++;
+                if ((item.measure > 201.4) && (item.measure <= 212.6))
+                    SSW++;
+                if ((item.measure > 212.6) && (item.measure <= 223.8))
+                    SSWR++;
+                if ((item.measure > 223.8) && (item.measure <= 235.2))
+                    SW++;
+                if ((item.measure > 235.2) && (item.measure <= 246.4))
+                    SWWL++;
+                if ((item.measure > 246.4) && (item.measure <= 257.6))
+                    SWW++;
+                if ((item.measure > 257.6) && (item.measure <= 268.8))
+                    SWWR++;
+                if ((item.measure > 268.8) && (item.measure <= 280.2))
+                    W++;
+                if ((item.measure > 280.2) && (item.measure <= 291.4))
+                    WNWL++;
+                if ((item.measure > 291.4) && (item.measure <= 302.6))
+                    WNW++;
+                if ((item.measure > 302.6) && (item.measure <= 313.8))
+                    WNWR++;
+                if ((item.measure > 313.8) && (item.measure <= 325.2))
+                    NW++;
+                if ((item.measure > 325.2) && (item.measure <= 336.4))
+                    NWNL++;
+                if ((item.measure > 336.4) && (item.measure <= 347.6))
+                    NWN++;
+                if ((item.measure > 347.6) && (item.measure <= 358.8))
+                    NWNR++;
+                if ((item.measure > 358.8) && (item.measure <= 360))
+                    N++;
 
-        dataList.forEach((item, indx) => {
-            if ((item.measure >= 0) && (item.measure <= 11.2))
-                N++;
-            if ((item.measure > 11.2) && (item.measure <= 22.4))
-                NNEL++;
-            if ((item.measure > 22.4) && (item.measure <= 33.6))
-                NNE++;
-            if ((item.measure > 33.6) && (item.measure <= 44.8))
-                NNER++;
-            if ((item.measure > 44.8) && (item.measure <= 56.2))
-                NE++;
-            if ((item.measure > 56.2) && (item.measure <= 67.4))
-                NEEL++;
-            if ((item.measure > 67.4) && (item.measure <= 78.6))
-                NEE++;
-            if ((item.measure > 78.6) && (item.measure <= 89.8))
-                NEER++;
-            if ((item.measure > 89.8) && (item.measure <= 101.2))
-                E++;
-            if ((item.measure > 101.2) && (item.measure <= 112.4))
-                ESEL++;
-            if ((item.measure > 112.4) && (item.measure <= 123.6))
-                ESE++;
-            if ((item.measure > 123.6) && (item.measure <= 134.8))
-                ESER++;
-            if ((item.measure > 134.8) && (item.measure <= 145.2))
-                SE++;
-            if ((item.measure > 145.2) && (item.measure <= 156.4))
-                SESL++;
-            if ((item.measure > 156.4) && (item.measure <= 167.6))
-                SES++;
-            if ((item.measure > 167.6) && (item.measure <= 178.8))
-                SESR++;
-            if ((item.measure > 178.8) && (item.measure <= 190.2))
-                S++;
-            if ((item.measure > 190.2) && (item.measure <= 201.4))
-                SSWL++;
-            if ((item.measure > 201.4) && (item.measure <= 212.6))
-                SSW++;
-            if ((item.measure > 212.6) && (item.measure <= 223.8))
-                SSWR++;
-            if ((item.measure > 223.8) && (item.measure <= 235.2))
-                SW++;
-            if ((item.measure > 235.2) && (item.measure <= 246.4))
-                SWWL++;
-            if ((item.measure > 246.4) && (item.measure <= 257.6))
-                SWW++;
-            if ((item.measure > 257.6) && (item.measure <= 268.8))
-                SWWR++;
-            if ((item.measure > 268.8) && (item.measure <= 280.2))
-                W++;
-            if ((item.measure > 280.2) && (item.measure <= 291.4))
-                WNWL++;
-            if ((item.measure > 291.4) && (item.measure <= 302.6))
-                WNW++;
-            if ((item.measure > 302.6) && (item.measure <= 313.8))
-                WNWR++;
-            if ((item.measure > 313.8) && (item.measure <= 325.2))
-                NW++;
-            if ((item.measure > 325.2) && (item.measure <= 336.4))
-                NWNL++;
-            if ((item.measure > 336.4) && (item.measure <= 347.6))
-                NWN++;
-            if ((item.measure > 347.6) && (item.measure <= 358.8))
-                NWNR++;
-            if ((item.measure > 358.8) && (item.measure <= 360))
-                N++;
+            })
+            chartData.datasets.push({
+                label: 'Загрузите данные',
+                fill: false,
+                borderColor: _boderColor,
+                backgroundColor: _boderColor,
+                pointBorderColor: '#fff',
+                pointBackgroundColor: 'rgba(255,99,132,1)',
+                data: [Number.parseInt(N / SUM * 100), Number.parseInt(NNEL / SUM * 100), Number.parseInt(NNE / SUM * 100), Number.parseInt(NNER / SUM * 100),
+                Number.parseInt(NE / SUM * 100), Number.parseInt(NEEL / SUM * 100), Number.parseInt(NEE / SUM * 100), Number.parseInt(NEER / SUM * 100),
+                Number.parseInt(E / SUM * 100), Number.parseInt(ESEL / SUM * 100), Number.parseInt(ESE / SUM * 100), Number.parseInt(ESER / SUM * 100), Number.parseInt(SE / SUM * 100),
+                Number.parseInt(SESL / SUM * 100), Number.parseInt(SES / SUM * 100), Number.parseInt(SESR / SUM * 100), Number.parseInt(S / SUM * 100), Number.parseInt(SSWL / SUM * 100), Number.parseInt(SSW / SUM * 100),
+                Number.parseInt(SSWR / SUM * 100), Number.parseInt(SW / SUM * 100), Number.parseInt(SWWL / SUM * 100), Number.parseInt(SWW / SUM * 100), Number.parseInt(SWWR / SUM * 100), Number.parseInt(W / SUM * 100),
+                Number.parseInt(WNWL / SUM * 100), Number.parseInt(WNW / SUM * 100), Number.parseInt(WNWR / SUM * 100), Number.parseInt(NW / SUM * 100), Number.parseInt(NWNL / SUM * 100), Number.parseInt(NWN / SUM * 100),
+                Number.parseInt(NWNR / SUM * 100)]
+            });
+            if (_state) chartData.datasets[0].label = dataList[0].typemeasure;
+        }
+        else {
+            //SUM = Number.parseFloat(0.0);
+            var SUM_N = Number.parseFloat(1.0), SUM_NNEL = Number.parseFloat(1.0), SUM_NNE = Number.parseFloat(1.0), SUM_NNER = Number.parseFloat(1.0), SUM_NE = Number.parseFloat(1.0), SUM_NEEL = Number.parseFloat(1.0), SUM_NEE = Number.parseFloat(1.0), SUM_NEER = Number.parseFloat(1.0), SUM_E = Number.parseFloat(1.0), SUM_ESEL = Number.parseFloat(1.0), SUM_ESE = Number.parseFloat(1.0), SUM_ESER = Number.parseFloat(1.0),
+                SUM_SE = Number.parseFloat(1.0), SUM_SESL = Number.parseFloat(1.0), SUM_SES = Number.parseFloat(1.0), SUM_SESR = Number.parseFloat(1.0), SUM_S = Number.parseFloat(1.0), SUM_SSWL = Number.parseFloat(1.0), SUM_SSW = Number.parseFloat(1.0), SUM_SSWR = Number.parseFloat(1.0), SUM_SW = Number.parseFloat(1.0), SUM_SWWL = Number.parseFloat(1.0), SUM_SWW = Number.parseFloat(1.0),
+                SUM_SWWR = Number.parseFloat(1.0), SUM_W = Number.parseFloat(1.0), SUM_WNWL = Number.parseFloat(1.0), SUM_WNW = Number.parseFloat(1.0), SUM_WNWR = Number.parseFloat(1.0), SUM_NW = Number.parseFloat(1.0), SUM_NWNL = Number.parseFloat(1.0), SUM_NWN = Number.parseFloat(1.0), SUM_NWNR = Number.parseFloat(1.0);
 
-        })
-        chartData.datasets[0].data = [Number.parseInt(N / SUM * 100), Number.parseInt(NNEL / SUM * 100), Number.parseInt(NNE / SUM * 100), Number.parseInt(NNER / SUM * 100),
-        Number.parseInt(NE / SUM * 100), Number.parseInt(NEEL / SUM * 100), Number.parseInt(NEE / SUM * 100), Number.parseInt(NEER / SUM * 100),
-        Number.parseInt(E / SUM * 100), Number.parseInt(ESEL / SUM * 100), Number.parseInt(ESE / SUM * 100), Number.parseInt(ESER / SUM * 100), Number.parseInt(SE / SUM * 100),
-        Number.parseInt(SESL / SUM * 100), Number.parseInt(SES / SUM * 100), Number.parseInt(SESR / SUM * 100), Number.parseInt(S / SUM * 100), Number.parseInt(SSWL / SUM * 100), Number.parseInt(SSW / SUM * 100),
-        Number.parseInt(SSWR / SUM * 100), Number.parseInt(SW / SUM * 100), Number.parseInt(SWWL / SUM * 100), Number.parseInt(SWW / SUM * 100), Number.parseInt(SWWR / SUM * 100), Number.parseInt(W / SUM * 100),
-        Number.parseInt(WNWL / SUM * 100), Number.parseInt(WNW / SUM * 100), Number.parseInt(WNWR / SUM * 100), Number.parseInt(NW / SUM * 100), Number.parseInt(NWNL / SUM * 100), Number.parseInt(NWN / SUM * 100),
-        Number.parseInt(NWNR / SUM * 100)];
-        if (_state) chartData.datasets[0].label = dataList[0].typemeasure;
+            var _firsttime = _windData[0].date_time;
+
+            _windData.forEach((item, indx) => {
+
+
+                let filter = dataList.filter((_item, i, arr) => {
+                    return ((_item.date_time > _firsttime) && (_item.date_time <= item.date_time))
+                });
+                _firsttime = item.date_time;
+
+                if (!isEmpty(filter)) {
+                    //SUM += Number.parseFloat(filter[0].measure);
+                    filter.forEach((_elem, _idx) => {
+                        if ((item.measure >= 0) && (item.measure <= 11.2)) {
+                            N += Number.parseFloat(_elem.measure);
+                            SUM_N++;
+                        }
+                        if ((item.measure > 11.2) && (item.measure <= 22.4)) {
+                            NNEL += Number.parseFloat(_elem.measure);
+                            SUM_NNEL++;
+                        }
+                        if ((item.measure > 22.4) && (item.measure <= 33.6)) {
+                            NNE += Number.parseFloat(_elem.measure);
+                            SUM_NNE++;
+
+                        }
+                        if ((item.measure > 33.6) && (item.measure <= 44.8)) {
+                            NNER += Number.parseFloat(_elem.measure);
+                            SUM_NNER++;
+
+                        }
+                        if ((item.measure > 44.8) && (item.measure <= 56.2)) {
+                            NE += Number.parseFloat(_elem.measure);
+                            SUM_NE++;
+
+                        }
+                        if ((item.measure > 56.2) && (item.measure <= 67.4)) {
+                            NEEL += Number.parseFloat(_elem.measure);
+                            SUM_NEEL++;
+
+                        }
+                        if ((item.measure > 67.4) && (item.measure <= 78.6)) {
+                            NEE += Number.parseFloat(_elem.measure);
+                            SUM_NEE++;
+
+                        }
+                        if ((item.measure > 78.6) && (item.measure <= 89.8)) {
+                            NEER += Number.parseFloat(_elem.measure);
+                            SUM_NEER++;
+
+                        }
+                        if ((item.measure > 89.8) && (item.measure <= 101.2)) {
+                            E += Number.parseFloat(_elem.measure);
+                            SUM_E++;
+
+                        }
+                        if ((item.measure > 101.2) && (item.measure <= 112.4)) {
+                            ESEL += Number.parseFloat(_elem.measure);
+                            SUM_ESEL++;
+
+                        }
+                        if ((item.measure > 112.4) && (item.measure <= 123.6)) {
+                            ESE += Number.parseFloat(_elem.measure);
+                            SUM_ESE++;
+
+                        }
+                        if ((item.measure > 123.6) && (item.measure <= 134.8)) {
+                            ESER += Number.parseFloat(_elem.measure);
+                            SUM_ESER++;
+
+                        }
+                        if ((item.measure > 134.8) && (item.measure <= 145.2)) {
+                            SE += Number.parseFloat(_elem.measure);
+                            SUM_SE++;
+
+                        }
+                        if ((item.measure > 145.2) && (item.measure <= 156.4)) {
+                            SESL += Number.parseFloat(_elem.measure);
+                            SUM_SESL++;
+
+                        }
+                        if ((item.measure > 156.4) && (item.measure <= 167.6)) {
+                            SES += Number.parseFloat(_elem.measure);
+                            SUM_SES++;
+
+                        }
+                        if ((item.measure > 167.6) && (item.measure <= 178.8)) {
+                            SESR += Number.parseFloat(_elem.measure);
+                            SUM_SESR++;
+
+                        }
+                        if ((item.measure > 178.8) && (item.measure <= 190.2)) {
+                            S += Number.parseFloat(_elem.measure);
+                            SUM_S++;
+
+                        }
+                        if ((item.measure > 190.2) && (item.measure <= 201.4)) {
+                            SSWL += Number.parseFloat(_elem.measure);
+                            SUM_SSWL++;
+
+                        }
+                        if ((item.measure > 201.4) && (item.measure <= 212.6)) {
+                            SSW += Number.parseFloat(_elem.measure);
+                            SUM_SSW++;
+
+                        }
+                        if ((item.measure > 212.6) && (item.measure <= 223.8)) {
+                            SSWR += Number.parseFloat(_elem.measure);
+                            SUM_SSWR++;
+
+                        }
+                        if ((item.measure > 223.8) && (item.measure <= 235.2)) {
+                            SW += Number.parseFloat(_elem.measure);
+                            SUM_SW++;
+
+                        }
+                        if ((item.measure > 235.2) && (item.measure <= 246.4)) {
+                            SWWL += Number.parseFloat(_elem.measure);
+                            SUM_SWWL++;
+
+                        }
+                        if ((item.measure > 246.4) && (item.measure <= 257.6)) {
+                            SWW += Number.parseFloat(_elem.measure);
+                            SUM_SWW++;
+
+                        }
+                        if ((item.measure > 257.6) && (item.measure <= 268.8)) {
+                            SWWR += Number.parseFloat(_elem.measure);
+                            SUM_SWWR++;
+
+                        }
+                        if ((item.measure > 268.8) && (item.measure <= 280.2)) {
+                            W += Number.parseFloat(_elem.measure);
+                            SUM_W++;
+
+                        }
+                        if ((item.measure > 280.2) && (item.measure <= 291.4)) {
+                            WNWL += Number.parseFloat(_elem.measure);
+                            SUM_WNWL++;
+
+                        }
+                        if ((item.measure > 291.4) && (item.measure <= 302.6)) {
+                            WNW += Number.parseFloat(_elem.measure);
+                            SUM_WNW++;
+
+                        }
+                        if ((item.measure > 302.6) && (item.measure <= 313.8)) {
+                            WNWR += Number.parseFloat(_elem.measure);
+                            SUM_WNWR++;
+
+                        }
+                        if ((item.measure > 313.8) && (item.measure <= 325.2)) {
+                            NW += Number.parseFloat(_elem.measure);
+                            SUM_NW++;
+
+                        }
+                        if ((item.measure > 325.2) && (item.measure <= 336.4)) {
+                            NWNL += Number.parseFloat(_elem.measure);
+                            SUM_NWNL++;
+
+                        }
+
+                        if ((item.measure > 336.4) && (item.measure <= 347.6)) {
+                            NWN += Number.parseFloat(_elem.measure);
+                            SUM_NWN++;
+
+                        }
+                        if ((item.measure > 347.6) && (item.measure <= 358.8)) {
+                            NWNR += Number.parseFloat(_elem.measure);
+                            SUM_NWNR++;
+                        }
+                        if ((item.measure > 358.8) && (item.measure <= 360)) {
+                            N += Number.parseFloat(_elem.measure);
+                            SUM_N++;
+
+                        }
+                    });
+                }
+
+            })
+            chartData.datasets.push({
+                label: 'Загрузите данные',
+                fill: false,
+                borderColor: _boderColor,
+                backgroundColor: _boderColor,
+                pointBorderColor: '#fff',
+                pointBackgroundColor: 'rgba(255,99,132,1)',
+                data: [Number.parseFloat(N / SUM_N), Number.parseFloat(NNEL / SUM_NNEL), Number.parseFloat(NNE / SUM_NNE), Number.parseFloat(NNER / SUM_NNER),
+                Number.parseFloat(NE / SUM_NE), Number.parseFloat(NEEL / SUM_NEEL), Number.parseFloat(NEE / SUM_NEE), Number.parseFloat(NEER / SUM_NEER),
+                Number.parseFloat(E / SUM_E), Number.parseFloat(ESEL / SUM_ESEL), Number.parseFloat(ESE / SUM_ESE), Number.parseFloat(ESER / SUM_ESER), Number.parseFloat(SE / SUM_SE),
+                Number.parseFloat(SESL / SUM_SESL), Number.parseFloat(SES / SUM_SES), Number.parseFloat(SESR / SUM_SESR), Number.parseFloat(S / SUM_S), Number.parseFloat(SSWL / SUM_SSWL), Number.parseFloat(SSW / SUM_SSW),
+                Number.parseFloat(SSWR / SUM_SSWR), Number.parseFloat(SW / SUM_SW), Number.parseFloat(SWWL / SUM_SWWL), Number.parseFloat(SWW / SUM_SWW), Number.parseFloat(SWWR / SUM_SWWR), Number.parseFloat(W / SUM_W),
+                Number.parseFloat(WNWL / SUM_WNWL), Number.parseFloat(WNW / SUM_WNW), Number.parseFloat(WNWR / SUM_WNWR), Number.parseFloat(NW / SUM_NW), Number.parseFloat(NWNL / SUM_NWNL), Number.parseFloat(NWN / SUM_NWN),
+                Number.parseFloat(NWNR / SUM_NWNR)]
+            });
+
+            chartData.datasets[0].label = dataList[0].typemeasure;
+
+            //console.log('SUM =', SUM)
+
+            /*   console.log("data = ", Number.parseFloat(N / SUM_N ), Number.parseFloat(NNEL / SUM_NNEL ), Number.parseFloat(NNE / SUM_NNE ), Number.parseFloat(NNER / SUM_NNER ),
+                   Number.parseFloat(NE / SUM_NE ), Number.parseFloat(NEEL / SUM_NEEL ), Number.parseFloat(NEE / SUM_NEE ), Number.parseFloat(NEER / SUM_NEER ),
+                   Number.parseFloat(E / SUM_E ), Number.parseFloat(ESEL / SUM_ESEL ), Number.parseFloat(ESE / SUM_ESE ), Number.parseFloat(ESER / SUM_ESER ), Number.parseFloat(SE / SUM_SE ),
+                   Number.parseFloat(SESL / SUM_SESL ), Number.parseFloat(SES / SUM_SES ), Number.parseFloat(SESR / SUM_SESR ), Number.parseFloat(S / SUM_S ), Number.parseFloat(SSWL / SUM_SSWL ), Number.parseFloat(SSW / SUM_SSW ),
+                   Number.parseFloat(SSWR / SUM_SSWR ), Number.parseFloat(SW / SUM_SW ), Number.parseFloat(SWWL / SUM_SWWL ), Number.parseFloat(SWW / SUM_SWW ), Number.parseFloat(SWWR / SUM_SWWR ), Number.parseFloat(W / SUM_W ),
+                   Number.parseFloat(WNWL / SUM_WNWL ), Number.parseFloat(WNW / SUM_WNW ), Number.parseFloat(WNWR / SUM_WNWR ), Number.parseFloat(NW / SUM_NW ), Number.parseFloat(NWNL / SUM_NWNL), Number.parseFloat(NWN / SUM_NWN),
+                   Number.parseFloat(NWNR / SUM_NWNR ))*/
+        }
+        this.setState({ checkedLine: false });
 
         this.setState({ rdrData: chartData });
 
     }
-
     getChartData(_state, _range) {
         // Ajax calls here
         const { dataList } = this.props;
@@ -804,7 +1018,7 @@ class StatsForm extends React.Component {
     };
 
     handleClickPdf() {
-        const {namestation} =this.state.stationsList[0];
+        const { namestation } = this.state.stationsList[0];
 
         var cnvs = this.refs.chrts.chartInstance.canvas;
         console.log(this.refs.chrts);
@@ -818,9 +1032,10 @@ class StatsForm extends React.Component {
         } else {
 
             if (this.state.dateTimeBegin == this.state.dateTimeEnd) {
-                link.setAttribute('download', 'Роза_ветров_'+namestation+'_за_' + this.state.dateTimeEnd + '.png');
+
+                link.setAttribute('download', 'Распределение_' + this.state.chartData.datasets[0].label + '_на_' + namestation + '_по_сторонам_света_за_' + this.state.dateTimeEnd + '.png');
             } else {
-                link.setAttribute('download', 'Роза_ветров_'+namestation+'_с_' + this.state.dateTimeBegin + '_по_' + this.state.dateTimeEnd + '.png');
+                link.setAttribute('download', 'Распределение_' + this.state.chartData.datasets[0].label + '_на_' + namestation + '_по_сторонам_света_с_' + this.state.dateTimeBegin + '_по_' + this.state.dateTimeEnd + '.png');
 
             }
         }
@@ -867,7 +1082,7 @@ class StatsForm extends React.Component {
                 _title = 'График ' + this.state.locations;
             } else {
 
-                _title = 'Роза ветров '+ stationsList[0].namestation;
+                _title = 'Распределение ' + this.state.chartData.datasets[0].label + ' на ' + stationsList[0].namestation;
 
                 if (this.state.dateTimeBegin == this.state.dateTimeEnd) {
                     _title += ' за ' + this.state.dateTimeBegin;
@@ -897,8 +1112,10 @@ class StatsForm extends React.Component {
                     hideLine={this.hideLine.bind(this)}
                     handleClickPdf={this.handleClickPdf.bind(this)}
                     queryFullEvent={this.props.queryFullEvent.bind(this)}
+                    queryLocalEvent={this.props.queryLocalEvent.bind(this)}
                     getChartData={this.getChartData.bind(this)}
                     handleRose={this.handleRose.bind(this)}
+                    getRadarData={this.getRadarData.bind(this)}
                     //handleClickExhaust={this.handleClickExhaust.bind(this)}
                     value="checkedLine"
                 //valueMeteo="checkedMeteo"
@@ -975,4 +1192,4 @@ StatsForm.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryMeteoEvent, queryFullEvent })(withRouter(withStyles(styles)(StatsForm)));
+export default connect(mapStateToProps, { queryMeteoEvent, queryFullEvent, queryLocalEvent })(withRouter(withStyles(styles)(StatsForm)));

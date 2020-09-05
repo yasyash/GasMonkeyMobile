@@ -273,17 +273,17 @@ class MenuStats extends Component {
 
         if (this.state.sensors_actual && this.state.station_actual) {
 
-                    this.loadData(2, this.state.station_id, this.state.sensors_actual, __timein, __timeout).then(_data => {
-                        if (_data.length > 0) {
-                            this.setState({ dataList: _data, isLoading: true, snack_msg: 'Данные загружены. Выберите диаграмму...' });
-                            this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
-                        }
-                        else {
-                            this.setState({ dataList: [], isLoading: true, snack_msg: 'Данные отстутствуют...' });
-                            this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
-                        }
+            this.loadData(2, this.state.station_id, this.state.sensors_actual, __timein, __timeout).then(_data => {
+                if (_data.length > 0) {
+                    this.setState({ dataList: _data, isLoading: true, snack_msg: 'Данные загружены. Выберите диаграмму...' });
+                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                }
+                else {
+                    this.setState({ dataList: [], isLoading: true, snack_msg: 'Данные отстутствуют...' });
+                    this.props.getChartData(this.props.checkedMeteo, this.props.whatsRange);
+                }
 
-                    })
+            })
 
         }
         //  dateAddAction({ [id]: value });
@@ -400,6 +400,62 @@ class MenuStats extends Component {
 
 
     }
+
+    handleLocalAverage = (name) => {
+        const { sensors_actual, sensorsList } = this.state;
+        if (sensorsList) {
+            var filter = sensorsList.filter((item, i, arr) => {
+                return item.typemeasure == 'Направление ветра';
+            });
+        }
+        if (!isEmpty(filter))
+            this.loadWindData(2,filter[0].id ,filter[0].serialnum, this.state.dateTimeBegin, this.state.dateTimeEnd).then(_windData => {
+                if (_windData.length > 0) {
+                    this.props.getRadarData(false, _windData);
+                }
+            })
+    }
+
+    async    loadWindData(qtype, _params_stations, _params_sensors, _dtBegin, _dtEnd) {
+        var params = {};
+        // 0 - all stations, 1- all sensors of the station, 2 - selected sensors
+        //console.log('loaddata111')            
+        if (isEmpty(_dtBegin)) {
+            params.period_from = this.state.dateTimeBegin;
+            params.period_to = this.state.dateTimeEnd;
+        } else {
+            params.period_from = _dtBegin;
+            params.period_to = _dtEnd;
+        }
+
+        if (qtype > 0) {
+
+            params.station = _params_stations;
+        }
+        if (qtype > 1) {
+            params.sensors = [_params_sensors];
+            params.averaging = 1;
+        };
+
+        var data = await (this.props.queryLocalEvent(params));
+        //console.log(data);
+        if ((data.length > 0) && (qtype > 1)) {
+            if (data[0].typemeasure) {
+                if (data[0].typemeasure == 'Направление ветра') {
+                    this.props.handleChangeParent('isMeteo', true);
+                    this.props.handleChangeParent('whatsRange', true);
+
+                } else {
+                    this.props.handleChangeParent('isMeteo', false);
+                    this.props.handleChangeParent('whatsRange', false);
+
+
+                }
+            }
+        }
+        return data;
+    };
+
     async    loadData(qtype, _params_stations, _params_sensors, _dtBegin, _dtEnd) {
         var params = {};
         // 0 - all stations, 1- all sensors of the station, 2 - selected sensors
@@ -662,7 +718,7 @@ class MenuStats extends Component {
                             </Tooltip>
 
                             <Tooltip id="tooltip-charts-view5" title="Средняя концентрация">
-                                <IconButton className={classes.icon_mnu} id="consentration-bt" onClick={this.props.handleClickPdf} aria-label="Средняя концентрация">
+                                <IconButton className={classes.icon_mnu} id="consentration-bt" onClick={this.handleLocalAverage} aria-label="Средняя концентрация">
                                     <TrackChangesIcon className={classes.icon_mnu} style={{ width: 30, height: 30 }} />
 
                                 </IconButton>
