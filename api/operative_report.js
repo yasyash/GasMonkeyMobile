@@ -179,7 +179,7 @@ router.get('/report_excel', authenticate, (req, resp) => {
 
     });
 
-   
+
 });
 
 function daysInMonth(month) {
@@ -265,6 +265,28 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         let arr2 = JSON.parse(result_parse2);
 
         const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая', 'бензол', 'толуол', 'этилбензол', 'м,п-ксилол', 'о-ксилол', 'хлорбензол', 'стирол', 'фенол'];
+        const chemical_classes = { //classes dangerous
+            'NO': 3,
+            'NO2': 3,
+            'NH3': 4,
+            'SO2': 3,
+            'H2S': 3,
+            'O3': 1,
+            'CO': 4,
+            'CH2O': 2,
+            'PM1': 3,
+            'PM2.5': 3,
+            'PM10': 3,
+            'Пыль общая': 3,
+            'бензол': 2,
+            'толуол': 3,
+            'этилбензол': 4,
+            'м,п-ксилол': 3,
+            'о-ксилол': 3,
+            'хлорбензол': 3,
+            'стирол': 3,
+            'фенол': 2
+        };
 
         let dataList = arr0;
         let sensorsList = arr1;
@@ -294,12 +316,12 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         macsList.forEach((element, indx) => {
             //    console.log('Macs list ', element);
             if ((element.chemical == 'NO') || (element.chemical == 'NO2') || (element.chemical == 'NH3') ||
-            (element.chemical == 'SO2') || (element.chemical == 'H2S') ||
-            (element.chemical == 'O3') || (element.chemical == 'CO') || (element.chemical == 'CH2O') ||
-            (element.chemical == 'PM1') || (element.chemical == 'PM2.5') ||
-            (element.chemical == 'PM10') || (element.chemical == 'Пыль общая') || (element.chemical == 'бензол') ||
-            (element.chemical == 'толуол') || (element.chemical == 'этилбензол') || (element.chemical == 'м,п-ксилол') ||
-            (element.chemical == 'о-ксилол') || (element.chemical == 'хлорбензол') || (element.chemical == 'стирол') || (element.chemical == 'фенол')) {
+                (element.chemical == 'SO2') || (element.chemical == 'H2S') ||
+                (element.chemical == 'O3') || (element.chemical == 'CO') || (element.chemical == 'CH2O') ||
+                (element.chemical == 'PM1') || (element.chemical == 'PM2.5') ||
+                (element.chemical == 'PM10') || (element.chemical == 'Пыль общая') || (element.chemical == 'бензол') ||
+                (element.chemical == 'толуол') || (element.chemical == 'этилбензол') || (element.chemical == 'м,п-ксилол') ||
+                (element.chemical == 'о-ксилол') || (element.chemical == 'хлорбензол') || (element.chemical == 'стирол') || (element.chemical == 'фенол')) {
 
 
 
@@ -326,6 +348,9 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 let tim_out = '';
                 let temp_raw = [];
                 let day_now = 0;
+                let sum_alert = 0;
+                var coefficient = 1.0;
+
 
                 if (!isEmpty(filter)) {
 
@@ -370,6 +395,10 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                                 if (unit.measure > max) {
                                     max = unit.measure;
                                     max_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY HH:mm:ss');
+                                }
+
+                                if (unit.is_alert) {
+                                    sum_alert++;
                                 }
 
                             }))
@@ -422,6 +451,14 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                     if (range_macs >= 10)
                         class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
 
+                    if (chemical_classes[element.chemical] == 1) //coefficients for class dangerous
+                        coefficient = 1.7;
+                    if (chemical_classes[element.chemical] == 2)
+                        coefficient = 1.3;
+                    if (chemical_classes[element.chemical] == 3)
+                        coefficient = 1.0;
+                    if (chemical_classes[element.chemical] == 4)
+                        coefficient = 0.9;
 
                     avrg_measure.push({
 
@@ -434,6 +471,9 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                         'counter_macs1': counter_macs1,
                         'counter_macs5': counter_macs5,
                         'counter_macs10': counter_macs10,
+                        's_index': Number(max / element.max_m).toFixed(1),
+                        'gre_repeatably': Number(sum_alert / counter * 100).toFixed(2),
+                        'pollut_ind': Number(quotient / element.max_d * coefficient).toFixed(1),
                         'className': class_css
                     })
                 };
@@ -456,6 +496,10 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         let counter_macs5 = [];
         let counter_macs10 = [];
         let className = [];
+        let s_index = [];
+        let gre_repeatably = [];
+        let pollut_ind = [];
+
 
         chemical.push('Наименование');
         value.push('Среднемесячное значение');
@@ -471,7 +515,9 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         counter_macs1.push('Количество превышений ПДК');
         counter_macs5.push('Количество превышений 5*ПДК');
         counter_macs10.push('Количество превышений 10*ПДК');
-
+        s_index.push('Стандартный индекс');
+        gre_repeatably.push('Наибольшая повторяемость, %');
+        pollut_ind.push('ИЗА');
         className.push('ClassName');
 
         template_chemical.forEach(item => {
@@ -504,6 +550,9 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                     counter_macs1.push(element.counter_macs1);
                     counter_macs5.push(element.counter_macs5);
                     counter_macs10.push(element.counter_macs10);
+                    s_index.push(element.s_index);
+                    gre_repeatably.push(element.gre_repeatably);
+                    pollut_ind.push(element.pollut_ind);
                     className.push(element.className);
 
                 });
@@ -522,13 +571,16 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 counter_macs1.push('-');
                 counter_macs5.push('-');
                 counter_macs10.push('-');
+                s_index.push('-');
+                gre_repeatably.push('-');
+                pollut_ind.push('-');
                 className.push('');
 
             };
         });
         let _avrg_measure = [];
         _avrg_measure.push(chemical, value, counts, max_sum, max_time_sum, min_sum, min_time_sum,
-            max, max_time, counter_macs1, counter_macs5, counter_macs10, className);
+            max, max_time, counter_macs1, counter_macs5, counter_macs10, s_index, gre_repeatably, pollut_ind, className);
 
 
         // rendering of array for docx template
@@ -539,11 +591,11 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         data_raw.forEach((element, ind) => {
             pollution.push({
                 time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueNH3: element.NH3, valueSO2: element.SO2,
-                        valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO,valueCH2O: element.CH2O, valuePM1: element.PM1,
-                        valuePM25: element['PM2.5'],valuePM10: element.PM10, valueTSP: element['Пыль общая'],
-                        valueC6H6: element['бензол'], valueC7H8: element['толуол'], valueC8H10: element['этилбензол'],
-                        valueC8H10MP: element['м,п-ксилол'], valueC8H10O: element['о-ксилол'], valueC6H5Cl: element['хлорбензол'],
-                        valueC8H8: element['стирол'], valueC6H5OH: element['фенол']
+                valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO, valueCH2O: element.CH2O, valuePM1: element.PM1,
+                valuePM25: element['PM2.5'], valuePM10: element.PM10, valueTSP: element['Пыль общая'],
+                valueC6H6: element['бензол'], valueC7H8: element['толуол'], valueC8H10: element['этилбензол'],
+                valueC8H10MP: element['м,п-ксилол'], valueC8H10O: element['о-ксилол'], valueC6H5Cl: element['хлорбензол'],
+                valueC8H8: element['стирол'], valueC6H5OH: element['фенол']
             });
         })
         // values.push({
@@ -554,12 +606,12 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         _avrg_measure.forEach((element, ind) => {
             if ((ind > 0) && (ind < _avrg_measure.length - 1)) {
                 pollution.push({
-                    time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3],valueSO2: element[4],
+                    time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3], valueSO2: element[4],
                     valueH2S: element[5], valueO3: element[6], valueCO: element[7], valueCH2O: element[8], valuePM1: element[9],
                     valuePM25: element[10], valuePM10: element[11], valueTSP: element[12],
                     valueC6H6: element[13], valueC7H8: element[14], valueC8H10: element[15],
                     valueC8H10MP: element[16], valueC8H10O: element[17], valueC6H5Cl: element[18],
-                    valueC8H8:element[19], valueC6H5OH: element[20]
+                    valueC8H8: element[19], valueC6H5OH: element[20]
 
                 });
             }
@@ -599,7 +651,7 @@ router.get('/get_tza4', authenticate, (req, resp) => {
     let station_name = data.station_name;
     let chemic = data.chemical;
     const between_date = [data.period_from, data.period_to];
-        //console.log('chemical : ', chemic);
+    //console.log('chemical : ', chemic);
 
 
     loadData_tza(data.station, between_date, station_name, chemic).then(result => {
@@ -674,7 +726,7 @@ router.get('/get_tza4', authenticate, (req, resp) => {
         //if weather calculations
         if (chemical_one[0].measure_class != 'data')
             var signs = 1;
-            else
+        else
             var signs = 3;
 
         //console.log('between ', chemical_one[0]);
@@ -744,10 +796,10 @@ router.get('/get_tza4', authenticate, (req, resp) => {
 
                         sum = sum / local_cnt;
 
-                                if (sum > Qmax) {
-                                    Qmax = sum;
-                                    Qmax_time = time_in/3600 + ':19:59';//'01:01:01';//toString(hour/3600) + ':19:59';  +//date.format(new Date(time_now), 'HH:19:59');
-                                }
+                        if (sum > Qmax) {
+                            Qmax = sum;
+                            Qmax_time = time_in / 3600 + ':19:59';//'01:01:01';//toString(hour/3600) + ':19:59';  +//date.format(new Date(time_now), 'HH:19:59');
+                        }
 
                         temp_day.push(sum.toFixed(signs));
                         sumQc += sum;

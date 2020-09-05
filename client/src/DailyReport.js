@@ -173,6 +173,28 @@ class DailyReport extends React.Component {
         //this.loadData().then(data => this.setState({ sensorsList: data }));
 
         const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая', 'бензол', 'толуол', 'этилбензол', 'м,п-ксилол', 'о-ксилол', 'хлорбензол', 'стирол', 'фенол'];
+        const chemical_classes = { //classes dangerous
+            'NO': 3,
+            'NO2': 3,
+            'NH3': 4,
+            'SO2': 3,
+            'H2S': 3,
+            'O3': 1,
+            'CO': 4,
+            'CH2O': 2,
+            'PM1': 3,
+            'PM2.5': 3,
+            'PM10': 3,
+            'Пыль общая': 3,
+            'бензол': 2,
+            'толуол': 3,
+            'этилбензол': 4,
+            'м,п-ксилол': 3,
+            'о-ксилол': 3,
+            'хлорбензол': 3,
+            'стирол': 3,
+            'фенол': 2
+        };
         if (isEmpty(state.dateReportBegin)) {
             params.period_from = this.props.dateReportBegin;
             params.period_to = this.props.dateReportEnd;
@@ -239,6 +261,8 @@ class DailyReport extends React.Component {
                         let time_in = 0;
                         let tim_out = '';
                         let temp_raw = [];
+                        let sum_alert = 0;
+                        var coefficient = 1.0;
 
                         if (!isEmpty(filter)) {
 
@@ -281,7 +305,9 @@ class DailyReport extends React.Component {
                                             max = unit.measure;
                                             max_time = new Date(unit.date_time).format('H:mm:SS');
                                         }
-
+                                        if (unit.is_alert == 'тревога') {
+                                            sum_alert++;
+                                        }
                                     }))
                                     sum = sum / local_cnt;
 
@@ -289,9 +315,6 @@ class DailyReport extends React.Component {
                                     dt[element.chemical] = sum.toFixed(3);
 
                                     data_raw[ind] = dt;
-
-
-
 
                                     if (sum > element.max_m)
                                         counter_macs1++;
@@ -322,15 +345,28 @@ class DailyReport extends React.Component {
                                 class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
 
 
+                            if (chemical_classes[element.chemical] == 1) //coefficients for class dangerous
+                                coefficient = 1.7;
+                            if (chemical_classes[element.chemical] == 2)
+                                coefficient = 1.3;
+                            if (chemical_classes[element.chemical] == 3)
+                                coefficient = 1.0;
+                            if (chemical_classes[element.chemical] == 4)
+                                coefficient = 0.9;
+
                             avrg_measure.push({
 
                                 'chemical': element.chemical,
-                                'value': quotient.toFixed(3), 'counts': counter,
+                                'value': quotient.toFixed(3),
+                                'counts': counter,
                                 'min': min, 'min_time': min_time,
                                 'max': max, 'max_time': max_time,
                                 'counter_macs1': counter_macs1,
                                 'counter_macs5': counter_macs5,
                                 'counter_macs10': counter_macs10,
+                                's_index': Number(max / element.max_m).toFixed(1),
+                                'gre_repeatably': Number(sum_alert / counter * 100).toFixed(2),
+                                'pollut_ind': Number(quotient / element.max_d * coefficient).toFixed(1),
                                 'className': class_css
                             })
                         };
@@ -349,6 +385,9 @@ class DailyReport extends React.Component {
                 let counter_macs5 = [];
                 let counter_macs10 = [];
                 let className = [];
+                let s_index = [];
+                let gre_repeatably = [];
+                let pollut_ind = [];
 
                 chemical.push('Наименование');
                 value.push('Среднесуточное значение');
@@ -360,6 +399,9 @@ class DailyReport extends React.Component {
                 counter_macs1.push('Количество превышений ПДК');
                 counter_macs5.push('Количество превышений 5*ПДК');
                 counter_macs10.push('Количество превышений 10*ПДК');
+                s_index.push('Стандартный индекс');
+                gre_repeatably.push('Наибольшая повторяемость, %');
+                pollut_ind.push('ИЗА');
                 className.push('ClassName');
 
                 template_chemical.forEach(item => {
@@ -388,6 +430,9 @@ class DailyReport extends React.Component {
                             counter_macs1.push(element.counter_macs1);
                             counter_macs5.push(element.counter_macs5);
                             counter_macs10.push(element.counter_macs10);
+                            s_index.push(element.s_index);
+                            gre_repeatably.push(element.gre_repeatably);
+                            pollut_ind.push(element.pollut_ind);
                             className.push(element.className);
 
                         });
@@ -402,13 +447,16 @@ class DailyReport extends React.Component {
                         counter_macs1.push('-');
                         counter_macs5.push('-');
                         counter_macs10.push('-');
+                        s_index.push('-');
+                        gre_repeatably.push('-');
+                        pollut_ind.push('-');
                         className.push('');
 
                     };
                 });
                 let _avrg_measure = [];
                 _avrg_measure.push(chemical, value, counts, max, max_time, min, min_time, counter_macs1, counter_macs5,
-                    counter_macs10, className);
+                    counter_macs10, s_index, gre_repeatably, pollut_ind, className);
 
 
                 // rendering of array for docx template
@@ -435,11 +483,11 @@ class DailyReport extends React.Component {
                     if ((ind > 0) && (ind < _avrg_measure.length - 1)) {
                         pollution.push({
                             time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3], valueSO2: element[4],
-                            valueH2S: element[5], valueO3: element[6], valueCO:element[7], valueCH2O:element[8], valuePM1: element[9],
+                            valueH2S: element[5], valueO3: element[6], valueCO: element[7], valueCH2O: element[8], valuePM1: element[9],
                             valuePM25: element[10], valuePM10: element[11], valueTSP: element[12],
                             valueC6H6: element[13], valueC7H8: element[14], valueC8H10: element[15],
                             valueC8H10MP: element[16], valueC8H10O: element[17], valueC6H5Cl: element[18],
-                            valueC8H8:element[19], valueC6H5OH: element[20]
+                            valueC8H8: element[19], valueC6H5OH: element[20]
                         });
                     }
                 });
@@ -576,7 +624,7 @@ class DailyReport extends React.Component {
                                     <b> Концентрация, мг/м. куб.</b>
                                 </td>
                             </tr>
-                            <tr style = {{'fontSize': '11px'}}>
+                            <tr style={{ 'fontSize': '11px' }}>
                                 <td style={{ 'width': '5%' }} >
                                     NO
                                  </td>
@@ -643,7 +691,7 @@ class DailyReport extends React.Component {
 
                             {(data_raw) &&// if not empty
                                 data_raw.map((option, i) => (
-                                    <tr key={'tr_' + i} style = {{'fontSize': '11px'}}>
+                                    <tr key={'tr_' + i} style={{ 'fontSize': '11px' }}>
                                         <td> {option.time}</td>
                                         <td> {option.NO}</td>
                                         <td> {option.NO2}</td>
@@ -676,7 +724,7 @@ class DailyReport extends React.Component {
                             {(avrg_measure) &&// if not empty
                                 avrg_measure.map((option, i) => (
                                     (i > 0 && i < avrg_measure.length - 1) &&
-                                    <tr key={'trm_' + i} style = {{'fontSize': '11px'}}>
+                                    <tr key={'trm_' + i} style={{ 'fontSize': '11px' }}>
                                         <td> {option[0]}</td>
                                         <td> {option[1]}</td>
                                         <td> {option[2]}</td>
