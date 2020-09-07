@@ -236,7 +236,222 @@ export function queryEvent(paramstr) {
             });
     }
 };
+export function queryManyEvent(paramstr) {
+    return dispatch => {
+        const data = JSON.stringify(paramstr);
+        //  console.log('parameters is ', data);
 
+        return Axios.get('/api/query/many', { params: { data } })
+            .then(resp => resp.data)
+            .then(data => {
+                const dataTable = [];
+                // deleteDataList(); // add with id for table element
+                //  deleteSensorsList();
+                if (data.stations) {
+                    //deleteActiveStationsList();
+                    // deleteActiveSensorsList();
+
+                    let stations = data.stations;
+                    stations.forEach(element => {
+                        dataTable.push({
+                            id: element.idd,
+                            code: element.code,
+                            namestation: element.namestation,
+                            date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
+                            date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
+                            place: element.place,
+                            latitude: element.latitude,
+                            longitude: element.longitude
+
+                        });
+                    });
+                    return wrapData(dataTable);
+                };
+
+                if (data.sensors) {
+                    deleteActiveSensorsList();
+                    getFirstActiveStationsList();
+                    let sensors = data.sensors;
+                    sensors.forEach(element => {
+                        dataTable.push({
+                            id: element.idd,
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
+                            date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
+                            average_period: element.average_period,
+                            unit_name: element.unit_name,
+                            measure_class: element.measure_class,
+                            is_wind_sensor: element.is_wind_sensor,
+                            max_consentration: element.max_consentration,
+                            max_day_consentration: element.max_day_consentration,
+                            def_colour: element.def_colour
+
+                        });
+                    });
+                    //addActiveStationsList(paramstr.station);
+                    let wrappedDataTable = wrapData(dataTable);
+                    addActiveSensorsList(wrappedDataTable);
+                    return wrappedDataTable;
+                };
+                if (data.response) {
+                    let data_list = data.response[0];
+                    let sensors_list = data.response[1];
+                    let unit_name = '';
+                    let prev = '';
+                    let i = 0;
+
+                    if (sensors_list.length == 1) {
+                        if (data_list.length > 0) {
+                            var _data = [];
+                            var _tmp = 0;
+                            var counter = 0;
+                            var units = 0;
+                            var first_date = data_list[0].date_time;
+                            var last_date = data_list[data_list.length - 1].date_time;
+                            var first_hour = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                            var first_minute = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                            var work_date = moment(first_date);
+
+                            var _i = 0;
+                            var _j = 0;
+                            while (work_date.isBefore(last_date)) { //averaging data
+                                _tmp = 0;
+                                counter = 0;
+                                work_date.add(paramstr.averaging, 'minutes');
+                                for (_j = _i; ((_j < data_list.length) && (!work_date.isBefore(data_list[_j].date_time))); _j++) {
+
+                                    _tmp += data_list[_j].measure;
+                                    counter++;
+
+                                }
+
+                                if (counter) {
+                                    data_list[_i].measure = _tmp / counter;
+                                    data_list[_i].date_time = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                    _data.push(data_list[_i]);
+                                }
+                                _i = _j;
+                                first_date = new Date(work_date).format('Y-MM-dd HH:mm:SS');
+
+                            }
+
+                            _data.forEach(element => {
+                                let filter = sensors_list.filter((item, i, arr) => {
+                                    return item.serialnum == element.serialnum;
+                                });
+                                //console.log('element  ', element);
+
+
+
+                                if (!isEmpty(filter[0])) { unit_name = filter[0].unit_name }
+                                dataTable.push({
+                                    id: element.idd,
+                                    typemeasure: element.typemeasure,
+                                    serialnum: element.serialnum,
+                                    date_time: new Date(element.date_time).format('Y-MM-dd HH:mm:SS'),
+                                    unit_name: unit_name,
+                                    measure: element.measure.toFixed(3),
+                                    is_alert: element.is_alert ? 'тревога' : 'нет',
+                                });
+
+                            });
+                        }
+                    }
+                    else {
+                        let size_arr = sensors_list.length + 1;//datetime, sensor1, ..., sensorN
+                        let obj = { date_time: 'Время наблюдения' };
+                        //tmp_arr.push({});//table header - first element
+                        sensors_list.forEach(_id => {
+                            obj[_id.serialnum] = _id.typemeasure + ' (' + _id.unit_name + ')';
+                        });
+
+                        dataTable.push(obj); //insert first element
+                        var units = 0;
+                        var _data = [];
+
+                        sensors_list.forEach(_id => {
+
+                            var _data_list_filter = data_list.filter((item, i, arr) => {
+                                return item.serialnum == _id.serialnum;
+                            });
+
+                            var _tmp = 0;
+                            var counter = 0;
+                            var first_date = data_list[0].date_time;
+                            var last_date = data_list[data_list.length - 1].date_time;
+                            var work_date = moment(first_date);
+
+
+                            var _i = 0;
+                            var _j = 0;
+                            while (work_date.isBefore(last_date)) { //averaging data
+                                _tmp = 0;
+                                counter = 0;
+                                work_date.add(paramstr.averaging, 'minutes');
+                                for (_j = _i; ((_j < _data_list_filter.length) && (!work_date.isBefore(_data_list_filter[_j].date_time))); _j++) {
+
+                                    _tmp += _data_list_filter[_j].measure;
+                                    counter++;
+
+                                }
+
+                                if (counter) {
+                                    _data_list_filter[_i].measure = _tmp / counter;
+                                    if (units) {
+                                        let _find_date = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                        _data.filter((__item, __i, __arr) => {
+                                            if (__item.date_time == _find_date) {
+                                                let obj = {};
+                                                //obj[_data_list_filter[_i].serialnum] = _data_list_filter[_i].measure;
+                                                _data[__i][_data_list_filter[_i].serialnum] = _data_list_filter[_i].measure.toFixed(3);
+                                            }
+                                        });
+                                    } else {
+                                        let obj = {};
+                                        obj['date_time'] = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                        obj[_data_list_filter[_i].serialnum] = _data_list_filter[_i].measure.toFixed(3);
+                                        _data.push(obj);
+                                    };
+                                }
+                                _i = _j;
+                                first_date = new Date(work_date).format('Y-MM-dd HH:mm:SS');
+
+                            }
+
+                            units++;
+
+                        });
+                        _data.forEach(_element => {
+                            dataTable.push(_element); //add all elements
+                        });
+
+                    };
+
+                    // Max allowable consentration
+
+                    let consentration = data.response[2];
+
+                    addConsentrationList(wrapData(consentration));
+                    /*macs.forEach(element => {
+                        dataTable.push({
+                            chemical: element.chemical,
+                            max_m: element.max_m,
+                            max_n: element.max_n
+                        });
+                    });*/
+
+                    addDataList(wrapData(dataTable)); // add with id for table element
+                    addSensorsList(wrapData(sensors_list));
+
+                    return dataTable;
+                };
+
+                return dataTable;
+
+            });
+    }
+};
 export function queryMeteoEvent(paramstr) {
     return dispatch => {
         const data = JSON.stringify(paramstr);
@@ -848,7 +1063,7 @@ export function queryLocalEvent(paramstr) {//reducers will not taken
 
                 if (data.sensors) {
                     //deleteActiveSensorsList();
-                   // getFirstActiveStationsList();
+                    // getFirstActiveStationsList();
                     let sensors = data.sensors;
                     sensors.forEach(element => {
                         dataTable.push({
@@ -1009,7 +1224,7 @@ export function queryLocalEvent(paramstr) {//reducers will not taken
 
                     let consentration = data.response[2];
 
-                   // addConsentrationList(wrapData(consentration));
+                    // addConsentrationList(wrapData(consentration));
                     /*macs.forEach(element => {
                         dataTable.push({
                             chemical: element.chemical,
@@ -1018,8 +1233,8 @@ export function queryLocalEvent(paramstr) {//reducers will not taken
                         });
                     });*/
 
-                  //  addDataList(wrapData(dataTable)); // add with id for table element
-                   // addSensorsList(wrapData(sensors_list));
+                    //  addDataList(wrapData(dataTable)); // add with id for table element
+                    // addSensorsList(wrapData(sensors_list));
 
                     return dataTable;
                 };

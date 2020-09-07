@@ -8,7 +8,7 @@ import { isNumber } from 'util';
 
 
 import TxtFieldGroup from './stuff/txtField';
-import { queryEvent } from './actions/queryActions';
+import { queryEvent, queryManyEvent } from './actions/queryActions';
 import MenuTable from './menuTable';
 import { Tabs, Tab } from 'material-ui/Tabs';
 import FontIcon from 'material-ui/FontIcon';
@@ -50,6 +50,7 @@ const FoldableTable = FoldableTableHOC(CheckboxTable);
 
 
 import shortid from 'shortid';
+import { filter } from 'ramda';
 
 
 
@@ -72,7 +73,7 @@ class TableSensors extends React.Component {
             stationsList,
             sensorsList,
             dataList,
-
+            station_names,
             dateTimeBegin,
             dateTimeEnd,
             sensors_actual,
@@ -97,7 +98,7 @@ class TableSensors extends React.Component {
             dataList,
             selected: [],
             sensors_actual,
-
+            station_names,
             fixedHeader,
             fixedFooter,
             stripedRows: false,
@@ -139,6 +140,7 @@ class TableSensors extends React.Component {
     }
 
     toggleSelection(key, shift, row) {
+
         /*
           Implementation of how to manage the selection state is up to the developer.
           This implementation uses an array stored in the component state.
@@ -265,8 +267,8 @@ class TableSensors extends React.Component {
             params.sensors = this.state.sensors_actual;
             params.averaging = this.state.averaging;
 
-            this.props.queryEvent(params).then(data => {
-                if (data) {
+            this.props.queryManyEvent(params).then(data => {
+                if (data.length > 0) {
                     this.setState({ dataList: data })
                     this.setState({ isLoading: true })
                     this.setState({ snack_msg: 'Данные успешно загружены...' })
@@ -276,7 +278,7 @@ class TableSensors extends React.Component {
 
                 }
                 else {
-                    this.setState({ isLoading: false })
+                    this.setState({ isLoading: true })
                     this.setState({ snack_msg: 'Данные отсутствуют...' })
 
                 }
@@ -375,20 +377,26 @@ class TableSensors extends React.Component {
 
 
             [{
+                Header: "ПНЗ",
+                id: "namestation",
+                accessor: "namestation",
+                filterable: true
+            },
+            {
                 Header: "Тип",
                 id: "typemeasure",
                 accessor: "typemeasure",
                 filterable: true
             },
             {
-                Header: "Макс. показатель",
+                Header: "ПДК м.р.",
                 id: "max_consentration",
                 accessor: "max_consentration",
                 foldable: true,
                 filterable: true
             },
             {
-                Header: "Макс. сут. показатель",
+                Header: "ПДК с.с.",
                 id: "max_day_consentration",
                 accessor: "max_day_consentration",
                 foldable: true,
@@ -487,7 +495,7 @@ class TableSensors extends React.Component {
     }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
     let sensors = '';
     let station = '';
     let tmp = '';
@@ -502,6 +510,18 @@ function mapStateToProps(state) {
         station = tmp[0].station;
 
     };
+
+
+    state.activeSensorsList.forEach((val, ind) => {
+        ownProps.station_names.forEach(elm => {
+            if (elm[val.id] != undefined) {
+                Object.assign(val, { namestation: elm[val.id] });
+
+            }
+        })
+
+    })
+
     return {
 
         /*  fixedHeader: state.fixedHeader,
@@ -539,6 +559,7 @@ TableSensors.contextType = {
 }
 
 export default connect(mapStateToProps, {
+    queryManyEvent,
     queryEvent, addActiveSensorsList, addActiveStationsList,
     getFirstActiveStationsList
 })(withRouter(TableSensors));

@@ -121,11 +121,22 @@ class ChartForm extends React.Component {
         if (len > 0) {
             //var _obj =Object.create( _datasets[len - 1]);
             //_obj=_datasets[len-1];
+            if (_consentration != 0){
             _datasets[len - 1].label = 'ПДВ: ' + _consentration;
             _datasets[len - 1].hidden = false;
             _datasets[len - 1].data = [];
+            _datasets[len - 1].borderColor = '#000000';
+            _datasets[len - 1].backgroundColor ='#000000';
             _datasets[0].data.forEach((element, key) =>
                 _datasets[len - 1].data.push(_consentration));
+            }else {
+                _datasets[len - 1].label = ' ';
+                _datasets[len - 1].hidden = true;
+                _datasets[len - 1].data = [];
+                _datasets[len - 1].borderColor = '#FFFFFF';
+                _datasets[len - 1].backgroundColor ='#FFFFFF';
+              
+            }
 
         }
         this.setState({ chartData });
@@ -315,13 +326,14 @@ class ChartForm extends React.Component {
                 let label = '';
                 let counter = 0;
                 let chemical = [];//Chemical substance for MACs
+                let _prev_measure = 0.0;
 
                 if (sensorsList.length > 0) {
 
                     chartData.datasets[0].data = [];
                     if (sensors_actual.length > 1) {
                         sensors_actual.forEach(element => {
-
+                            _prev_measure = 0.0;
                             dataList.forEach((item, indx) => {
                                 if (isEmpty(filter)) {
                                     filter = sensorsList.filter((_item, i, arr) => {
@@ -331,30 +343,35 @@ class ChartForm extends React.Component {
                                 if (filter[0].serialnum) {
                                     _tmp = item[filter[0].serialnum];
 
+                                    if ((_tmp != undefined) && (indx > 0))
+                                        _prev_measure = Number.parseFloat(_tmp);
+
                                 };
 
                                 if (counter === 0) {
-                                    if (indx > 0)
+                                    if (indx > 0) {
                                         _timeaxis.push(item['date_time']);
+
+                                    }
                                 };
 
-                                if (isNumber(_tmp)) {
+                                if (indx > 0) {
 
                                     if (_range) {
-                                        tmp.push(_tmp);
+                                        tmp.push(_prev_measure);
                                     } else {
                                         let _filter = macs.filter((_item, i, arr) => {
                                             return _item.chemical === filter[0].typemeasure;
                                         });
                                         if (!isEmpty(_filter))
-                                            tmp.push(_tmp / _filter[0].max_m * 100); //normalize to 100 % range of macs
+                                            tmp.push(_prev_measure / _filter[0].max_m * 100); //normalize to 100 % range of macs
                                     };
 
 
                                     // tmp.push(_tmp);
 
                                 } else {
-                                    if (i === 0) label = filter[0].typemeasure;//_tmp;
+                                    if (i === 0) label = filter[0].typemeasure + ' ' + filter[0].namestation;//_tmp;
                                 };
 
                                 i++;
@@ -393,7 +410,7 @@ class ChartForm extends React.Component {
                             };
                             //this.setState({ 'locations': title });
                             if (isEmpty(stateOptions[0])) {//if first rendering - not simple switch
-                                options.push({ chemical: filter[0].typemeasure, visible: true, id: counter });
+                                options.push({ chemical: filter[0].typemeasure + ' ' + filter[0].namestation, visible: true, id: counter });
                             } else {
                                 emptydatasets['hidden'] = !stateOptions[counter].visible;
                             };
@@ -471,45 +488,53 @@ class ChartForm extends React.Component {
                 //macs creation
                 let obj_macs = [];
                 let _arr = [];
+                let _worked_sensors = [];
                 i = 0;
                 selectedSensors.forEach(element => {
-                    let filter = macs.filter((_item, i, arr) => {
-                        return _item.chemical === element.typemeasure;
+                    let _filter_duplication = _worked_sensors.filter((_item, i) => {
+                        return _item.typemeasure == element.typemeasure;
                     });
+                    if (_filter_duplication.length == 0) {
+                        _worked_sensors.push(element);
 
-                    if (!isEmpty(filter[0])) {
-                        if (_range) {
+                        let filter = macs.filter((_item, i, arr) => {
+                            return _item.chemical === element.typemeasure;
+                        });
 
-                            _arr = new Array(_timeaxis.length + 1).join(filter[0].max_m + '|').split('|');
-                        } else {
-                            _arr = new Array(_timeaxis.length + 1).join(100 + '|').split('|'); //scaling macs to 100%
-                        }
-                        let _colour = '#' + element.def_colour.toString(16);
+                        if (!isEmpty(filter[0])) {
+                            if (_range) {
+
+                                _arr = new Array(_timeaxis.length + 1).join(filter[0].max_m + '|').split('|');
+                            } else {
+                                _arr = new Array(_timeaxis.length + 1).join(100 + '|').split('|'); //scaling macs to 100%
+                            }
+                            let _colour = '#' + element.def_colour.toString(16);
 
 
-                        let emptydatasets =
-                        {
-                            label: filter[0].chemical + ' ПДК',
-                            fill: false,
-                            borderColor: _colour,
-                            backgroundColor: _colour,
-                            data: _arr,
-                            pointStyle: 'circle',
-                            radius: 0,
-                            borderWidth: this.state.borderWidth + 2,
-                            borderDash: [10, 10],
-                            hidden: false
+                            let emptydatasets =
+                            {
+                                label: filter[0].chemical + ' ПДК',
+                                fill: false,
+                                borderColor: _colour,
+                                backgroundColor: _colour,
+                                data: _arr,
+                                pointStyle: 'circle',
+                                radius: 0,
+                                borderWidth: this.state.borderWidth + 2,
+                                borderDash: [10, 10],
+                                hidden: false
+                            };
+
+
+                            if (isEmpty(stateOptions[0])) {
+                                options.push({ chemical: (element.typemeasure + ' ПДК'), visible: true, id: selectedSensors.length + i });
+                            } else {
+                                emptydatasets['hidden'] = !stateOptions[counter + i].visible;
+                            };
+                            obj_macs.push(emptydatasets);
+
+                            i++;
                         };
-
-
-                        if (isEmpty(stateOptions[0])) {
-                            options.push({ chemical: (element.typemeasure + ' ПДК'), visible: true, id: selectedSensors.length + i });
-                        } else {
-                            emptydatasets['hidden'] = !stateOptions[counter + i].visible;
-                        };
-                        obj_macs.push(emptydatasets);
-
-                        i++;
                     };
                 });
 
@@ -517,10 +542,10 @@ class ChartForm extends React.Component {
                 var _tmp = [];
                 let _emptydatasets =
                 {
-                    label: 'ПДВ',
+                    label: ' ',
                     fill: false,
-                    borderColor: '#000000',
-                    backgroundColor: '#000000',
+                    borderColor: '#FFFFFF',
+                    backgroundColor: '#FFFFFF',
                     data: [],
                     pointStyle: 'circle',
                     radius: 0,

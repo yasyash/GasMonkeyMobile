@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import format from 'node.date-time';
 
 import TxtFieldGroup from './stuff/txtField';
-import { queryEvent } from './actions/queryActions';
+import { queryEvent, queryManyEvent } from './actions/queryActions';
 import MenuTable from './menuTable';
 import TableSensors from './TableSensors';
 import TableData from './TableData';
@@ -101,7 +101,8 @@ class TableForm extends React.Component {
 
             dateTimeBegin, //new Date().format('Y-MM-dd') + 'T00:00',
             dateTimeEnd, //new Date().format('Y-MM-ddTH:mm'),
-            station_actual,
+            station_actual: [],
+            station_names: [],
             sensors_actual: [],
             stationsList,
             sensorsList,
@@ -161,6 +162,8 @@ class TableForm extends React.Component {
         */
         // start off with the existing state
         let selection = [...this.state.selection];
+        let station_actual = [...this.state.station_actual];
+        let station_names = [...this.state.station_names];
 
         const keyIndex = selection.indexOf(row._id);
         // check to see if the key exists
@@ -170,21 +173,37 @@ class TableForm extends React.Component {
                 ...selection.slice(0, keyIndex),
                 ...selection.slice(keyIndex + 1)
             ];
-            if (row.id == this.state.station_actual) {
-                this.setState({ station_actual: '' });
-            };
+
+            station_actual = [
+                ...station_actual.slice(0, keyIndex),
+                ...station_actual.slice(keyIndex + 1)
+            ];
+
+            station_names = [
+                ...station_names.slice(0, keyIndex),
+                ...station_names.slice(keyIndex + 1)
+            ];
+            //if (row.id == this.state.station_actual) {
+            //    this.setState({ station_actual: '' });
+            //};
 
         } else {
             // it does not exist so add it
             selection.push(row._id);
-            this.setState({ station_actual: row.id });
-
+            station_actual.push(row.id);
+            station_names.push({[row.id]:row.namestation});
         }
-        // update the state
+        // update the state            
+        this.setState({ station_actual });
+
         this.setState({ selection });
+
+        this.setState({ station_names });
+
     };
 
     toggleAll() {
+
         /*
           'toggleAll' is a tricky concept with any filterable table
           do you just select ALL the records that are in your data?
@@ -305,8 +324,13 @@ class TableForm extends React.Component {
         params.period_to = this.state.dateTimeEnd;
         if (qtype === 1) {
             params.station = this.state.station_actual;
+            //params.station = this.state.selection;
+
             // if (this.props.station_actual.length > 0) { deleteActiveStationsList(); };
+
             addActiveStationsList({ station: this.state.station_actual });
+            // addActiveStationsList({ station: this.state.selection });
+
             deleteDataList();
             deleteSensorsList();
             //this.setState({ slection: '' })
@@ -322,7 +346,7 @@ class TableForm extends React.Component {
             params.sensors = this.state.sensors_actual;
 
         };
-        let data = await (this.props.queryEvent(params));
+        let data = await (this.props.queryManyEvent(params));
         //console.log(data);
         return data;
     };
@@ -454,7 +478,7 @@ class TableForm extends React.Component {
                             handleClick={this.handleClick.bind(this)}
                             isStation={true} {...this.state}
                             handleClose={this.handleClose.bind(this)}
-                            auth ={auth}
+                            auth={auth}
                         />
                         <br />
 
@@ -495,7 +519,7 @@ class TableForm extends React.Component {
                         <TableSensors
                             {...this.state}
                             loadData={loadData}
-                            auth ={auth}
+                            auth={auth}
 
                         />
 
@@ -507,7 +531,7 @@ class TableForm extends React.Component {
                     >
                         <TableData
                             {...this.state}
-                            auth ={auth}
+                            auth={auth}
 
                         // loadData={loadData}
                         />
@@ -559,6 +583,6 @@ TableForm.contextType = {
 }
 
 export default connect(mapStateToProps, {
-    queryEvent, addActiveStationsList,
+    queryManyEvent, queryEvent, addActiveStationsList,
     getFirstActiveStationsList, deleteDataList, deleteSensorsList
 })(withRouter(withStyles(styles)(TableForm)));
