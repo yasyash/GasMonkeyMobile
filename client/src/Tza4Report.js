@@ -107,7 +107,7 @@ class Tza4Report extends React.Component {
         };
 
         //first init
-       // dateAddAction({ 'dateReportBegin': this.state.dateReportBegin });
+        // dateAddAction({ 'dateReportBegin': this.state.dateReportBegin });
         //dateAddAction({ 'dateReportEnd': this.state.dateReportEnd });
         // this.onClick = this.onSubmit.bind(this);
         // this.onClose= this.handleClose.bind(this);
@@ -168,8 +168,13 @@ class Tza4Report extends React.Component {
 
         //tza report
         if (isEmpty(state.dateReportBegin)) {
-            params.period_from = this.props.dateReportBegin;
-            params.period_to = this.props.dateReportEnd;
+            if (!isEmpty(this.props.dateReportBegin)) {
+                params.period_from = this.props.dateReportBegin;
+                params.period_to = this.props.dateReportEnd;
+            } else {
+                params.period_from = this.state.dateReportBegin;
+                params.period_to = this.state.dateReportEnd;
+            }
         }
         else {
             params.period_from = state.dateReportBegin;
@@ -368,109 +373,109 @@ class Tza4Report extends React.Component {
 
 
 
-                            {(tza4) && 
-                            tza4.map((option, i) => (
-                                <tr key={'tr_' + i}>
-                                    <td style={{ 'width': '3%' }} >
-                                        {option[0]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                       { option[1]}
+                            {(tza4) &&
+                                tza4.map((option, i) => (
+                                    <tr key={'tr_' + i}>
+                                        <td style={{ 'width': '3%' }} >
+                                            {option[0]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[1]}
 
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                       { option[2]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[3]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[4]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[5]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[6]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[7]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[8]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[9]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[10]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[2]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[3]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[4]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[5]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[6]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[7]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[8]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[9]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[10]}
 
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[11]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[12]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[13]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[14]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[15]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[16]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[17]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[18]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[19]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[20]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[21]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[22]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[23]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[24]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[25]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[26]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[27]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[28]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[29]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[30]}
-                                 </td>
-                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                        {option[31]}
-                                 </td>
-                                </tr>
-                            ))}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[11]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[12]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[13]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[14]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[15]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[16]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[17]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[18]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[19]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[20]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[21]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[22]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[23]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[24]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[25]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[26]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[27]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[28]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[29]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[30]}
+                                        </td>
+                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                            {option[31]}
+                                        </td>
+                                    </tr>
+                                ))}
                             <tr>
 
                             </tr>
@@ -478,16 +483,16 @@ class Tza4Report extends React.Component {
                             {(adds) && <tr key='adds'>
                                 <td style={{ 'width': '3%' }} colSpan="25">
                                 </td>
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} >
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} >
                                     M
                                  </td>
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} >
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} >
                                     {adds.M_SumQc}
                                 </td>
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} >
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} >
                                     {adds.M_n}
                                 </td>
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} >
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} >
                                     {adds.M_Qc}
                                 </td>
                                 <td style={{ 'width': '3%' }} colSpan="3">
@@ -498,11 +503,11 @@ class Tza4Report extends React.Component {
                             {(adds) && <tr key='adds1'>
                                 <td style={{ 'width': '3%' }} colSpan="26">
                                 </td>
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} >
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} >
                                     Max Qc
                                     </td>
 
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} colSpan="5">
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} colSpan="5">
                                     {adds.Max_Qc}
                                 </td>
 
@@ -513,11 +518,11 @@ class Tza4Report extends React.Component {
                             {(adds) && <tr key='adds2'>
                                 <td style={{ 'width': '3%' }} colSpan="26">
                                 </td>
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} >
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} >
                                     Tmax Qc
                                     </td>
 
-                                <td style={{ 'width': '3%' , 'fontSize': '12px'}} colSpan="5">
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} colSpan="5">
                                     {adds.Tmax_Qc}
                                 </td>
 
@@ -532,7 +537,7 @@ class Tza4Report extends React.Component {
                                     Sum Dcc
                                     </td>
 
-                                <td style={{ 'width': '3%', 'fontSize': '12px'}} colSpan="5">
+                                <td style={{ 'width': '3%', 'fontSize': '12px' }} colSpan="5">
                                     {adds.Sum_Dcc}
                                 </td>
 
