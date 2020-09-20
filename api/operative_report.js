@@ -753,8 +753,8 @@ router.get('/get_tza4', authenticate, (req, resp) => {
                     });
 
                     if (!isEmpty(minutes)) {
-                        let sum = 0;
-                        let local_cnt = 0;
+                        let sum = 0.0;
+                        let local_cnt = 1;
 
                         minutes.forEach((item, indx) => { //step by minutes
                             //         console.log('item ', item);
@@ -767,8 +767,14 @@ router.get('/get_tza4', authenticate, (req, resp) => {
                             let _date = date.format(new Date(item.date_time), 'mm');
 
                             if (_date < 21) {
-                                sum += item.measure;
-                                local_cnt++;
+                                if (item.measure != undefined) {
+                                    sum += item.measure;
+                                    local_cnt++;
+
+                                }
+                                else {
+                                    sum += 0.0;
+                                }
 
 
                                 if (item.measure >= macs_one.max_m) {

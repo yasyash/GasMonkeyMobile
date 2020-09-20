@@ -169,7 +169,7 @@ class Tza4Report extends React.Component {
         //tza report
         if (isEmpty(state.dateReportBegin)) {
             if (!isEmpty(this.props.dateReportBegin)) {
-                params.period_from = this.props.dateReportBegin;
+                params.period_from = new Date(new Date(this.props.dateReportBegin).getFullYear(), new Date(this.props.dateReportBegin).getMonth(), 1, '0', '0').format('Y-MM-ddTHH:mm');
                 params.period_to = this.props.dateReportEnd;
             } else {
                 params.period_from = this.state.dateReportBegin;
