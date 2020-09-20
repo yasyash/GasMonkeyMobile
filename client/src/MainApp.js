@@ -11,7 +11,7 @@ class MainApp extends Component {
         return (
             <MuiThemeProvider>
 
-            < div className="container ">
+            < div className="container " style={{minWidth: '97%'}}>
                 <div >
                     <NavigationBar  auth ={auth}/>
                     <FlashMessagesList />

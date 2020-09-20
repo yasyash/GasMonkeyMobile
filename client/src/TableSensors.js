@@ -50,7 +50,7 @@ const FoldableTable = FoldableTableHOC(CheckboxTable);
 
 
 import shortid from 'shortid';
-import { filter } from 'ramda';
+//import { filter } from 'ramda';
 
 
 

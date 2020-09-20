@@ -310,71 +310,73 @@ class StatsForm extends React.Component {
             NW = 0, NWNL = 0, NWN = 0, NWNR = 0, SUM = dataList.length;
         if (_state) {
             dataList.forEach((item, indx) => {
-                if ((item.measure >= 0) && (item.measure <= 11.2))
+                let direction  =  Number.parseFloat(item.measure);
+
+                if ((direction>= 0) && (direction<= 11.2))
                     N++;
-                if ((item.measure > 11.2) && (item.measure <= 22.4))
+                if ((direction> 11.2) && (direction<= 22.4))
                     NNEL++;
-                if ((item.measure > 22.4) && (item.measure <= 33.6))
+                if ((direction> 22.4) && (direction<= 33.6))
                     NNE++;
-                if ((item.measure > 33.6) && (item.measure <= 44.8))
+                if ((direction> 33.6) && (direction<= 44.8))
                     NNER++;
-                if ((item.measure > 44.8) && (item.measure <= 56.2))
+                if ((direction> 44.8) && (direction<= 56.2))
                     NE++;
-                if ((item.measure > 56.2) && (item.measure <= 67.4))
+                if ((direction> 56.2) && (direction<= 67.4))
                     NEEL++;
-                if ((item.measure > 67.4) && (item.measure <= 78.6))
+                if ((direction> 67.4) && (direction<= 78.6))
                     NEE++;
-                if ((item.measure > 78.6) && (item.measure <= 89.8))
+                if ((direction> 78.6) && (direction<= 89.8))
                     NEER++;
-                if ((item.measure > 89.8) && (item.measure <= 101.2))
+                if ((direction> 89.8) && (direction<= 101.2))
                     E++;
-                if ((item.measure > 101.2) && (item.measure <= 112.4))
+                if ((direction> 101.2) && (direction<= 112.4))
                     ESEL++;
-                if ((item.measure > 112.4) && (item.measure <= 123.6))
+                if ((direction> 112.4) && (direction<= 123.6))
                     ESE++;
-                if ((item.measure > 123.6) && (item.measure <= 134.8))
+                if ((direction> 123.6) && (direction<= 134.8))
                     ESER++;
-                if ((item.measure > 134.8) && (item.measure <= 145.2))
+                if ((direction> 134.8) && (direction<= 145.2))
                     SE++;
-                if ((item.measure > 145.2) && (item.measure <= 156.4))
+                if ((direction> 145.2) && (direction<= 156.4))
                     SESL++;
-                if ((item.measure > 156.4) && (item.measure <= 167.6))
+                if ((direction> 156.4) && (direction<= 167.6))
                     SES++;
-                if ((item.measure > 167.6) && (item.measure <= 178.8))
+                if ((direction> 167.6) && (direction<= 178.8))
                     SESR++;
-                if ((item.measure > 178.8) && (item.measure <= 190.2))
+                if ((direction> 178.8) && (direction<= 190.2))
                     S++;
-                if ((item.measure > 190.2) && (item.measure <= 201.4))
+                if ((direction> 190.2) && (direction<= 201.4))
                     SSWL++;
-                if ((item.measure > 201.4) && (item.measure <= 212.6))
+                if ((direction> 201.4) && (direction<= 212.6))
                     SSW++;
-                if ((item.measure > 212.6) && (item.measure <= 223.8))
+                if ((direction> 212.6) && (direction<= 223.8))
                     SSWR++;
-                if ((item.measure > 223.8) && (item.measure <= 235.2))
+                if ((direction> 223.8) && (direction<= 235.2))
                     SW++;
-                if ((item.measure > 235.2) && (item.measure <= 246.4))
+                if ((direction> 235.2) && (direction<= 246.4))
                     SWWL++;
-                if ((item.measure > 246.4) && (item.measure <= 257.6))
+                if ((direction> 246.4) && (direction<= 257.6))
                     SWW++;
-                if ((item.measure > 257.6) && (item.measure <= 268.8))
+                if ((direction> 257.6) && (direction<= 268.8))
                     SWWR++;
-                if ((item.measure > 268.8) && (item.measure <= 280.2))
+                if ((direction> 268.8) && (direction<= 280.2))
                     W++;
-                if ((item.measure > 280.2) && (item.measure <= 291.4))
+                if ((direction> 280.2) && (direction<= 291.4))
                     WNWL++;
-                if ((item.measure > 291.4) && (item.measure <= 302.6))
+                if ((direction> 291.4) && (direction<= 302.6))
                     WNW++;
-                if ((item.measure > 302.6) && (item.measure <= 313.8))
+                if ((direction> 302.6) && (direction<= 313.8))
                     WNWR++;
-                if ((item.measure > 313.8) && (item.measure <= 325.2))
+                if ((direction> 313.8) && (direction<= 325.2))
                     NW++;
-                if ((item.measure > 325.2) && (item.measure <= 336.4))
+                if ((direction> 325.2) && (direction<= 336.4))
                     NWNL++;
-                if ((item.measure > 336.4) && (item.measure <= 347.6))
+                if ((direction> 336.4) && (direction<= 347.6))
                     NWN++;
-                if ((item.measure > 347.6) && (item.measure <= 358.8))
+                if ((direction> 347.6) && (direction<= 358.8))
                     NWNR++;
-                if ((item.measure > 358.8) && (item.measure <= 360))
+                if ((direction> 358.8) && (direction<= 360))
                     N++;
 
             })
