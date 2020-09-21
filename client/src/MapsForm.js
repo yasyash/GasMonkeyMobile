@@ -254,14 +254,18 @@ class MapsForm extends React.Component {
                                 sum += _item.measure;
                             });
                             let avrg = (sum / dir_wind.length) * Math.PI / 180;
-                            let arr_hi = (180 - sum / dir_wind.length - 20) * Math.PI / 180;
-                            let arr_low = (-90 + sum / dir_wind.length - 20) * Math.PI / 180;
+
+
+                            let arr_hi = Math.PI + avrg + 0.175;
+                            let arr_low = Math.PI + avrg - 0.175;
+
                             let line = [
                                 [item.latitude, item.longitude],
-                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004, item.longitude + Math.cos(Math.PI - avrg) * 0.004],
-                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004 - Math.cos(arr_low) * 0.0012, item.longitude + Math.cos(Math.PI - avrg) * 0.004 - Math.sin(arr_low) * 0.0012],
-                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004, item.longitude + Math.cos(Math.PI - avrg) * 0.004],
-                                [item.latitude + Math.sin(Math.PI - avrg) * 0.004 - Math.sin(arr_hi) * 0.0012, item.longitude + Math.cos(Math.PI - avrg) * 0.004 - Math.cos(arr_hi) * 0.0012]];
+                                [item.latitude + Math.cos(Math.PI + avrg) * 0.004, item.longitude + Math.sin(Math.PI + avrg) * 0.004],
+                                [item.latitude + Math.cos(Math.PI + avrg) * 0.004 - Math.cos(arr_low) * 0.0012, item.longitude + Math.sin(Math.PI + avrg) * 0.004 - Math.sin(arr_low) * 0.0012],
+                                [item.latitude + Math.cos(Math.PI + avrg) * 0.004, item.longitude + Math.sin(Math.PI + avrg) * 0.004],
+                                [item.latitude + Math.cos(Math.PI + avrg) * 0.004 - Math.cos(arr_hi) * 0.0012, item.longitude + Math.sin(Math.PI + avrg) * 0.004 - Math.sin(arr_hi) * 0.0012],
+                            ];
 
                             L.polyline(line, { color: 'red', weight: 1 }).addTo(lmap);
 
@@ -275,7 +279,7 @@ class MapsForm extends React.Component {
                                 sum += _item.measure;
                             });
                             popupContent += "Атм. давление: " + (sum / bar.length).toFixed(0) + " мм.рт.ст.<br/>";
-                            
+
                             let temp = dataList.filter((item, i, arr) => {
                                 return item.typemeasure == 'Темп. внешняя';
                             });
