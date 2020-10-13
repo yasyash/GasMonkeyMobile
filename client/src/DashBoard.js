@@ -226,7 +226,7 @@ class DashBoard extends Component {
 
                   _data.map((opt, j) => {
 
-                    measure += opt.measure;
+                    measure += Number(opt.measure);
 
                   });
 
@@ -237,7 +237,7 @@ class DashBoard extends Component {
                   dataSumList.push({
                     'id': _data[_data.length - 1].id, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
                     'date_time': _data[_data.length - 1].date_time, 'unit_name': _data[_data.length - 1].unit_name, 'measure': measure / _data.length,
-                    'is_alert': ((measure / _data.length > _macs.max_m) ? true : false)
+                    'is_alert': ((measure / _data.length > Number(_macs.max_m)) ? true : false)
                   });
                 }
               }
