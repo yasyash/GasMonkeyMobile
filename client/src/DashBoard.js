@@ -217,25 +217,27 @@ class DashBoard extends Component {
               var _measure = 0;
 
               if (dataList.length > 0) {
-                let _data = dataList.filter((opt, k, arr) => {
+                var _data = dataList.filter((opt, k, arr) => {
                   return ((opt.serialnum == element.serialnum));
                 })
+
+
+                _data.map((opt, j) => {
+
+                  measure += opt.measure;
+
+                });
+
+                let _macs = macsList.filter((opt, k, arr) => {
+                  return ((opt.chemical == element.typemeasure));
+                })
+
+                dataSumList.push({
+                  'id': _data[_data.length - 1].id, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
+                  'date_time': _data[_data.length - 1].date_time, 'unit_name': _data[_data.length - 1].unit_name, 'measure': measure / _data.length,
+                  'is_alert': ((measure / _data.length > _macs.max_m) ? true : false)
+                });
               }
-
-              _data.map((opt, j) => {
-               
-                measure += opt.measure;
-
-              });
-              
-              let _macs = macsList.filter((opt, k, arr) => {
-                return ((opt.chemical == element.typemeasure));
-              })
-
-              dataSumList.push({'id': _data[_data.length-1].id, 'typemeasure': _data[_data.length-1].typemeasure, 'serialnum': _data[_data.length-1].serialnum,
-              'date_time': _data[_data.length-1].date_time, 'unit_name': _data[_data.length-1].unit_name, 'measure': measure/_data.length, 
-              'is_alert':  ((measure/_data.length > _macs.max_m) ? true : false)});
-
             })
 
             this.setState({
