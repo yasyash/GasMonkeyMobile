@@ -222,12 +222,14 @@ class DashBoard extends Component {
                 })
 
 
-                _data.map((opt, j) => {
-
-                  measure += opt.measure;
-
-                });
                 if (_data.length > 0) {
+
+                  _data.map((opt, j) => {
+
+                    measure += opt.measure;
+
+                  });
+
                   let _macs = macsList.filter((opt, k, arr) => {
                     return ((opt.chemical == element.typemeasure));
                   })
