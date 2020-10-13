@@ -227,16 +227,17 @@ class DashBoard extends Component {
                   measure += opt.measure;
 
                 });
+                if (_data.length > 0) {
+                  let _macs = macsList.filter((opt, k, arr) => {
+                    return ((opt.chemical == element.typemeasure));
+                  })
 
-                let _macs = macsList.filter((opt, k, arr) => {
-                  return ((opt.chemical == element.typemeasure));
-                })
-
-                dataSumList.push({
-                  'id': _data[_data.length - 1].id, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
-                  'date_time': _data[_data.length - 1].date_time, 'unit_name': _data[_data.length - 1].unit_name, 'measure': measure / _data.length,
-                  'is_alert': ((measure / _data.length > _macs.max_m) ? true : false)
-                });
+                  dataSumList.push({
+                    'id': _data[_data.length - 1].id, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
+                    'date_time': _data[_data.length - 1].date_time, 'unit_name': _data[_data.length - 1].unit_name, 'measure': measure / _data.length,
+                    'is_alert': ((measure / _data.length > _macs.max_m) ? true : false)
+                  });
+                }
               }
             })
 
