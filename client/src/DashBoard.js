@@ -53,6 +53,7 @@ import * as _materialDashboardReact from "material-dashboard-react/assets/jss/ma
 
 import { queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
+import { filter } from 'ramda';
 //import auth from './reducers/auth';
 
 
@@ -117,7 +118,8 @@ class DashBoard extends Component {
       anchorEl: null,
       mobileOpen: true,
       door_alert: [],
-      fire_alert: []
+      fire_alert: [],
+      dataSumList: []
 
 
     }
@@ -175,16 +177,15 @@ class DashBoard extends Component {
             var door_alert = [];
             var fire_alert = [];
             let { stationsList } = this.state;
+            var dataSumList = [];
             today -= 600000;
 
             stationsList.map((_item, _ind) => {
               var door_alert_tmp = [];
               var fire_alert_tmp = [];
+
               dataList.map((item, ind) => {
                 if (_item.id == item.id) {
-
-
-
                   if (item.typemeasure.includes('Дверь')) {
                     item.is_alert ? _door_alert = true : _door_alert = false
                     let obj = {};
@@ -202,14 +203,43 @@ class DashBoard extends Component {
 
                 }
               });
-              if (fire_alert_tmp.length >0)
-              fire_alert.push(fire_alert_tmp[0]);
-              if (door_alert_tmp.length >0)
-              door_alert.push(door_alert_tmp[0]);
+
+
+              if (fire_alert_tmp.length > 0)
+                fire_alert.push(fire_alert_tmp[0]);
+              if (door_alert_tmp.length > 0)
+                door_alert.push(door_alert_tmp[0]);
             });
 
+            //20 min averaging 
+
+            sensorsList.map((element, j) => {
+              var _measure = 0;
+
+              if (dataList.length > 0) {
+                let _data = dataList.filter((opt, k, arr) => {
+                  return ((opt.serialnum == element.serialnum));
+                })
+              }
+
+              _data.map((opt, j) => {
+               
+                measure += opt.measure;
+
+              });
+              
+              let _macs = macsList.filter((opt, k, arr) => {
+                return ((opt.chemical == element.typemeasure));
+              })
+
+              dataSumList.push({'id': _data[_data.length-1].id, 'typemeasure': _data[_data.length-1].typemeasure, 'serialnum': _data[_data.length-1].serialnum,
+              'date_time': _data[_data.length-1].date_time, 'unit_name': _data[_data.length-1].unit_name, 'measure': measure/_data.length, 
+              'is_alert':  ((measure/_data.length > _macs.max_m) ? true : false)});
+
+            })
+
             this.setState({
-              dataList, sensorsList, macsList, alertsList, systemList,
+              dataList, dataSumList, sensorsList, macsList, alertsList, systemList,
               dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
               dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
               door_alert,
@@ -239,7 +269,7 @@ class DashBoard extends Component {
     const { username, is_admin } = this.props;
 
     const { classes, systemList } = this.props;
-    const { stationsList, macsList, dataList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert } = this.state;
+    const { stationsList, macsList, dataList, dataSumList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert } = this.state;
     var tabs = [];
     var filter = '';
     var measure = 0;
@@ -249,7 +279,7 @@ class DashBoard extends Component {
 
     if (is_admin) {
       if (stationsList) {// if not empty
-        
+
         stationsList.map((item, i) => (
 
           door_alert_filter = door_alert.filter((_itm, _in, arr) => {
@@ -266,8 +296,8 @@ class DashBoard extends Component {
               < GridContainer style={{ padding: "2px" }} >
                 {(macsList) &&
                   macsList.map((element, j) => (
-                    (dataList.length > 0) &&
-                    (filter = dataList.filter((opt, k, arr) => {
+                    (dataSumList.length > 0) &&
+                    (filter = dataSumList.filter((opt, k, arr) => {
                       return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
                     })),
                     ((filter.length > 0) && (measure = filter[filter.length - 1].measure)),
@@ -297,10 +327,10 @@ class DashBoard extends Component {
                 <hr style={{ width: "80%", size: "1" }} />
 
                 {(dataList) &&
-                  
-                    ((filter = dataList.filter((opt, k, arr) => {
-                      return ((opt.typemeasure == 'Напряжение мин.') && (opt.id == item.id));
-                    }), ((filter.length > 0) && (voltage = filter[filter.length - 1])),
+
+                  ((filter = dataList.filter((opt, k, arr) => {
+                    return ((opt.typemeasure == 'Напряжение мин.') && (opt.id == item.id));
+                  }), ((filter.length > 0) && (voltage = filter[filter.length - 1])),
                     (voltage) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_Voltage_min' + item.id}>
                       <Card>
                         <CardHeader stats icon >
@@ -324,12 +354,12 @@ class DashBoard extends Component {
 
 
                   ))}
-                  {(dataList) &&
-                  
-                    ((filter = dataList.filter((opt, k, arr) => {
-                      return ((opt.typemeasure == 'Напряжение макс.') && (opt.id == item.id));
-                    }), ((filter.length > 0) && (voltage = filter[filter.length - 1])),
-                    (voltage) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_Voltage_max'+item.id}>
+                {(dataList) &&
+
+                  ((filter = dataList.filter((opt, k, arr) => {
+                    return ((opt.typemeasure == 'Напряжение макс.') && (opt.id == item.id));
+                  }), ((filter.length > 0) && (voltage = filter[filter.length - 1])),
+                    (voltage) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_Voltage_max' + item.id}>
                       <Card>
                         <CardHeader stats icon >
                           <CardIcon color={voltage.is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
@@ -355,10 +385,10 @@ class DashBoard extends Component {
                 {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_door'}>
                   <Card>
                     <CardHeader stats icon >
-                      <CardIcon color={((door_alert_filter.length >0) &&(door_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
+                      <CardIcon color={((door_alert_filter.length > 0) && (door_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
                         <Build />
                       </CardIcon>
-                      <p className={classes.cardCategory}>{((door_alert_filter.length >0) &&(door_alert_filter) )? "Взлом" : "Норма"}</p>
+                      <p className={classes.cardCategory}>{((door_alert_filter.length > 0) && (door_alert_filter)) ? "Взлом" : "Норма"}</p>
 
 
                       <h6 className={classes.cardTitle}>Датчик двери</h6>
@@ -376,10 +406,10 @@ class DashBoard extends Component {
                 {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_fire'}>
                   <Card>
                     <CardHeader stats icon >
-                      <CardIcon color={((fire_alert_filter.length >0) &&(fire_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
+                      <CardIcon color={((fire_alert_filter.length > 0) && (fire_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
                         <Build />
                       </CardIcon>
-                      <p className={classes.cardCategory}>{((fire_alert_filter.length >0) &&(fire_alert_filter)) ? "Тревога" : "Норма"}</p>
+                      <p className={classes.cardCategory}>{((fire_alert_filter.length > 0) && (fire_alert_filter)) ? "Тревога" : "Норма"}</p>
 
 
                       <h6 className={classes.cardTitle}>Сигнал пожара</h6>

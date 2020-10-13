@@ -45,6 +45,8 @@ import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
 import pinAlert from './pin-alert.png';
 
+
+
 const pngs = require.context('../../tiles', true, /\.png$/);
 //const pinAlert = require.context('./', true, /\.svg$/);
 //const keys = pngs.keys();
@@ -151,6 +153,8 @@ class MapsForm extends React.Component {
     }
 
     componentDidMount() {
+
+     
         const { stationsList } = this.props;
         let params = {};
         this.props.queryEvent(params).then(data => {
@@ -318,7 +322,7 @@ class MapsForm extends React.Component {
         const { sensorsList } = this.props;
         const { tab_no } = this.state;
 
-
+        
 
         return (
 
@@ -334,6 +338,21 @@ class MapsForm extends React.Component {
 
                     </Tab>
 
+                    <Tab label="TEST" >
+                        <div id='container1'>
+                        <x3d width='500px' height='300px'>
+            <scene>
+                <shape id="someId">
+                    <appearance>
+                        <material id='color' diffusecolor={ '1 0 0' }> </material>
+                    </appearance>
+                    <box></box>
+                </shape>
+            </scene>
+        </x3d>
+                        </div>
+
+                    </Tab>
                 </Tabs>
 
             </Paper >
