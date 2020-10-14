@@ -632,7 +632,7 @@ export function queryAllDataOperativeEvent(paramstr) {
                         });
                     });
 
-                    var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115, 200, 404, 500]; //all type error
+                    var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115, 120, 200, 404, 500]; //all type error
 
                     iterator.forEach((i, _ind) => {
 

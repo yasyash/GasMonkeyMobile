@@ -239,6 +239,7 @@ class DashBoard extends Component {
                     'date_time': _data[_data.length - 1].date_time, 'unit_name': _data[_data.length - 1].unit_name, 'measure': _measure / _data.length,
                     'is_alert': ((_measure / _data.length > Number(_macs.max_m)) ? true : false)
                   });
+                  
                 }
               }
             })
