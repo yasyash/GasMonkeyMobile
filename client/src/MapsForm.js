@@ -182,6 +182,7 @@ class MapsForm extends React.Component {
                         let rows_measure = [];
                         let popupContent = "";
                         let class_css = 'alert_success';
+                        let _alert = false;
 
                         macsList.forEach((element, indx) => {
                             let filter = dataList.filter((item, i, arr) => {
@@ -202,13 +203,19 @@ class MapsForm extends React.Component {
                                 range_macs = quotient / element.max_m;
                                 class_css = 'alert_success';
 
-                                if (range_macs > 1)
+                                if (range_macs > 1){
                                     class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
-                                if (range_macs >= 5)
+                                    _alert = true;
+                                }
+                                if (range_macs >= 5){
                                     class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
-                                if (range_macs >= 10)
-                                    class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
+                                    _alert = true;
 
+                                }
+                                if (range_macs >= 10){
+                                    class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
+                                    _alert = true;
+                                }
 
                                 rows_measure.push({
                                     'chemical': element.chemical + ', мг/м.куб.', 'macs': element.max_m,
@@ -228,7 +235,7 @@ class MapsForm extends React.Component {
                             };
                         });
 
-                        if (class_css == 'alert_success') {
+                        if (!_alert) {
                             let _Icon = L.icon({
                                 iconUrl: markerPin,
                                 shadowUrl: markerShadow
