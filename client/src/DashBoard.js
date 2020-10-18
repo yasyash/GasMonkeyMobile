@@ -233,13 +233,18 @@ class DashBoard extends Component {
                   let _macs = macsList.filter((opt, k, arr) => {
                     return ((opt.chemical == element.typemeasure));
                   })
+                  if (_macs.length > 0) {
+                    var max_m = _macs[0].max_m;
+                  } else {
+                    var max_m = 0;
+                  }
 
                   dataSumList.push({
                     'id': _data[_data.length - 1].id, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
                     'date_time': _data[_data.length - 1].date_time, 'unit_name': _data[_data.length - 1].unit_name, 'measure': _measure / _data.length,
-                    'is_alert': ((_measure / _data.length > Number(_macs[0].max_m)) ? true : false)
+                    'is_alert': ((_measure / _data.length > Number(max_m)) ? true : false)
                   });
-                  
+
                 }
               }
             })
