@@ -46,7 +46,7 @@ class SignupForm extends React.Component {
                 let invaliduser = this.state.invaliduser;
                 let invalidemail = this.state.invalidemail;
                 
-                if (resp.data.user) {
+                if (resp.data.user.length > 0) {
 
                     if (field === 'username') {
                         errors[field] = 'Пользователь с данным именем уже существует...';

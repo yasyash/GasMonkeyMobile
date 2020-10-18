@@ -12,11 +12,12 @@ function validateInput(data, otherValidations) {
 
 
     let { errors } = otherValidations(data);
+    console.log(' validation = ', data );
 
     return User.query({
         where: { email: data.email },
         orWhere: { username: data.username }
-    }).fetch().then(user => {
+    }).fetchAll().then(user => {
         if (user) {
             if (user.get('username') === data.username) { errors.username = 'Пользователь с данным именем уже существует...'; }
             if (user.get('email') === data.email) { errors.email = 'Пользователь с данным email уже существует...'; }
@@ -34,7 +35,7 @@ router.get('/:identifier', (req, resp) => {
         select: ['username', 'email'],
         where: { username: req.params.identifier },
         orWhere: { email: req.params.identifier }
-    }).fetch().then(user => {
+    }).fetchAll().then(user => {
         resp.json({user});
     })
 });
