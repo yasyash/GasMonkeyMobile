@@ -50,7 +50,7 @@ function cron_email() {
 
 
                                     LOGS.query('where', 'date_time', '>', _time)
-                                        .orderBy('date_time', 'ASC').fetchAll().then(
+                                        .orderBy('date_time', 'DESC').fetchAll().then(
                                             resp => {
                                                 let resp_str = JSON.parse(JSON.stringify(resp));
 
@@ -92,7 +92,7 @@ function cron_email() {
                                                                         return ((_equipment.idd == _item.idd));
                                                                     });
                                                                     var namestation = _station[0].namestation;
-                                                                    
+
                                                                     var _element = logs_list[logs_list.length - 1];
                                                                     //console.log('ELEMENT = ', _element);
                                                                     switch (i) { // type of alert
