@@ -76,7 +76,7 @@ function cron_email() {
 
                                                         //resp_str.forEach(element => {
                                                         //  if (last_time < element.date_time)
-                                                        var last_time = resp_str[resp_str.length - 1].date_time;
+                                                        var last_time = resp_str[0].date_time;
                                                         //});
                                                         equipments.forEach(_equipment => {
                                                             var iterator = [100, 101, 102, 110, 111, 120]; // types error
