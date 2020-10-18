@@ -88,9 +88,11 @@ function cron_email() {
                                                                 });
                                                                 // console.log('logs _ list lenght = ', logs_list.length);
                                                                 if (logs_list.length > 0) {
-                                                                    var namestation = stations.filter((_item, _i, arr) => {
+                                                                    var _station = stations.filter((_item, _i, arr) => {
                                                                         return ((_equipment.idd == _item.idd));
                                                                     });
+                                                                    var namestation = _station[0].namestation;
+                                                                    
                                                                     var _element = logs_list[logs_list.length - 1];
                                                                     //console.log('ELEMENT = ', _element);
                                                                     switch (i) { // type of alert
