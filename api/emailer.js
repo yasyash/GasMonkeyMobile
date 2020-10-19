@@ -92,7 +92,7 @@ function cron_email() {
                                                                     });
                                                                     var namestation = _station[0].namestation;
 
-                                                                    var _element = logs_list[logs_list.length - 1];
+                                                                    var _element = logs_list[0];
                                                                     //console.log('ELEMENT = ', _element);
                                                                     switch (i) { // type of alert
                                                                         case 100:
