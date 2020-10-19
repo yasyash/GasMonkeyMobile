@@ -76,7 +76,6 @@ function cron_email() {
 
                                                         //resp_str.forEach(element => {
                                                         //  if (last_time < element.date_time)
-                                                        var last_time = resp_str[0].date_time;
                                                         //});
                                                         equipments.forEach(_equipment => {
                                                             var iterator = [100, 101, 102, 110, 111, 120]; // types error
@@ -138,9 +137,10 @@ function cron_email() {
                                                             });
                                                         });
                                                         //console.log('Time is : ', last_time);
+                                                        var last_time = new Date().format('Y-MM-dd HH:mm:SS');
 
                                                         CRON.where({ id: 0 }).save({
-                                                            date_time: new Date(last_time).format('Y-MM-dd HH:mm:SS')
+                                                            date_time: last_time
                                                         }, { patch: true }).catch(err => {
                                                             console.log('SQL update CRON table issue: ', err);
                                                         });
