@@ -49,7 +49,7 @@ function cron_email() {
                                     var _address = result_str[0].address;
 
                                     //console.log('TIME = ', _time);
-                                    LOGS.query('where', 'date_time', '>', _time).orderBy('date_time', 'ASC').fetchAll()
+                                    LOGS.query('where', 'date_time', '>', _time).orderBy('date_time', 'DESC').fetchAll()
                                         .then(resp => {
                                             let resp_str = JSON.parse(JSON.stringify(resp));
                                             //console.log('RESPONSE = ', resp_str);
