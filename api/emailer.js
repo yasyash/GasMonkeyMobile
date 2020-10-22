@@ -83,7 +83,7 @@ function cron_email() {
                                                         iterator.forEach((i, _ind) => {
 
                                                             var logs_list = resp_str.filter((item, _i, arr) => {
-                                                                return ((item.type == i) && (_equipment.serialnum == item.id));
+                                                                return ((item.type == i) && (_equipment.serialnum == item.idd));
                                                             });
                                                             //console.log('logs _ list lenght = ', logs_list.length);
                                                             if (logs_list.length > 0) {
