@@ -48,105 +48,107 @@ function cron_email() {
                                     var _passwordmailer = result_str[0].password;
                                     var _address = result_str[0].address;
 
-
-                                    LOGS.query('where', 'date_time', '>', _time)
-                                        .orderBy('date_time', 'DESC').fetchAll().then(
-                                            resp => {
-                                                let resp_str = JSON.parse(JSON.stringify(resp));
-
-                                                if (resp_str.length > 0) {
-                                                    users.forEach(_user => {
-
-                                                        var transporter = nodemailer.createTransport({
-                                                            host: _address, //smtp server
-                                                            port: _port,
-                                                            secure: false, // true for 465, false for other ports
-                                                            auth: {
-                                                                user: _usermailer, // generated ethereal user
-                                                                pass: _passwordmailer // generated ethereal password
-                                                            },
-                                                            tls: {
-                                                                // do not fail on invalid certs
-                                                                rejectUnauthorized: false
-                                                            },
-
-                                                        });
-                                                        // var last_time = _time;//resp_str[resp_str.lenght -1].date_time
-                                                        //console.log('RESPONSE = ', resp_str);
-
-                                                        //resp_str.forEach(element => {
-                                                        //  if (last_time < element.date_time)
-                                                        //});
-                                                        equipments.forEach(_equipment => {
-                                                            var iterator = [100, 101, 102, 110, 111, 120]; // types error
-
-                                                            iterator.forEach((i, _ind) => {
-
-                                                                var logs_list = resp_str.filter((item, _i, arr) => {
-                                                                    return ((item.type == i) && (_equipment.serialnum == item.id));
-                                                                });
-                                                                // console.log('logs _ list lenght = ', logs_list.length);
-                                                                if (logs_list.length > 0) {
-                                                                    var _station = stations.filter((_item, _i, arr) => {
-                                                                        return ((_equipment.idd == _item.idd));
-                                                                    });
-                                                                    var namestation = _station[0].namestation;
-
-                                                                    var _element = logs_list[0];
-                                                                    //console.log('ELEMENT = ', _element);
-                                                                    switch (i) { // type of alert
-                                                                        case 100:
-                                                                            //chemical alert - concentration exceeds 5 times less
-                                                                            try_email(transporter, _element, _user.email, namestation);
+                                    //console.log('TIME = ', _time);
+                                    LOGS.query('where', 'date_time', '>', _time).orderBy('date_time', 'ASC').fetchAll()
+                                        .then(resp => {
+                                            let resp_str = JSON.parse(JSON.stringify(resp));
+                                            //console.log('RESPONSE = ', resp_str);
+                                            if (resp_str.length > 0) {
+                                                users.forEach(_user => {
 
 
-                                                                            break;
-                                                                        case 101:
-                                                                            //chemical alert - concentration exceeds between 5 to 10 times 
+                                                    var transporter = nodemailer.createTransport({
+                                                        host: _address, //smtp server
+                                                        port: _port,
+                                                        secure: false, // true for 465, false for other ports
+                                                        auth: {
+                                                            user: _usermailer, // generated ethereal user
+                                                            pass: _passwordmailer // generated ethereal password
+                                                        },
+                                                        tls: {
+                                                            // do not fail on invalid certs
+                                                            rejectUnauthorized: false
+                                                        },
 
-                                                                            try_email(transporter, _element, _user.email, namestation);
+                                                    });
+                                                    // var last_time = _time;//resp_str[resp_str.lenght -1].date_time
 
-                                                                            break;
 
-                                                                        case 102:
-                                                                            // chemical alert - concentration exceeds more than 10 times 
+                                                    //resp_str.forEach(element => {
+                                                    //  if (last_time < element.date_time)
+                                                    //});
+                                                    equipments.forEach(_equipment => {
+                                                        var iterator = [100, 101, 102, 110, 111, 120]; // types error
 
-                                                                            try_email(transporter, _element, _user.email, namestation);
+                                                        iterator.forEach((i, _ind) => {
 
-                                                                            break;
-
-                                                                        case 110:
-                                                                            try_email(transporter, _element, _user.email, namestation); //door alrm
-
-                                                                            break;
-                                                                        case 111:
-                                                                            try_email(transporter, _element, _user.email, namestation); //fire alarm
-
-                                                                            break;
-
-                                                                        case 120:
-                                                                            try_email(transporter, _element, _user.email, namestation); //internal temp. alarm
-
-                                                                            break;
-
-                                                                        default:
-
-                                                                            break;
-                                                                    }
-                                                                }
+                                                            var logs_list = resp_str.filter((item, _i, arr) => {
+                                                                return ((item.type == i) && (_equipment.serialnum == item.id));
                                                             });
-                                                        });
-                                                        //console.log('Time is : ', last_time);
-                                                        var last_time = new Date().format('Y-MM-dd HH:mm:SS');
+                                                            //console.log('logs _ list lenght = ', logs_list.length);
+                                                            if (logs_list.length > 0) {
+                                                                var _station = stations.filter((_item, _i, arr) => {
+                                                                    return ((_equipment.idd == _item.idd));
+                                                                });
+                                                                var namestation = _station[0].namestation;
 
-                                                        CRON.where({ id: 0 }).save({
-                                                            date_time: last_time
-                                                        }, { patch: true }).catch(err => {
-                                                            console.log('SQL update CRON table issue: ', err);
+                                                                console.log('logs_list = ', logs_list);
+
+                                                                var _element = logs_list[0];
+
+                                                                switch (i) { // type of alert
+                                                                    case 100:
+                                                                        //chemical alert - concentration exceeds 5 times less
+                                                                        try_email(transporter, _element, _user.email, namestation);
+
+
+                                                                        break;
+                                                                    case 101:
+                                                                        //chemical alert - concentration exceeds between 5 to 10 times 
+
+                                                                        try_email(transporter, _element, _user.email, namestation);
+
+                                                                        break;
+
+                                                                    case 102:
+                                                                        // chemical alert - concentration exceeds more than 10 times 
+
+                                                                        try_email(transporter, _element, _user.email, namestation);
+
+                                                                        break;
+
+                                                                    case 110:
+                                                                        try_email(transporter, _element, _user.email, namestation); //door alrm
+
+                                                                        break;
+                                                                    case 111:
+                                                                        try_email(transporter, _element, _user.email, namestation); //fire alarm
+
+                                                                        break;
+
+                                                                    case 120:
+                                                                        try_email(transporter, _element, _user.email, namestation); //internal temp. alarm
+
+                                                                        break;
+
+                                                                    default:
+
+                                                                        break;
+                                                                }
+                                                            }
                                                         });
                                                     });
-                                                }
+                                                    //console.log('Time is : ', last_time);
+                                                    var last_time = new Date().format('Y-MM-dd HH:mm:SS');
+
+                                                    CRON.where({ id: 0 }).save({
+                                                        date_time: last_time
+                                                    }, { patch: true }).catch(err => {
+                                                        console.log('SQL update CRON table issue: ', err);
+                                                    });
+                                                });
                                             }
+                                        }
                                         )
                                 });
                         });

@@ -631,7 +631,6 @@ export function queryAllDataOperativeEvent(paramstr) {
                             is_wind_sensor: element.is_wind_sensor,
                         });
                     });
-
                     var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115, 120, 200, 404, 500]; //all type error
 
                     iterator.forEach((i, _ind) => {
@@ -643,9 +642,10 @@ export function queryAllDataOperativeEvent(paramstr) {
                         logs_list.forEach((element, indx) => {
                             if ((Number(element.type) >= 100) && (Number(element.type) <= 115)) {
                                 alertsTable.push({
-                                    date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                    date_time: new Date(element.date_time).format('Y-MM-dd HH:mm:SS'),
                                     type: element.type,
-                                    descr: element.descr
+                                    descr: element.descr,
+                                    id: element.idd
                                 });
                             }
 

@@ -44,6 +44,7 @@ import Divider from '@material-ui/core/Divider';
 
 import isEmpty from 'lodash.isempty';
 
+import moment from 'moment';
 //import Sidebar from 'material-dashboard-react/components/Sidebar/Sidebar';
 //import appRoutes from 'material-dashboard-react/routes/index';
 
@@ -119,7 +120,8 @@ class DashBoard extends Component {
       mobileOpen: true,
       door_alert: [],
       fire_alert: [],
-      dataSumList: []
+      dataSumList: [],
+      time_frame: []
 
 
     }
@@ -249,8 +251,67 @@ class DashBoard extends Component {
               }
             })
 
+            //packing alerts
+            //console.log('Date = ', alertsList);
+
+            var _time_frame = [];
+            var _date = new Date().format('Y-MM-dd');
+            var _array = [];
+            var _indx = [];
+            var _compressed = [];
+
+            for (var h = 23; h > -1; h--) {
+              for (var m = 59; m > -1; m -= 20) {
+
+
+                _time_frame.push(_date + ' ' + h.toString() + ':' + m.toString() + ':00');
+
+              };
+            };
+            _time_frame.push(_date + ' 00:00:00');
+
+
+
+            for (var _j = 1; _j < _time_frame.length; _j++) {
+              let _pack = alertsList.filter((_alerts, _i) => {
+
+
+                return ((new Date(_alerts.date_time) < new Date(_time_frame[_j - 1])) && (new Date(_alerts.date_time) > new Date(_time_frame[_j])))
+
+              })
+
+
+              if (_pack.length > 0)
+                var _flag = 0;
+              while (_flag < _pack.length) {
+                _indx = [];
+                _pack.map((_test, _i) => {
+                  if ((_test.type == _pack[_flag].type) && (_test.id == _pack[_flag].id))
+                    _indx.push(_i);
+                })
+                _array = [];
+
+                if (_indx.length > 1) {
+                  _array = [..._pack.slice(0, _indx[0] + 1)];
+                  for (var _cnt = _indx[0] + 1; _cnt < _pack.length; _cnt++) {
+                    if (_indx.indexOf(_cnt) == -1)
+                      _array.push(_pack[_cnt]);
+
+                  }
+                  _pack = [];
+                  Object.assign(_pack, _array);
+                }
+                _flag++;
+              }
+              // _array.push([..._pack]);
+
+              if (_pack.length > 0)
+                _compressed = [..._compressed, ..._pack];
+            };
+
+
             this.setState({
-              dataList, dataSumList, sensorsList, macsList, alertsList, systemList,
+              dataList, dataSumList, sensorsList, macsList, 'alertsList': _compressed, systemList,
               dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
               dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
               door_alert,
