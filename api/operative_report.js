@@ -466,7 +466,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
                         'chemical': element.chemical,
                         'value': quotient.toFixed(3), 
-                        'counts': frame_count,
+                        'counts': frame_count*72,
                         //'min': min, 'min_time': min_time,
                         'max': max, 'max_time': max_time,
                         'min_sum': min_sum, 'min_time_sum': min_time_sum,
