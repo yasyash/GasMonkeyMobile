@@ -428,8 +428,8 @@ class MenuChart extends Component {
                                 />}
 
 
-                            {(checkedMeteo) && <Tooltip id="tooltip-charts-rangeMg" title="Отображение в мг/м3">
-                                <span className={classes.icon}>в  мг/м3</span>
+                            {(checkedMeteo) && <Tooltip id="tooltip-charts-rangeMg" title="Отображение в абсолютных величинах">
+                                <span className={classes.icon}>абослютные</span>
                             </Tooltip>}
 
 

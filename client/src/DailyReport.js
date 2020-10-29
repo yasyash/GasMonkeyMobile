@@ -248,6 +248,7 @@ class DailyReport extends React.Component {
                         });
                         let sum_all = 0;
                         let counter = 0;
+                        let frame_count = 0;
                         let class_css;
                         let quotient = 0;
                         let range_macs = 0; // range of macs surplus
@@ -328,188 +329,191 @@ class DailyReport extends React.Component {
                                     dt[element.chemical] = 0;
                                     data_raw[ind] = dt;
                                 };
-
+                                if (local_cnt > 0) {
+                                    frame_count++
+                                
+                            }
 
                             });
 
-                            quotient = (sum_all / counter);
-                            range_macs = quotient / element.max_d;
-                            class_css = 'alert_success';
-                            times++;
+                quotient = (sum_all / counter);
+                range_macs = quotient / element.max_d;
+                class_css = 'alert_success';
+                times++;
 
-                            if (range_macs > 1)
-                                class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
-                            if (range_macs >= 5)
-                                class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
-                            if (range_macs >= 10)
-                                class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
-
-
-                            if (chemical_classes[element.chemical] == 1) //coefficients for class dangerous
-                                coefficient = 1.7;
-                            if (chemical_classes[element.chemical] == 2)
-                                coefficient = 1.3;
-                            if (chemical_classes[element.chemical] == 3)
-                                coefficient = 1.0;
-                            if (chemical_classes[element.chemical] == 4)
-                                coefficient = 0.9;
-
-                            avrg_measure.push({
-
-                                'chemical': element.chemical,
-                                'value': quotient.toFixed(3),
-                                'counts': counter,
-                                'min': min, 'min_time': min_time,
-                                'max': max, 'max_time': max_time,
-                                'counter_macs1': counter_macs1,
-                                'counter_macs5': counter_macs5,
-                                'counter_macs10': counter_macs10,
-                                's_index': Number(max / element.max_m).toFixed(1),
-                                'gre_repeatably': Number(sum_alert / counter * 100).toFixed(2),
-                                'pollut_ind': Number(quotient / element.max_d * coefficient).toFixed(1),
-                                'className': class_css
-                            })
-                        };
-
-                    };
-                });
-                let name
-                let chemical = [];
-                let value = [];
-                let counts = [];
-                let min = [];
-                let min_time = []
-                let max = [];
-                let max_time = [];
-                let counter_macs1 = [];
-                let counter_macs5 = [];
-                let counter_macs10 = [];
-                let className = [];
-                let s_index = [];
-                let gre_repeatably = [];
-                let pollut_ind = [];
-
-                chemical.push('Наименование');
-                value.push('Среднесуточное значение');
-                counts.push('Количество');
-                min.push('Минимальное значение');
-                min_time.push('Время минимального значения');
-                max.push('Максимальное значение');
-                max_time.push('Время максимального значения');
-                counter_macs1.push('Количество превышений ПДК');
-                counter_macs5.push('Количество превышений 5*ПДК');
-                counter_macs10.push('Количество превышений 10*ПДК');
-                s_index.push('Стандартный индекс');
-                gre_repeatably.push('Наибольшая повторяемость, %');
-                pollut_ind.push('ИЗА');
-                className.push('ClassName');
-
-                template_chemical.forEach(item => {
+                if (range_macs > 1)
+                    class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
+                if (range_macs >= 5)
+                    class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
+                if (range_macs >= 10)
+                    class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
 
 
-                    let filter = avrg_measure.filter((opt, i, arr) => {
-                        return item == opt.chemical;
-                    });
+                if (chemical_classes[element.chemical] == 1) //coefficients for class dangerous
+                    coefficient = 1.7;
+                if (chemical_classes[element.chemical] == 2)
+                    coefficient = 1.3;
+                if (chemical_classes[element.chemical] == 3)
+                    coefficient = 1.0;
+                if (chemical_classes[element.chemical] == 4)
+                    coefficient = 0.9;
 
-                    if (isEmpty(filter)) {
-                        data_raw.forEach((opt, indx) => {
-                            data_raw[indx] = { ...data_raw[indx], [item]: '-' };
+                avrg_measure.push({
 
-                        });
-                    }
-
-                    if (!isEmpty(filter)) {
-                        filter.forEach(element => {
-                            chemical.push(element.chemical);
-                            value.push(Number(element.value).toFixed(3));
-                            counts.push(element.counts);
-                            min.push(Number(element.min).toFixed(3));
-                            min_time.push(element.min_time);
-                            max.push(Number(element.max).toFixed(3));
-                            max_time.push(element.max_time);
-                            counter_macs1.push(element.counter_macs1);
-                            counter_macs5.push(element.counter_macs5);
-                            counter_macs10.push(element.counter_macs10);
-                            s_index.push(element.s_index);
-                            gre_repeatably.push(element.gre_repeatably);
-                            pollut_ind.push(element.pollut_ind);
-                            className.push(element.className);
-
-                        });
-                    } else {
-                        chemical.push(item);
-                        value.push('-');
-                        counts.push('-');
-                        min.push('-');
-                        min_time.push('-');
-                        max.push('-');
-                        max_time.push('-');
-                        counter_macs1.push('-');
-                        counter_macs5.push('-');
-                        counter_macs10.push('-');
-                        s_index.push('-');
-                        gre_repeatably.push('-');
-                        pollut_ind.push('-');
-                        className.push('');
-
-                    };
-                });
-                let _avrg_measure = [];
-                _avrg_measure.push(chemical, value, counts, max, max_time, min, min_time, counter_macs1, counter_macs5,
-                    counter_macs10, s_index, gre_repeatably, pollut_ind, className);
-
-
-                // rendering of array for docx template
-
-                var pollution = [];
-                var values = [];
-                var data = [];
-                data_raw.forEach((element, ind) => {
-                    pollution.push({
-                        time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueNH3: element.NH3, valueSO2: element.SO2,
-                        valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO, valueCH2O: element.CH2O, valuePM1: element.PM1,
-                        valuePM25: element['PM2.5'], valuePM10: element.PM10, valueTSP: element['Пыль общая'],
-                        valueC6H6: element['бензол'], valueC7H8: element['толуол'], valueC8H10: element['этилбензол'],
-                        valueC8H10MP: element['м,п-ксилол'], valueC8H10O: element['о-ксилол'], valueC6H5Cl: element['хлорбензол'],
-                        valueC8H8: element['стирол'], valueC6H5OH: element['фенол']
-                    });
+                    'chemical': element.chemical,
+                    'value': quotient.toFixed(3),
+                    'counts': frame_count,
+                    'min': min, 'min_time': min_time,
+                    'max': max, 'max_time': max_time,
+                    'counter_macs1': counter_macs1,
+                    'counter_macs5': counter_macs5,
+                    'counter_macs10': counter_macs10,
+                    's_index': Number(max / element.max_m).toFixed(1),
+                    'gre_repeatably': Number(sum_alert / counter * 100).toFixed(2),
+                    'pollut_ind': Number(quotient / element.max_d * coefficient).toFixed(1),
+                    'className': class_css
                 })
-                // values.push({
-                //    date: new Date().format('dd-MM-Y'), pollution: pollution
-                //});
-                // let str = '';
-                //  let measure = [];
-                _avrg_measure.forEach((element, ind) => {
-                    if ((ind > 0) && (ind < _avrg_measure.length - 1)) {
-                        pollution.push({
-                            time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3], valueSO2: element[4],
-                            valueH2S: element[5], valueO3: element[6], valueCO: element[7], valueCH2O: element[8], valuePM1: element[9],
-                            valuePM25: element[10], valuePM10: element[11], valueTSP: element[12],
-                            valueC6H6: element[13], valueC7H8: element[14], valueC8H10: element[15],
-                            valueC8H10MP: element[16], valueC8H10O: element[17], valueC6H5Cl: element[18],
-                            valueC8H8: element[19], valueC6H5OH: element[20]
-                        });
-                    }
-                });
-                //values.push(measure);
-                values.push({
-                    date: new Date(this.props.dateReportBegin).format('dd-MM-Y'), pollution: pollution
-                });
-                data.push({ station: this.state.station_name, values: values });
+            };
 
-                this.setState({ 'data_4_report': data });
-                // this.setState({ 'station_name': state.station_name });
-                this.setState({ 'data_raw': data_raw });
-                this.setState({ 'avrg_measure': _avrg_measure });
+        };
+    });
+                let name
+let chemical = [];
+let value = [];
+let counts = [];
+let min = [];
+let min_time = []
+let max = [];
+let max_time = [];
+let counter_macs1 = [];
+let counter_macs5 = [];
+let counter_macs10 = [];
+let className = [];
+let s_index = [];
+let gre_repeatably = [];
+let pollut_ind = [];
 
-                this.setState({ isLoading: true });
-                this.setState({ snack_msg: 'Данные успешно загружены...' });
+chemical.push('Наименование');
+value.push('Среднесуточное значение');
+counts.push('Количество');
+min.push('Минимальное значение');
+min_time.push('Время минимального значения');
+max.push('Максимальное значение');
+max_time.push('Время максимального значения');
+counter_macs1.push('Количество превышений ПДК');
+counter_macs5.push('Количество превышений 5*ПДК');
+counter_macs10.push('Количество превышений 10*ПДК');
+s_index.push('Стандартный индекс');
+gre_repeatably.push('Наибольшая повторяемость, %');
+pollut_ind.push('ИЗА');
+className.push('ClassName');
+
+template_chemical.forEach(item => {
+
+
+    let filter = avrg_measure.filter((opt, i, arr) => {
+        return item == opt.chemical;
+    });
+
+    if (isEmpty(filter)) {
+        data_raw.forEach((opt, indx) => {
+            data_raw[indx] = { ...data_raw[indx], [item]: '-' };
+
+        });
+    }
+
+    if (!isEmpty(filter)) {
+        filter.forEach(element => {
+            chemical.push(element.chemical);
+            value.push(Number(element.value).toFixed(3));
+            counts.push(element.counts);
+            min.push(Number(element.min).toFixed(3));
+            min_time.push(element.min_time);
+            max.push(Number(element.max).toFixed(3));
+            max_time.push(element.max_time);
+            counter_macs1.push(element.counter_macs1);
+            counter_macs5.push(element.counter_macs5);
+            counter_macs10.push(element.counter_macs10);
+            s_index.push(element.s_index);
+            gre_repeatably.push(element.gre_repeatably);
+            pollut_ind.push(element.pollut_ind);
+            className.push(element.className);
+
+        });
+    } else {
+        chemical.push(item);
+        value.push('-');
+        counts.push('-');
+        min.push('-');
+        min_time.push('-');
+        max.push('-');
+        max_time.push('-');
+        counter_macs1.push('-');
+        counter_macs5.push('-');
+        counter_macs10.push('-');
+        s_index.push('-');
+        gre_repeatably.push('-');
+        pollut_ind.push('-');
+        className.push('');
+
+    };
+});
+let _avrg_measure = [];
+_avrg_measure.push(chemical, value, counts, max, max_time, min, min_time, counter_macs1, counter_macs5,
+    counter_macs10, s_index, gre_repeatably, pollut_ind, className);
+
+
+// rendering of array for docx template
+
+var pollution = [];
+var values = [];
+var data = [];
+data_raw.forEach((element, ind) => {
+    pollution.push({
+        time: element.time, valueNO: element.NO, valueNO2: element.NO2, valueNH3: element.NH3, valueSO2: element.SO2,
+        valueH2S: element.H2S, valueO3: element.O3, valueCO: element.CO, valueCH2O: element.CH2O, valuePM1: element.PM1,
+        valuePM25: element['PM2.5'], valuePM10: element.PM10, valueTSP: element['Пыль общая'],
+        valueC6H6: element['бензол'], valueC7H8: element['толуол'], valueC8H10: element['этилбензол'],
+        valueC8H10MP: element['м,п-ксилол'], valueC8H10O: element['о-ксилол'], valueC6H5Cl: element['хлорбензол'],
+        valueC8H8: element['стирол'], valueC6H5OH: element['фенол']
+    });
+})
+// values.push({
+//    date: new Date().format('dd-MM-Y'), pollution: pollution
+//});
+// let str = '';
+//  let measure = [];
+_avrg_measure.forEach((element, ind) => {
+    if ((ind > 0) && (ind < _avrg_measure.length - 1)) {
+        pollution.push({
+            time: element[0], valueNO: element[1], valueNO2: element[2], valueNH3: element[3], valueSO2: element[4],
+            valueH2S: element[5], valueO3: element[6], valueCO: element[7], valueCH2O: element[8], valuePM1: element[9],
+            valuePM25: element[10], valuePM10: element[11], valueTSP: element[12],
+            valueC6H6: element[13], valueC7H8: element[14], valueC8H10: element[15],
+            valueC8H10MP: element[16], valueC8H10O: element[17], valueC6H5Cl: element[18],
+            valueC8H8: element[19], valueC6H5OH: element[20]
+        });
+    }
+});
+//values.push(measure);
+values.push({
+    date: new Date(this.props.dateReportBegin).format('dd-MM-Y'), pollution: pollution
+});
+data.push({ station: this.state.station_name, values: values });
+
+this.setState({ 'data_4_report': data });
+// this.setState({ 'station_name': state.station_name });
+this.setState({ 'data_raw': data_raw });
+this.setState({ 'avrg_measure': _avrg_measure });
+
+this.setState({ isLoading: true });
+this.setState({ snack_msg: 'Данные успешно загружены...' });
             }
             else {
-                this.setState({ isLoading: false })
-                this.setState({ snack_msg: 'Данные отсутствуют...' })
+    this.setState({ isLoading: false })
+    this.setState({ snack_msg: 'Данные отсутствуют...' })
 
-            };
+};
 
 
         });
@@ -518,246 +522,246 @@ class DailyReport extends React.Component {
     };
 
 
-    handleSnackClose() {
-        this.setState({ isLoading: false });
-        this.setState({ isUpdated: false });
+handleSnackClose() {
+    this.setState({ isLoading: false });
+    this.setState({ isUpdated: false });
 
-    };
-
-
-    componentWillMount() {
+};
 
 
+componentWillMount() {
+
+
+}
+
+
+
+render() {
+    const { classes } = this.props;
+    const { data_raw } = this.state;
+    const { avrg_measure } = this.state;
+    const { snack_msg, isLoading } = this.state;
+    const alert = 'ТРЕВОГА';
+    const norm = 'отсутствует';
+
+    const Title_operative = [{
+        Header: "Параметры загрязнения",
+        style: { 'width': '50%' },
+        columns: [
+            {
+                Header: "№",
+                id: "id",
+                style: { 'width': '10%' }
+            },
+            {
+                Header: "Наименование",
+                id: "name",
+                style: { 'width': '20%' }
+            },
+            {
+                Header: "ПДКмр, мг/м.куб.",
+                id: "pdk_mr",
+                style: { 'width': '20%' }
+            },
+            {
+                Header: "Разовая концентрация (средняя за 20 мин), мг/м.куб.",
+                style: { 'width': '50%' },
+                columns: [
+                    {
+                        Header: "дата время",
+                        id: "date_time",
+                        style: { 'width': '25%' }
+                    },
+                    {
+                        Header: "значение",
+                        id: "date_time",
+                        style: { 'width': '25%' }
+                    }
+                ]
+            }
+        ]
     }
 
-
-
-    render() {
-        const { classes } = this.props;
-        const { data_raw } = this.state;
-        const { avrg_measure } = this.state;
-        const { snack_msg, isLoading } = this.state;
-        const alert = 'ТРЕВОГА';
-        const norm = 'отсутствует';
-
-        const Title_operative = [{
-            Header: "Параметры загрязнения",
-            style: { 'width': '50%' },
-            columns: [
-                {
-                    Header: "№",
-                    id: "id",
-                    style: { 'width': '10%' }
-                },
-                {
-                    Header: "Наименование",
-                    id: "name",
-                    style: { 'width': '20%' }
-                },
-                {
-                    Header: "ПДКмр, мг/м.куб.",
-                    id: "pdk_mr",
-                    style: { 'width': '20%' }
-                },
-                {
-                    Header: "Разовая концентрация (средняя за 20 мин), мг/м.куб.",
-                    style: { 'width': '50%' },
-                    columns: [
-                        {
-                            Header: "дата время",
-                            id: "date_time",
-                            style: { 'width': '25%' }
-                        },
-                        {
-                            Header: "значение",
-                            id: "date_time",
-                            style: { 'width': '25%' }
-                        }
-                    ]
-                }
-            ]
-        }
-
-        ];
+    ];
 
 
 
 
-        return (
+    return (
 
 
-            <Paper >
-                <br />
-                <MenuReport
-                    {...this.props} snack_msg={snack_msg} isLoading={isLoading}
-                    station_name={this.state.station_name}
-                    station_actual={this.state.station_actual}
-                    //dateReportBegin={this.state.dateReportBegin}
-                    report_type='daily'
-                    data_4_report={this.state.data_4_report}
-                    handleReportChange={this.handleReportChange.bind(this)}
-                    handleSnackClose={this.handleSnackClose.bind(this)}
+        <Paper >
+            <br />
+            <MenuReport
+                {...this.props} snack_msg={snack_msg} isLoading={isLoading}
+                station_name={this.state.station_name}
+                station_actual={this.state.station_actual}
+                //dateReportBegin={this.state.dateReportBegin}
+                report_type='daily'
+                data_4_report={this.state.data_4_report}
+                handleReportChange={this.handleReportChange.bind(this)}
+                handleSnackClose={this.handleSnackClose.bind(this)}
 
-                />
+            />
 
-                <Typography component="div" style={{ padding: 2 * 1 }} id="daily_report">
+            <Typography component="div" style={{ padding: 2 * 1 }} id="daily_report">
 
-                    <table style={{ "width": '100%' }} id="daily_report_table_header">
-                        <tbody>
-                            <tr>
-                                <td style={{ 'width': '45%' }}>Станция: {this.state.station_name}</td>
+                <table style={{ "width": '100%' }} id="daily_report_table_header">
+                    <tbody>
+                        <tr>
+                            <td style={{ 'width': '45%' }}>Станция: {this.state.station_name}</td>
 
-                                <td style={{ 'width': '45%', 'textAlign': 'right' }}>{new Date(this.props.dateReportBegin).format('dd-MM-Y')}</td>
-                                <td style={{ 'width': '5%' }}>&nbsp;</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                            <td style={{ 'width': '45%', 'textAlign': 'right' }}>{new Date(this.props.dateReportBegin).format('dd-MM-Y')}</td>
+                            <td style={{ 'width': '5%' }}>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
 
 
-                    <table border="1" width="100%" style={{ 'Align': 'center' }} className={classes._td} id="daily_report_table">
-                        <tbody>
-                            <tr >
-                                <td style={{ 'width': '15%' }} rowSpan="2">
-                                    <b> Время</b>
-                                </td>
-                                <td style={{ 'width': '85%' }} colSpan="20">
-                                    <b> Концентрация, мг/м. куб.</b>
-                                </td>
-                            </tr>
-                            <tr style={{ 'fontSize': '11px' }}>
-                                <td style={{ 'width': '5%' }} >
-                                    NO
+                <table border="1" width="100%" style={{ 'Align': 'center' }} className={classes._td} id="daily_report_table">
+                    <tbody>
+                        <tr >
+                            <td style={{ 'width': '15%' }} rowSpan="2">
+                                <b> Время</b>
+                            </td>
+                            <td style={{ 'width': '85%' }} colSpan="20">
+                                <b> Концентрация, мг/м. куб.</b>
+                            </td>
+                        </tr>
+                        <tr style={{ 'fontSize': '11px' }}>
+                            <td style={{ 'width': '5%' }} >
+                                NO
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    NO2
+                            <td style={{ 'width': '5%' }} >
+                                NO2
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    NH3
+                            <td style={{ 'width': '5%' }} >
+                                NH3
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    SO2
+                            <td style={{ 'width': '5%' }} >
+                                SO2
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    H2S
+                            <td style={{ 'width': '5%' }} >
+                                H2S
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    O3
+                            <td style={{ 'width': '5%' }} >
+                                O3
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    CO
+                            <td style={{ 'width': '5%' }} >
+                                CO
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    CH2O
+                            <td style={{ 'width': '5%' }} >
+                                CH2O
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    PM-1
+                            <td style={{ 'width': '5%' }} >
+                                PM-1
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    PM-2.5
+                            <td style={{ 'width': '5%' }} >
+                                PM-2.5
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    PM-10
+                            <td style={{ 'width': '5%' }} >
+                                PM-10
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    Пыль общая
+                            <td style={{ 'width': '5%' }} >
+                                Пыль общая
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    бензол
+                            <td style={{ 'width': '5%' }} >
+                                бензол
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    толуол
+                            <td style={{ 'width': '5%' }} >
+                                толуол
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    этилбензол
+                            <td style={{ 'width': '5%' }} >
+                                этилбензол
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    м,п-ксилол
+                            <td style={{ 'width': '5%' }} >
+                                м,п-ксилол
 
                                     </td>
-                                <td style={{ 'width': '5%' }} >
-                                    о-ксилол
+                            <td style={{ 'width': '5%' }} >
+                                о-ксилол
                                   </td>
-                                <td style={{ 'width': '5%' }} >
-                                    хлорбензол
+                            <td style={{ 'width': '5%' }} >
+                                хлорбензол
                                 </td>
-                                <td style={{ 'width': '5%' }} >
-                                    стирол
+                            <td style={{ 'width': '5%' }} >
+                                стирол
                                  </td>
-                                <td style={{ 'width': '5%' }} >
-                                    фенол
+                            <td style={{ 'width': '5%' }} >
+                                фенол
                                       </td>
-                            </tr>
+                        </tr>
 
 
-                            {(data_raw) &&// if not empty
-                                data_raw.map((option, i) => (
-                                    <tr key={'tr_' + i} style={{ 'fontSize': '11px' }}>
-                                        <td> {option.time}</td>
-                                        <td> {option.NO}</td>
-                                        <td> {option.NO2}</td>
-                                        <td> {option.NH3}</td>
-                                        <td> {option.SO2}</td>
-                                        <td> {option.H2S}</td>
-                                        <td> {option.O3}</td>
-                                        <td> {option.CO}</td>
-                                        <td> {option.CH2O}</td>
-                                        <td> {option.PM1}</td>
-                                        <td> {option['PM2.5']}</td>
-                                        <td> {option.PM10}</td>
-                                        <td> {option['Пыль общая']}</td>
-                                        <td> {option['бензол']}</td>
-                                        <td> {option['толуол']}</td>
-                                        <td> {option['этилбензол']}</td>
-                                        <td> {option['м,п-ксилол']}</td>
-                                        <td> {option['о-ксилол']}</td>
-                                        <td> {option['хлорбензол']}</td>
-                                        <td> {option['стирол']}</td>
-                                        <td> {option['фенол']}</td>
-
-
-
-                                    </tr>
-                                ))}
-                            <tr>
-
-                            </tr>
-                            {(avrg_measure) &&// if not empty
-                                avrg_measure.map((option, i) => (
-                                    (i > 0 && i < avrg_measure.length - 1) &&
-                                    <tr key={'trm_' + i} style={{ 'fontSize': '11px' }}>
-                                        <td> {option[0]}</td>
-                                        <td> {option[1]}</td>
-                                        <td> {option[2]}</td>
-                                        <td> {option[3]}</td>
-                                        <td> {option[4]}</td>
-                                        <td> {option[5]}</td>
-                                        <td> {option[6]}</td>
-                                        <td> {option[7]}</td>
-                                        <td> {option[8]}</td>
-                                        <td> {option[9]}</td>
-                                        <td> {option[10]}</td>
-                                        <td> {option[11]}</td>
-                                        <td> {option[12]}</td>
-                                        <td> {option[13]}</td>
-                                        <td> {option[14]}</td>
-                                        <td> {option[15]}</td>
-                                        <td> {option[16]}</td>
-                                        <td> {option[17]}</td>
-                                        <td> {option[18]}</td>
-                                        <td> {option[19]}</td>
-                                        <td> {option[20]}</td>
-
-                                    </tr>
-                                ))}
+                        {(data_raw) &&// if not empty
+                            data_raw.map((option, i) => (
+                                <tr key={'tr_' + i} style={{ 'fontSize': '11px' }}>
+                                    <td> {option.time}</td>
+                                    <td> {option.NO}</td>
+                                    <td> {option.NO2}</td>
+                                    <td> {option.NH3}</td>
+                                    <td> {option.SO2}</td>
+                                    <td> {option.H2S}</td>
+                                    <td> {option.O3}</td>
+                                    <td> {option.CO}</td>
+                                    <td> {option.CH2O}</td>
+                                    <td> {option.PM1}</td>
+                                    <td> {option['PM2.5']}</td>
+                                    <td> {option.PM10}</td>
+                                    <td> {option['Пыль общая']}</td>
+                                    <td> {option['бензол']}</td>
+                                    <td> {option['толуол']}</td>
+                                    <td> {option['этилбензол']}</td>
+                                    <td> {option['м,п-ксилол']}</td>
+                                    <td> {option['о-ксилол']}</td>
+                                    <td> {option['хлорбензол']}</td>
+                                    <td> {option['стирол']}</td>
+                                    <td> {option['фенол']}</td>
 
 
 
-                        </tbody>
-                    </table>
-                </Typography>
-            </Paper >
-        );
-    }
+                                </tr>
+                            ))}
+                        <tr>
+
+                        </tr>
+                        {(avrg_measure) &&// if not empty
+                            avrg_measure.map((option, i) => (
+                                (i > 0 && i < avrg_measure.length - 1) &&
+                                <tr key={'trm_' + i} style={{ 'fontSize': '11px' }}>
+                                    <td> {option[0]}</td>
+                                    <td> {option[1]}</td>
+                                    <td> {option[2]}</td>
+                                    <td> {option[3]}</td>
+                                    <td> {option[4]}</td>
+                                    <td> {option[5]}</td>
+                                    <td> {option[6]}</td>
+                                    <td> {option[7]}</td>
+                                    <td> {option[8]}</td>
+                                    <td> {option[9]}</td>
+                                    <td> {option[10]}</td>
+                                    <td> {option[11]}</td>
+                                    <td> {option[12]}</td>
+                                    <td> {option[13]}</td>
+                                    <td> {option[14]}</td>
+                                    <td> {option[15]}</td>
+                                    <td> {option[16]}</td>
+                                    <td> {option[17]}</td>
+                                    <td> {option[18]}</td>
+                                    <td> {option[19]}</td>
+                                    <td> {option[20]}</td>
+
+                                </tr>
+                            ))}
+
+
+
+                    </tbody>
+                </table>
+            </Typography>
+        </Paper >
+    );
+}
 }
 
 function mapStateToProps(state) {
