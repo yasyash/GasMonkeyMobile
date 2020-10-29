@@ -330,6 +330,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 });
                 let sum_all = 0;
                 let counter = 0;
+                let frame_count = 0;
                 let class_css;
                 let quotient = 0;
                 let range_macs = 0; // range of macs surplus
@@ -435,7 +436,8 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                             dt[element.chemical] = 0;
                             data_raw[ind] = dt;
                         };
-
+                        if (local_cnt > 0) {
+                            frame_count++;}
 
                     });
 
@@ -463,7 +465,8 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                     avrg_measure.push({
 
                         'chemical': element.chemical,
-                        'value': quotient.toFixed(3), 'counts': counter,
+                        'value': quotient.toFixed(3), 
+                        'counts': frame_count,
                         //'min': min, 'min_time': min_time,
                         'max': max, 'max_time': max_time,
                         'min_sum': min_sum, 'min_time_sum': min_time_sum,
