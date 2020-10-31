@@ -133,7 +133,7 @@ class DashBoard extends Component {
     const value = event.target.value;
     const id = event.target.id;
 
-    this.setState({ dateTimeAlerts: value, dateTimeBegin: new Date(value)+ 'T00:00:00', dateTimeEnd : new Date(value) + 'T23:59:59'});
+    this.setState({ dateTimeAlerts: value, dateTimeBegin: new Date(value).format('Y-MM-dd')+ 'T00:00:00', dateTimeEnd : new Date(value).format('Y-MM-dd') + 'T23:59:59'});
     this.renderData(value);
     //dateAddAction({ [id]: value });
   };
@@ -172,8 +172,8 @@ class DashBoard extends Component {
       let params = {};
 
       if (isEmpty(_date)) {
-        params.period_from = this.state.dateTimeBegin;
-        params.period_to = this.state.dateTimeEnd;
+        params.period_from =  new Date(this.state.dateTimeBegin).format('Y-MM-dd')+ 'T00:00:00';
+        params.period_to = new Date(this.state.dateTimeEnd).format('Y-MM-dd') + 'T23:59:59';
       } else {
         params.period_from = new Date(_date).format('Y-MM-dd') + 'T00:00:00';
         params.period_to = new Date(_date).format('Y-MM-dd') + 'T23:59:59';
@@ -189,9 +189,9 @@ class DashBoard extends Component {
             let alertsList = data.alertsTable;
             let systemList = data.systemTable;
             if (isEmpty(_date)) {
-              var today = new Date(this.state.dateTimeEnd).format('Y-MM-dd');;
+              var today = new Date(this.state.dateTimeEnd);
             } else {
-              var today = new Date(params.period_to).format('Y-MM-dd');;
+              var today = new Date(params.period_to);
             }
             let _door_alert = false;
             let _fire_alert = false;
@@ -332,7 +332,7 @@ class DashBoard extends Component {
             this.setState({
               dataList, dataSumList, sensorsList, macsList, 'alertsList': _compressed, systemList,
               dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
-              dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
+              dateTimeEnd: new Date(today).format('Y-MM-ddTHH:mm'),
               door_alert,
               fire_alert
             });
