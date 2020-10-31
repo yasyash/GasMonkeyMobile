@@ -349,7 +349,7 @@ class DashBoard extends Component {
   }
   componentWillMount() {
     this.renderData();
-    //his.interval = setInterval(this.renderData.bind(this), 10000);
+    this.interval = setInterval(this.renderData.bind(this), 10000);
   }
   componentWillUnmount() {
     clearInterval(this.interval);
