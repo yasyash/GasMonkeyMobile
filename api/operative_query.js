@@ -75,7 +75,7 @@ router.get('/all', authenticate, (req, resp) => {
     //    obj = JSON.parse(decodeURIComponent(query))
     //}
     const between_date = [data.period_from, data.period_to];
-    const between_wide_date = [ new Date().format('Y-MM-ddT00:00'), data.period_to];// from begin of day
+    const between_wide_date = [ new Date(data.period_from).format('Y-MM-ddT00:00'), data.period_to];// from begin of day
     //console.log('data ', between_wide_date);
 
 

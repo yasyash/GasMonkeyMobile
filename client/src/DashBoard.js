@@ -56,6 +56,7 @@ import { queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actio
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 import { filter } from 'ramda';
 //import auth from './reducers/auth';
+import TextField from '@material-ui/core/TextField';
 
 
 const styles = theme => ({
@@ -115,6 +116,7 @@ class DashBoard extends Component {
       systemList: [],
       dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
       dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
+      dateTimeAlerts: new Date().format('Y-MM-dd'),
       open: false,
       anchorEl: null,
       mobileOpen: true,
@@ -126,6 +128,15 @@ class DashBoard extends Component {
 
     }
   }
+
+  handlePickerChange = (event) => {
+    const value = event.target.value;
+    const id = event.target.id;
+
+    this.setState({ dateTimeAlerts: value, dateTimeBegin: new Date(value)+ 'T00:00:00', dateTimeEnd : new Date(value) + 'T23:59:59'});
+    this.renderData(value);
+    //dateAddAction({ [id]: value });
+  };
 
   handleDrawerToggle = () => {
     this.setState({ mobileOpen: !this.state.mobileOpen });
@@ -156,13 +167,17 @@ class DashBoard extends Component {
       addLogsList(systemList);
     }
   };
-  renderData() {
+  renderData(_date) {
     if (!isEmpty(this.props.username)) {
       let params = {};
 
-
-      params.period_from = this.state.dateTimeBegin;
-      params.period_to = this.state.dateTimeEnd;
+      if (isEmpty(_date)) {
+        params.period_from = this.state.dateTimeBegin;
+        params.period_to = this.state.dateTimeEnd;
+      } else {
+        params.period_from = new Date(_date).format('Y-MM-dd') + 'T00:00:00';
+        params.period_to = new Date(_date).format('Y-MM-dd') + 'T23:59:59';
+      }
 
       this.load_stations().then(stations => {
         this.setState({ stationsList: stations });
@@ -173,7 +188,11 @@ class DashBoard extends Component {
             let macsList = data.macsTable;
             let alertsList = data.alertsTable;
             let systemList = data.systemTable;
-            let today = new Date();
+            if (isEmpty(_date)) {
+              var today = new Date(this.state.dateTimeEnd).format('Y-MM-dd');;
+            } else {
+              var today = new Date(params.period_to).format('Y-MM-dd');;
+            }
             let _door_alert = false;
             let _fire_alert = false;
             var door_alert = [];
@@ -255,7 +274,7 @@ class DashBoard extends Component {
             //console.log('Date = ', alertsList);
 
             var _time_frame = [];
-            var _date = new Date().format('Y-MM-dd');
+            var _date = new Date(params.period_to).format('Y-MM-dd');
             var _array = [];
             var _indx = [];
             var _compressed = [];
@@ -330,7 +349,7 @@ class DashBoard extends Component {
   }
   componentWillMount() {
     this.renderData();
-    this.interval = setInterval(this.renderData.bind(this), 10000);
+    //his.interval = setInterval(this.renderData.bind(this), 10000);
   }
   componentWillUnmount() {
     clearInterval(this.interval);
@@ -340,8 +359,8 @@ class DashBoard extends Component {
 
     const { username, is_admin } = this.props;
 
-    const { classes, systemList } = this.props;
-    const { stationsList, macsList, dataList, dataSumList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert } = this.state;
+    const { classes } = this.props;
+    const { stationsList, macsList, dataList, dataSumList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert, systemList } = this.state;
     var tabs = [];
     var filter = '';
     var measure = 0;
@@ -511,8 +530,22 @@ class DashBoard extends Component {
 
           <GridContainer >
             <GridItem xs={12} sm={5} md={5}>
-              <h6>Тревоги</h6>
+              <h6>Тревоги </h6>
+
               <Divider />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField
+                  id="dateTimeAlerts"
+                  label="за "
+                  type="date"
+                  defaultValue={this.state.dateTimeAlerts}
+                  className={classes.textField}
+                  // selectProps={this.state.dateTimeBegin}
+                  onChange={(event) => { this.handlePickerChange(event) }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }} />
+              </div>
 
               <br />
               {(!isEmpty(alertsList)) &&
