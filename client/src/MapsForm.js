@@ -226,10 +226,10 @@ class MapsForm extends React.Component {
                                 var prcnt = range_macs * 100;
 
                                 if (class_css != 'alert_success') {
-                                    popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " % ПДК)" + '</div>';
+                                    popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " долей ПДК)" + '</div>';
                                 }
                                 else {
-                                    popupContent += element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " % ПДК)" + "<br/>";
+                                    popupContent += element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " долей ПДК)" + "<br/>";
 
                                 }
                             };
