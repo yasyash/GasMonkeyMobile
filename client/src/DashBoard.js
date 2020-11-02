@@ -399,7 +399,7 @@ class DashBoard extends Component {
                             <Backup />
                           </CardIcon>
                           <p className={classes.cardCategory}>{measure.toFixed(6)} мг/м3</p>
-                          <p className={classes.cardCategory}>{(measure / element.max_m * 100).toFixed(1)} % ПДК</p>
+                          <p className={classes.cardCategory}>{(measure / element.max_m * 100).toFixed(1)} долях ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
 

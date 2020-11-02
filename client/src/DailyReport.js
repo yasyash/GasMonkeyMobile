@@ -297,20 +297,22 @@ class DailyReport extends React.Component {
 
                                         sum_all += unit.measure;
 
-                                        if (unit.measure < min) {
-                                            min = unit.measure;
-                                            min_time = new Date(unit.date_time).format('H:mm:SS');
-                                        }
-
-                                        if (unit.measure > max) {
-                                            max = unit.measure;
-                                            max_time = new Date(unit.date_time).format('H:mm:SS');
-                                        }
-                                        if (unit.is_alert == 'тревога') {
-                                            sum_alert++;
-                                        }
+                                      
                                     }))
                                     sum = sum / local_cnt;
+
+                                    if (sum < min) {
+                                        min = sum;
+                                        min_time = item;
+                                    }
+
+                                    if (sum > max) {
+                                        max = sum;
+                                        max_time = item;
+                                    }
+                                    if (sum > element.max_m) {
+                                        sum_alert++;
+                                    }
 
                                     let dt = data_raw[ind];
                                     dt[element.chemical] = sum.toFixed(3);

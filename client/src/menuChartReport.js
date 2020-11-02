@@ -525,8 +525,8 @@ class MenuChart extends Component {
 
 
                             {(checkedMeteo) &&
-                                <Tooltip id="tooltip-charts-rangePrcnt" title="Отображение в % от ПДК">
-                                    <span className={classes.icon}> отображение в %</span>
+                                <Tooltip id="tooltip-charts-rangePrcnt" title="Отображение в долях ПДК">
+                                    <span className={classes.icon}> отображение в долях</span>
                                 </Tooltip>}
 
                             {(checkedMeteo) &&
