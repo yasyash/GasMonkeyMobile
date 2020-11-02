@@ -253,9 +253,9 @@ class DailyReport extends React.Component {
                         let quotient = 0;
                         let range_macs = 0; // range of macs surplus
                         let max = 0;
-                        let max_time = '00:00:00';
+                        let max_time = '-';
                         let min = 1000000;
-                        let min_time = '00:00:00';
+                        let min_time = '-';
                         let counter_macs1 = 0;
                         let counter_macs5 = 0;
                         let counter_macs10 = 0;
