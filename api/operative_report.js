@@ -390,12 +390,12 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
                                 if (unit.measure < min) {
                                     min = unit.measure;
-                                    min_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY HH:mm:ss');
+                                    min_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY');
                                 }
 
                                 if (unit.measure > max) {
                                     max = unit.measure;
-                                    max_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY HH:mm:ss');
+                                    max_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY');
                                 }
 
                                 if (unit.is_alert) {
