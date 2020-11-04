@@ -765,7 +765,7 @@ class StatsForm extends React.Component {
                             if (_range) {
                                 title += ' (' + filter[0].unit_name + ')';
                             } else {
-                                title += ' (% от ПДК)';
+                                title += ' (долей ПДК)';
                             };
                             //this.setState({ 'locations': title });
                             //if (isEmpty(stateOptions[0])) {//if first rendering - not simple switch
