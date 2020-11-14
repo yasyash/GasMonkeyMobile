@@ -223,13 +223,13 @@ class MapsForm extends React.Component {
                                     'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(6), 'className': class_css
                                 })
 
-                                var prcnt = range_macs * 100;
+                                var prcnt = range_macs ;
 
                                 if (class_css != 'alert_success') {
-                                    popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " долей ПДК)" + '</div>';
+                                    popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(3) + " долей ПДК)" + '</div>';
                                 }
                                 else {
-                                    popupContent += element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(1) + " долей ПДК)" + "<br/>";
+                                    popupContent += element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(3) + " долей ПДК)" + "<br/>";
 
                                 }
                             };

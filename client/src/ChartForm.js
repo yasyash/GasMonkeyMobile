@@ -364,7 +364,7 @@ class ChartForm extends React.Component {
                                             return _item.chemical === filter[0].typemeasure;
                                         });
                                         if (!isEmpty(_filter))
-                                            tmp.push(_prev_measure / _filter[0].max_m * 100); //normalize to 100 % range of macs
+                                            tmp.push(_prev_measure / _filter[0].max_m ); //normalize to fractional range of macs
                                     };
 
 
@@ -436,7 +436,7 @@ class ChartForm extends React.Component {
                             tmp.push(element.measure);
                         } else {
                             if (!isEmpty(_filter))
-                                tmp.push(element.measure / _filter[0].max_m * 100); //normalize to 100 % range of macs
+                                tmp.push(element.measure / _filter[0].max_m ); //normalize to fractional range of macs
                         };
                         _timeaxis.push(element['date_time']);
 
@@ -467,7 +467,7 @@ class ChartForm extends React.Component {
                     if (_range) {
                         title = dataList[0].typemeasure + ' (' + dataList[0].unit_name + ')';
                     } else {
-                        title = dataList[0].typemeasure + ' (в процентах от ПДК)';
+                        title = dataList[0].typemeasure + ' (в долях ПДК)';
 
                     }
 
@@ -506,7 +506,7 @@ class ChartForm extends React.Component {
 
                                 _arr = new Array(_timeaxis.length + 1).join(filter[0].max_m + '|').split('|');
                             } else {
-                                _arr = new Array(_timeaxis.length + 1).join(100 + '|').split('|'); //scaling macs to 100%
+                                _arr = new Array(_timeaxis.length + 1).join(1 + '|').split('|'); //scaling macs to 100 fractions of MACS
                             }
                             let _colour = '#' + element.def_colour.toString(16);
 
