@@ -434,7 +434,7 @@ class ChartForm extends React.Component {
                     if (_range) {
                         title = dataList[0].typemeasure + ' (' + dataList[0].unit_name + ')';
                     } else {
-                        title = dataList[0].typemeasure + ' (в процентах от ПДК)';
+                        title = dataList[0].typemeasure + ' (в долях ПДК)';
 
                     }
 

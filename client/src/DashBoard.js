@@ -52,7 +52,7 @@ import dashboardStyle from "material-dashboard-react/assets/jss/material-dashboa
 
 import * as _materialDashboardReact from "material-dashboard-react/assets/jss/material-dashboard-react";
 
-import { queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
+import { queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 import { filter } from 'ramda';
 //import auth from './reducers/auth';
@@ -105,7 +105,7 @@ class DashBoard extends Component {
     super(props);
 
     let today = new Date();
-    today -= 600000;
+    today -= 1200000;
 
     this.state = {
       stationsList: [],
@@ -122,7 +122,6 @@ class DashBoard extends Component {
       mobileOpen: true,
       door_alert: [],
       fire_alert: [],
-      dataSumList: [],
       time_frame: []
 
 
@@ -155,7 +154,7 @@ class DashBoard extends Component {
   async    load_data(params) {
 
 
-    let data = await (this.props.queryAllDataOperativeEvent(params));
+    let data = await (this.props.queryDashBoardDataOperativeEvent(params));
     //console.log(data);
     return data;
   };
@@ -172,8 +171,8 @@ class DashBoard extends Component {
       let params = {};
 
       if (isEmpty(_date)) {
-        params.period_from = new Date(this.state.dateTimeBegin).format('Y-MM-dd') + 'T00:00:00';
-        params.period_to = new Date(this.state.dateTimeEnd).format('Y-MM-dd') + 'T23:59:59';
+        params.period_from = this.state.dateTimeBegin;
+        params.period_to = this.state.dateTimeEnd;
       } else {
         params.period_from = new Date(_date).format('Y-MM-dd') + 'T00:00:00';
         params.period_to = new Date(_date).format('Y-MM-dd') + 'T23:59:59';
@@ -183,6 +182,7 @@ class DashBoard extends Component {
         this.setState({ stationsList: stations });
         this.load_data(params).then(data => {
           if (data) {
+            console.log("Time entry = ", Date.parse(new Date()));
             let dataList = data.dataTable;
             let sensorsList = data.sensorsTable;
             let macsList = data.macsTable;
@@ -198,7 +198,6 @@ class DashBoard extends Component {
             var door_alert = [];
             var fire_alert = [];
             let { stationsList } = this.state;
-            var dataSumList = [];
             today -= 1200000;
 
             stationsList.map((_item, _ind) => {
@@ -234,45 +233,7 @@ class DashBoard extends Component {
 
             //20 min averaging 
 
-            sensorsList.map((element, j) => {
-              var _measure = 0;
-              var _now= Date.parse(new Date())-1200000;
-              var _time_end = _now + 1200000;
-
-              if (dataList.length > 0) {
-                var _data = dataList.filter((opt, k, arr) => {
-                  var _tmp_date = Date.parse(new Date(opt.date_time.replace(/(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3")));
-                  return ((opt.serialnum == element.serialnum) && (_tmp_date > _now) &&
-                    (_tmp_date <= _time_end));
-                })
-
-
-                if (_data.length > 0) {
-
-                  _data.map((opt, j) => {
-
-                    _measure += Number(opt.measure);
-
-                  });
-
-                  let _macs = macsList.filter((opt, k, arr) => {
-                    return ((opt.chemical == element.typemeasure));
-                  })
-                  if (_macs.length > 0) {
-                    var max_m = _macs[0].max_m;
-                  } else {
-                    var max_m = 0;
-                  }
-
-                  dataSumList.push({
-                    'id': _data[_data.length - 1].id, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
-                    'date_time': _data[_data.length - 1].date_time, 'unit_name': _data[_data.length - 1].unit_name, 'measure': _measure / _data.length,
-                    'is_alert': ((_measure / _data.length > Number(max_m)) ? true : false)
-                  });
-
-                }
-              }
-            })
+            
 
             //packing alerts
             //console.log('Date = ', alertsList);
@@ -331,12 +292,13 @@ class DashBoard extends Component {
               if (_pack.length > 0)
                 _compressed = [..._compressed, ..._pack];
             };
+            console.log("Time exit = ", Date.parse(new Date()));
 
 
             this.setState({
-              dataList, dataSumList, sensorsList, macsList, 'alertsList': _compressed, systemList,
+              dataList, sensorsList, macsList, 'alertsList': _compressed, systemList,
               dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
-              dateTimeEnd: new Date(today).format('Y-MM-ddTHH:mm'),
+              dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
               door_alert,
               fire_alert
             });
@@ -353,7 +315,7 @@ class DashBoard extends Component {
   }
   componentWillMount() {
     this.renderData();
-    this.interval = setInterval(this.renderData.bind(this), 10000);
+    this.interval = setInterval(this.renderData.bind(this), 30000);
   }
   componentWillUnmount() {
     clearInterval(this.interval);
@@ -364,7 +326,7 @@ class DashBoard extends Component {
     const { username, is_admin } = this.props;
 
     const { classes } = this.props;
-    const { stationsList, macsList, dataList, dataSumList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert, systemList } = this.state;
+    const { stationsList, macsList, dataList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert, systemList } = this.state;
     var tabs = [];
     var filter = '';
     var measure = 0;
@@ -391,8 +353,8 @@ class DashBoard extends Component {
               < GridContainer style={{ padding: "2px" }} >
                 {(macsList) &&
                   macsList.map((element, j) => (
-                    (dataSumList.length > 0) &&
-                    (filter = dataSumList.filter((opt, k, arr) => {
+                    (dataList.length > 0) &&
+                    (filter = dataList.filter((opt, k, arr) => {
                       return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
                     })),
                     ((filter.length > 0) && (measure = filter[filter.length - 1].measure)),
@@ -714,5 +676,5 @@ DashBoard.propTypes = {
 
 
 
-export default connect(mapStateToProps, { addLogsList, deleteLogsList, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
+export default connect(mapStateToProps, { addLogsList, deleteLogsList, queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
 

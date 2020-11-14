@@ -1244,3 +1244,132 @@ export function queryLocalEvent(paramstr) {//reducers will not taken
             });
     }
 };
+
+export function queryDashBoardDataOperativeEvent(paramstr) {
+    return dispatch => {
+        const data = JSON.stringify(paramstr);
+        //  console.log('parameters is ', data);
+
+        return Axios.get('/api/operative_query/board', { params: { data } })
+            .then(resp => resp.data)
+            .then(data => {
+                if (data.response) {
+                    let data_list = data.response[0];
+                    let sensors_list = data.response[1];
+                    var macsTable = data.response[2];
+                    let _logs_list = data.response[3];
+                    let unit_name = '';
+                    let prev = '';
+                    let i = 0;
+                    var dataTable = [],
+                        sensorsTable = [],
+                        alertsTable = [],
+                        systemTable = [],
+                        last = '';
+                    // let macsTable = [];
+                    data_list.forEach(element => {
+                        dataTable.push({
+                            id: element.id,
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                            unit_name: element.unit_name,
+                            measure: element.measure,
+                            is_alert: element.is_alert
+                        });
+                    });
+
+                    sensors_list.forEach(element => {
+                        sensorsTable.push({
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            unit_name: element.unit_name,
+                            is_wind_sensor: element.is_wind_sensor,
+                        });
+                    });
+                    var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115, 120, 200, 404, 500]; //all type error
+
+                    iterator.forEach((i, _ind) => {
+
+                        let logs_list = _logs_list.filter((item, _i, arr) => {
+                            return item.type == i;
+                        });
+
+                        logs_list.forEach((element, indx) => {
+                            if ((Number(element.type) >= 100) && (Number(element.type) <= 115)) {
+                                alertsTable.push({
+                                    date_time: new Date(element.date_time).format('Y-MM-dd HH:mm:SS'),
+                                    type: element.type,
+                                    descr: element.descr,
+                                    id: element.idd
+                                });
+                            }
+
+                            if (Number(element.type) == 0) {
+                                if (indx != logs_list.length - 1) {
+                                    if (last != element.descr)
+                                        systemTable.push({
+                                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                            type: element.type,
+                                            descr: element.descr,
+                                            is_visible: true
+
+                                        });
+                                } else {
+                                    systemTable.push({
+                                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                        type: element.type,
+                                        descr: element.descr,
+                                        is_visible: true
+                                    });
+                                }
+
+                            }
+                            if (Number(element.type) == 200) {
+                                systemTable.push({
+                                    date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                    type: element.type,
+                                    descr: element.descr,
+                                    is_visible: true
+
+                                });
+                            }
+
+                            if ((Number(element.type) == 500) || ((Number(element.type) == 404))) {
+                                if (indx != logs_list.length - 1) {
+                                    if (last != element.descr)
+                                        systemTable.push({
+                                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                            type: element.type,
+                                            descr: element.descr,
+                                            is_visible: true
+
+                                        });
+
+                                } else {
+                                    systemTable.push({
+                                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                        type: element.type,
+                                        descr: element.descr,
+                                        is_visible: true
+                                    });
+                                }
+
+                            }
+
+                            last = element.descr;
+                        });
+                    });
+
+
+                }
+                return { dataTable, sensorsTable, macsTable, alertsTable, systemTable };
+
+
+            });
+
+
+
+
+    };
+};
