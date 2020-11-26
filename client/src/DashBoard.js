@@ -133,7 +133,7 @@ class DashBoard extends Component {
     const value = event.target.value;
     const id = event.target.id;
 
-    this.setState({ dateTimeAlerts: value, dateTimeBegin: new Date(value).format('Y-MM-dd')+ 'T00:00:00', dateTimeEnd : new Date(value).format('Y-MM-dd') + 'T23:59:59'});
+    this.setState({ dateTimeAlerts: value, dateTimeBegin: new Date(value).format('Y-MM-dd') + 'T00:00:00', dateTimeEnd: new Date(value).format('Y-MM-dd') + 'T23:59:59' });
     this.renderData(value);
     //dateAddAction({ [id]: value });
   };
@@ -172,7 +172,7 @@ class DashBoard extends Component {
       let params = {};
 
       if (isEmpty(_date)) {
-        params.period_from =  new Date(this.state.dateTimeBegin).format('Y-MM-dd')+ 'T00:00:00';
+        params.period_from = new Date(this.state.dateTimeBegin).format('Y-MM-dd') + 'T00:00:00';
         params.period_to = new Date(this.state.dateTimeEnd).format('Y-MM-dd') + 'T23:59:59';
       } else {
         params.period_from = new Date(_date).format('Y-MM-dd') + 'T00:00:00';
@@ -199,7 +199,7 @@ class DashBoard extends Component {
             var fire_alert = [];
             let { stationsList } = this.state;
             var dataSumList = [];
-            today -= 600000;
+            today -= 1200000;
 
             stationsList.map((_item, _ind) => {
               var door_alert_tmp = [];
@@ -236,10 +236,14 @@ class DashBoard extends Component {
 
             sensorsList.map((element, j) => {
               var _measure = 0;
+              var _now= Date.parse(new Date())-1200000;
+              var _time_end = _now + 1200000;
 
               if (dataList.length > 0) {
                 var _data = dataList.filter((opt, k, arr) => {
-                  return ((opt.serialnum == element.serialnum));
+                  var _tmp_date = Date.parse(new Date(opt.date_time.replace(/(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3")));
+                  return ((opt.serialnum == element.serialnum) && (_tmp_date > _now) &&
+                    (_tmp_date <= _time_end));
                 })
 
 
@@ -399,7 +403,7 @@ class DashBoard extends Component {
                             <Backup />
                           </CardIcon>
                           <p className={classes.cardCategory}>{measure.toFixed(6)} мг/м3</p>
-                          <p className={classes.cardCategory}>{(measure / element.max_m ).toFixed(3)} долей ПДК</p>
+                          <p className={classes.cardCategory}>{(measure / element.max_m).toFixed(3)} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
 
@@ -620,7 +624,7 @@ class DashBoard extends Component {
                             <Backup />
                           </CardIcon>
                           <p className={classes.cardCategory}>{measure.toFixed(6)} мг/м3</p>
-                          <p className={classes.cardCategory}>{(measure / element.max_m ).toFixed(3)} долей ПДК</p>
+                          <p className={classes.cardCategory}>{(measure / element.max_m).toFixed(3)} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
 
