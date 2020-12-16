@@ -57,6 +57,7 @@ import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 import { filter } from 'ramda';
 //import auth from './reducers/auth';
 import TextField from '@material-ui/core/TextField';
+import request from 'request';
 
 
 const styles = theme => ({
@@ -167,6 +168,11 @@ class DashBoard extends Component {
     }
   };
   renderData(_date) {
+   
+
+    
+    
+
     if (!isEmpty(this.props.username)) {
       let params = {};
 
@@ -364,7 +370,7 @@ class DashBoard extends Component {
                           <CardIcon color={filter[filter.length - 1].is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
                             <Backup />
                           </CardIcon>
-                          <p className={classes.cardCategory}>{measure.toFixed(6)} мг/м3</p>
+                          <p className={classes.cardCategory}>{measure.toFixed(3)} мг/м3</p>
                           <p className={classes.cardCategory}>{(measure / element.max_m).toFixed(3)} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
@@ -439,47 +445,8 @@ class DashBoard extends Component {
 
 
                   ))}
-                {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_door'}>
-                  <Card>
-                    <CardHeader stats icon >
-                      <CardIcon color={((door_alert_filter.length > 0) && (door_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
-                        <Build />
-                      </CardIcon>
-                      <p className={classes.cardCategory}>{((door_alert_filter.length > 0) && (door_alert_filter)) ? "Взлом" : "Норма"}</p>
 
-
-                      <h6 className={classes.cardTitle}>Датчик двери</h6>
-
-                    </CardHeader>
-                    <CardFooter stats>
-                      <div className={classes.stats}>
-                        <Place />
-                        {item.place} </div>
-                    </CardFooter>
-                  </Card>
-
-                </GridItem>)}
-
-                {(dataList.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_fire'}>
-                  <Card>
-                    <CardHeader stats icon >
-                      <CardIcon color={((fire_alert_filter.length > 0) && (fire_alert_filter)) ? "danger" : "info"} style={{ padding: "5px" }} >
-                        <Build />
-                      </CardIcon>
-                      <p className={classes.cardCategory}>{((fire_alert_filter.length > 0) && (fire_alert_filter)) ? "Тревога" : "Норма"}</p>
-
-
-                      <h6 className={classes.cardTitle}>Сигнал пожара</h6>
-
-                    </CardHeader>
-                    <CardFooter stats>
-                      <div className={classes.stats}>
-                        <Place />
-                        {item.place} </div>
-                    </CardFooter>
-                  </Card>
-
-                </GridItem>)}
+               
               </GridContainer >
 
             )
@@ -585,7 +552,7 @@ class DashBoard extends Component {
                           <CardIcon color={filter[filter.length - 1].is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
                             <Backup />
                           </CardIcon>
-                          <p className={classes.cardCategory}>{measure.toFixed(6)} мг/м3</p>
+                          <p className={classes.cardCategory}>{measure.toFixed(3)} мг/м3</p>
                           <p className={classes.cardCategory}>{(measure / element.max_m).toFixed(3)} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>

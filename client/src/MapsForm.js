@@ -13,7 +13,7 @@ import MapsPersonPin from 'material-ui/svg-icons/maps/person-pin';
 import SensorsIcon from 'material-ui/svg-icons/action/settings-input-component';
 import StationsIcon from 'material-ui/svg-icons/action/account-balance';
 import DataIcon from 'material-ui/svg-icons/action/timeline';
-import IconButton from 'material-ui/IconButton';
+import IconButton from '@material-ui/core/IconButton';
 import Renew from 'material-ui/svg-icons/action/autorenew';
 import Snackbar from '@material-ui/core/Snackbar';
 import Slider from '@material-ui/core/Slide';
@@ -45,9 +45,13 @@ import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
 import pinAlert from './pin-alert.png';
 
+import Iframe from 'react-iframe';
+import ThumbUp from '@material-ui/icons/ThumbUp';
 
 
-const pngs = require.context('../../tiles', true, /\.png$/);
+//const pngs = require.context('../../tiles', true, /\.png$/);
+
+
 //const pinAlert = require.context('./', true, /\.svg$/);
 //const keys = pngs.keys();
 
@@ -130,6 +134,7 @@ class MapsForm extends React.Component {
     };
 
 
+
     onClickInner = () => {
         this.setState({ bounds: inner })
     }
@@ -141,6 +146,7 @@ class MapsForm extends React.Component {
 
     handleChange = (event, tab_no) => {
         this.setState({ tab_no });
+        //window.open("https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon");
     };
 
 
@@ -170,7 +176,7 @@ class MapsForm extends React.Component {
                 lng = data[0].longitude;
             }
             var lmap = L.map('mapBox', { center: [lat, lng], zoom: 10 });
-            L.tileLayer("./tiles/{z}/{x}/{y}.png", {}).addTo(lmap);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(lmap);
             //var greenIcon = new LeafIcon({iconUrl: 'leaf-green.png'});
             data.map(item => {
                 params.station = item.id;
@@ -220,7 +226,7 @@ class MapsForm extends React.Component {
                                 rows_measure.push({
                                     'chemical': element.chemical + ', мг/м.куб.', 'macs': element.max_m,
                                     'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
-                                    'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(6), 'className': class_css
+                                    'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(3), 'className': class_css
                                 })
 
                                 var prcnt = range_macs ;
@@ -309,18 +315,21 @@ class MapsForm extends React.Component {
                             });
                             popupContent += "Влажность внеш.: " + (sum / hum.length).toFixed(0) + " %<br/>";
 
-                            marker.bindPopup(popupContent, { autoClose: false });
 
                         };
+                        marker.bindPopup(popupContent, { autoClose: false });
+
                     }
                 });
             })
         });
     }
-
-
-
-
+     onClick (event)  {
+        if (event == 'true')
+        window.open("https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon");
+    }
+    
+   
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, stationsList } = this.state;
@@ -336,7 +345,7 @@ class MapsForm extends React.Component {
 
             <Paper className={classes.root}>
                 <script src="leaflet/leaflet.js"></script>
-                <Tabs>
+                <Tabs >
 
                     <Tab label="Карта постов наблюдения" >
                         <div id='container'>
@@ -344,22 +353,7 @@ class MapsForm extends React.Component {
                         </div>
 
                     </Tab>
-
-                    <Tab label="TEST" >
-                        <div id='container1'>
-                        <x3d width='500px' height='300px'>
-            <scene>
-                <shape id="someId">
-                    <appearance>
-                        <material id='color' diffusecolor={ '1 0 0' }> </material>
-                    </appearance>
-                    <box></box>
-                </shape>
-            </scene>
-        </x3d>
-                        </div>
-
-                    </Tab>
+    
                 </Tabs>
 
             </Paper >
