@@ -12,9 +12,9 @@ import isEmpty from 'lodash.isempty';
 export default class FormDialog extends React.Component {
     constructor(props) {
         super(props);
-        const { openDialog, title, id_station } = props;
+        const { openDialog, title, idd } = props;
 
-        this.state = { id_station };
+        this.state = { idd };
 
         this.state = {
             openDialog, title: 'Введите данные REST API:'
@@ -31,6 +31,7 @@ export default class FormDialog extends React.Component {
     };
 
     render() {
+       const { id_station } = this.state;
         return (
 
             <div>
@@ -47,76 +48,56 @@ export default class FormDialog extends React.Component {
                         <TextField
                             autoFocus
                             margin="dense"
-                            id="date_time"
-                            label="Время"
+                            id="idd"
+                            label="ID станции"
                             type="text"
                             fullWidth
-                            value = {this.state.date_time}
-                            onChange={this.props.handleChange('date_time')}
+                            value = {this.state.idd}
+                            onChange={this.props.handleChange('idd')}
                         />
                         <TextField
                             autoFocus
                             margin="dense"
-                            id="serialnum"
-                            label="Серийный номер"
+                            id="index"
+                            label="Индекс ГГО"
                             type="text"
                             fullWidth
-                            onChange={this.props.handleChange('serialnum')}
+                            onChange={this.props.handleChange('index')}
 
                         />
                          <TextField
                             autoFocus
                             margin="dense"
-                            id="inv_num"
-                            label="Инвентарный номер"
+                            id="uri"
+                            label="URI адрес"
                             type="text"
                             fullWidth
-                            onChange={this.props.handleChange('inv_num')}
+                            onChange={this.props.handleChange('uri')}
 
                         />
                         <TextField
                             autoFocus
                             margin="dense"
-                            id="name"
-                            label="Наименование"
+                            id="token"
+                            label="Токен ГГО"
                             type="text"
                             fullWidth
-                            onChange={this.props.handleChange('name')}
+                            onChange={this.props.handleChange('token')}
 
                         />
                         <TextField
                             autoFocus
                             margin="dense"
-                            id="note"
-                            label="Перечень работ"
+                            id="code"
+                            label="Номер ПНЗ (ГГО)"
                             type="text"
                             fullWidth
-                            onChange={this.props.handleChange('note')}
+                            onChange={this.props.handleChange('code')}
 
 
 
                         />
 
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="result"
-                            label="Результаты работ"
-                            type="text"
-                            fullWidth
-                            onChange={this.props.handleChange('result')}
-
-                        />
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="person"
-                            label="Отвественный"
-                            type="text"
-                            fullWidth
-                            onChange={this.props.handleChange('person')}
-
-                        />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.props.handleDialogClose} color="primary">

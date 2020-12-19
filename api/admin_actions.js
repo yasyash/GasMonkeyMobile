@@ -40,7 +40,7 @@ router.post('/srv_del', authenticate, (req, resp) => {
         }, { patch: true })
         .then(result => {
             resp.json({ result });
-        }).catch(err => resp.status(500).json({ error: ' '+ err }));
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
     // write the result
 
 })
@@ -160,7 +160,7 @@ router.post('/api_insert', authenticate, (req, resp) => {
                 id = String(Number(arr[0].id) + 1);
 
             let idd = data.idd;
-            let indx = data.indx;
+            let indx = data.index;
             let code = data.code;
             let token = data.token;
             let uri = data.uri;
@@ -171,7 +171,6 @@ router.post('/api_insert', authenticate, (req, resp) => {
             let msg_id = 0;
 
             //let id = Number(arr[0].idd) + 1;
-            //     console.log({  idd, indx, code, token, uri, date_time, last_time })
             INJ.forge({ id }).save({
                 idd, indx, code, token, uri, date_time, last_time, msg_id, is_present
 
@@ -212,8 +211,10 @@ router.post('/api_del', authenticate, (req, resp) => {
 router.post('/api_update', authenticate, (req, resp) => {
 
     let data = req.body;
+    let _is_present = true;
     //console.log( data.last_time);
-
+    if (data.is_present == true)
+        _is_present = data.is_present;
 
     INJ.where({ id: data.id })
         .save({
@@ -224,7 +225,7 @@ router.post('/api_update', authenticate, (req, resp) => {
             msg_id: data.msg_id,
             last_time: data.last_time,
             date_time: data.date_time,
-            idd: data.idd
+            idd: data.idd, is_present: _is_present
 
         }, { patch: true })
         .then(result => {

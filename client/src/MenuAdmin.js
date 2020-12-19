@@ -37,6 +37,7 @@ import blue from '@material-ui/core/colors/blue';
 import pink from '@material-ui/core/colors/pink';
 
 import TextField from '@material-ui/core/TextField';
+import Visibility from './icons/eye-check';
 
 
 import { connect } from 'react-redux';
@@ -206,7 +207,9 @@ class MenuAdmin extends Component {
         // this.setState({options});
 
     };
-
+    handleActivate = (name) => {
+        this.props.handleActivate();
+    }
 
     handleUpdateClick = (name) => {
         this.props.handleUpdate();
@@ -227,7 +230,7 @@ class MenuAdmin extends Component {
 
 
     render() {
-        const { classes } = this.props;
+        const { classes, type } = this.props;
 
 
         return (
@@ -248,6 +251,16 @@ class MenuAdmin extends Component {
                                     </Icon>
                                 </IconButton>
                             </Tooltip>
+
+                            {(type == 'API') && <Tooltip id="tooltip-charts-view3" title="Активировать ">
+                                <IconButton className={classes.button} onClick={this.handleActivate} aria-label="Активировать">
+
+                                    <Icon className={classes.icon} color="primary">
+                                        < Visibility />
+                                    </Icon>
+                                </IconButton>
+                            </Tooltip>}
+
                             <Tooltip id="tooltip-charts-view3" title="Добавить">
                                 <IconButton className={classes.button} onClick={this.handleAdd} aria-label="Добавить">
 

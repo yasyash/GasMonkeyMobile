@@ -41,7 +41,8 @@ export function insertSrv(paramstr) {
         return Axios.post('/api/admin/srv_insert', paramstr)
             .then(resp => {
 
-                return resp})
+                return resp
+            })
     };
 };
 
@@ -430,25 +431,27 @@ export function getDev() {
                         filter = stns.filter((item, i, arr) => {
                             return item.idd == element.idd;
                         });
-
-                        idd_old = filter[0].idd;
+                        if (filter.lenght > 0)
+                            idd_old = filter[0].idd;
                     }
                     macs_filter = macs.filter((item, i, arr) => {
                         return item.chemical == element.typemeasure;
                     });
-                    list.push({
-                        id: String(element.id),
-                        namestation: filter[0].namestation,
-                        idd: element.idd,
-                        typemeasure: element.typemeasure,
-                        serialnum: element.serialnum,
-                        date_time_in: new Date(element.date_time_in).format('dd-MM-Y HH:mm:SS'),
-                        date_time_out: new Date(element.date_time_out).format('dd-MM-Y HH:mm:SS'),
-                        unit_name: element.unit_name,
-                        def_colour: element.def_colour,
-                        max_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_m : '',
-                        max_day_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_d : ''
-                    })
+                    if (filter.lenght > 0)
+
+                        list.push({
+                            id: String(element.id),
+                            namestation: filter[0].namestation,
+                            idd: element.idd,
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            date_time_in: new Date(element.date_time_in).format('dd-MM-Y HH:mm:SS'),
+                            date_time_out: new Date(element.date_time_out).format('dd-MM-Y HH:mm:SS'),
+                            unit_name: element.unit_name,
+                            def_colour: element.def_colour,
+                            max_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_m : '',
+                            max_day_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_d : ''
+                        })
 
                 });
 

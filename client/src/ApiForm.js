@@ -123,7 +123,12 @@ class ApiForm extends React.Component {
             address: '',
             username: '',
             pwd: '',
-            periods: 1200
+            periods: 1200,
+            idd:'',
+            index:'',
+            uri:'',
+            code:'',
+            token:''
 
         };
 
@@ -393,8 +398,8 @@ class ApiForm extends React.Component {
     handleAdd() {            
 
         //insert action
-        let { idd, indx, code, token, uri } = this.state;
-        this.props.insertApi({ idd, indx, code, token, uri })
+        let { idd, index, code, token, uri } = this.state;
+        this.props.insertApi({ idd, index, code, token, uri })
             .then(resp => {
                 this.setState({ openDialog: false });
 
@@ -416,6 +421,32 @@ class ApiForm extends React.Component {
 
     };
 
+    handleActivate() {
+        if (!isEmpty(this.state.api_actual)) {
+            const { api_list } = this.state;
+            let filter = api_list.filter((item, i, arr) => {
+                return item.id == this.state.api_actual;
+            });
+            Object.assign(filter[0], {is_present: true});
+            this.props.updateApi(filter).then(resp => {
+                if (resp.status == 200) {
+                    this.load_api().then(data => {
+                        if (data)
+                            this.setState({ api_list: data });
+                        this.setState({ api_actual: '' });
+
+                        this.setState({ isLoading: true });
+                        this.setState({ snack_msg: 'API успешно активирована...' });
+                    });
+                } else {
+                    this.setState({ isLoading: true });
+                    this.setState({ snack_msg: 'Ошибка сервера...' });
+                };
+            });
+        }
+    };
+
+    
     componentWillMount() {
 
 
@@ -574,8 +605,8 @@ class ApiForm extends React.Component {
             <Paper className={classes.root}>
                 <br />
                 <MenuAdmin
-                    {...this.props} snack_msg={snack_msg} isLoading={isLoading}
-
+                    {...this.props} snack_msg={snack_msg} isLoading={isLoading} type='API'
+                    handleActivate={this.handleActivate.bind(this)}
                     handleSnackClose={this.handleSnackClose.bind(this)}
                     handleUpdate={this.handleUpdate.bind(this)}
                     handleDelete={this.handleDelete.bind(this)}
