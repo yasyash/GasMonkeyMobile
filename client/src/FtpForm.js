@@ -525,7 +525,7 @@ class FtpForm extends React.Component {
 
                     },
                     {
-                        Header: "Название в файле",
+                        Header: "ID станции",
                         id: "name",
                         accessor: "name",
                         Cell: this.renderEditable,

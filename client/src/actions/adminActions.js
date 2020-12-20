@@ -15,6 +15,70 @@ function wrapData(data_in) {
     });
     return data;
 }
+
+//Points handling
+
+export function deletePoint(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/point_delete', { id: paramstr })
+            .then(resp => resp)
+    };
+};
+export function updatePoint(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/point_update', ...paramstr)
+            .then(resp => resp)
+    };
+};
+export function insertPoint(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/point_insert', paramstr)
+            .then(resp => {
+
+                return resp
+            })
+    };
+};
+
+export function getPoint() {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.get('/api/admin/point_get')
+            .then(resp => {
+                let srv_list = [];
+                let data = resp.data.points;
+                data.forEach(element => {
+                    point_list.push({
+                        date_time_begin: new Date(element.date_time_begin).format('dd-MM-Y HH:mm:SS'),
+                        date_time_end: new Date(element.date_time_end).format('dd-MM-Y HH:mm:SS'),
+                        idd: String(element.idd),
+                        place: element.place,
+                        descr: element.descr,
+                        lat: element.lat,
+                        lon: element.lon
+                    })
+
+                });
+
+
+                return wrapData(srv_list);
+            })
+    };
+};
+
+
+//Devices administrating
 export function deleteSrv(paramstr) {
 
     // const data = JSON.stringify(paramstr);

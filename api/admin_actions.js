@@ -21,9 +21,133 @@ import DEV from '../models/devices';
 import Stations from '../models/stations'
 import Macs from '../models/macs';
 import DATA from '../models/data';
+import POINTS from '../models/points';
+
 import { isString } from 'util';
 
 let router = express.Router();
+
+//Points handling
+
+router.post('/point_delete', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+    //console.log(data.idd);
+
+    POINTS.where({ id: data.id })
+        .save({
+            is_present: false
+        }, { patch: true })
+        .then(result => {
+            resp.json({ result });
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+    // write the result
+
+})
+
+router.post('/point_update', authenticate, (req, resp) => {
+
+    let data = req.body;
+    //console.log( data.last_time);
+
+    let date_time_begin = data.date_time_begin;
+    let date_time_end = data.date_time_end;
+    if (isEmpty(date_time_begin))
+        date_time_begin = new Date().format('dd-MM-Y H:mm:SS');
+    if (isEmpty(date_time_end))
+        date_time_end = new Date().format('dd-MM-Y H:mm:SS');
+    let place = data.place;
+    let descr = data.descr;
+    let lon = data.lon;
+    let lat = data.lat;
+    let is_present = true;
+    POINTS.where({ id: data.id })
+        .save({
+            date_time_begin, date_time_end, place, descr, lat, lon
+        }, { patch: true })
+        .then(result => {
+            resp.json({ result });
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+    // write the result
+
+})
+router.post('/point_insert', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+
+    //  console.log(req.body);
+
+    POINTS.query('where', 'id', '>', '0').orderBy('id', 'DESC').fetchAll()
+        .then(res => {
+            var result_parse0 = JSON.stringify(res);
+            var arr = JSON.parse(result_parse0);
+            let id = 1;
+            // console.log(String(Number(arr[0].id) + 1))
+            if (!isEmpty(arr[0]))
+                id = String(Number(arr[0].id) + 1);
+
+                let date_time_begin = data.date_time_begin;
+                //let date_time_end = data.date_time_end;
+                if (isEmpty(date_time_begin))
+                    date_time_begin = new Date().format('Y-MM-dd H:mm:SS');
+               // if (isEmpty(date_time_end))
+                //    date_time_end = new Date().format('Y-mm-dd H:mm:SS');
+                let idd = data.idd;
+
+                let place = data.place;
+                let descr = data.descr;
+                let lon = data.lon;
+                let lat = data.lat;
+                let is_present = true;
+
+                console.log(date_time_begin );
+
+            //let id = Number(arr[0].idd) + 1;
+            //    console.log({  date_time, serialnum, name, result, person, note, inv_num, is_present })
+            POINTS.forge({ id }).save({
+                date_time_begin, place, descr, lat, lon, idd, is_present
+
+            }, { method: 'insert' })
+                .then(result => resp.json({ success: true }))
+                .catch(err => resp.status(500).json({ error: err }));
+
+
+            //      console.log(arr[0].idd);
+
+
+
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+    // write the result
+
+})
+
+
+router.get('/point_get', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    //let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+
+    POINTS.query('where', 'is_present', '=', 'true').orderBy('date_time_begin', 'DESC').fetchAll().then(points => {
+        resp.json({ points });
+    }).catch(err => {
+
+        resp.status(500).json({ error: err })
+    });
+    // write the result
+
+});
+
+//Devices handling
 
 router.post('/srv_del', authenticate, (req, resp) => {
     //  
@@ -138,6 +262,7 @@ router.get('/srv_get', authenticate, (req, resp) => {
     // write the result
 
 });
+
 //REST api
 router.post('/api_insert', authenticate, (req, resp) => {
     //  

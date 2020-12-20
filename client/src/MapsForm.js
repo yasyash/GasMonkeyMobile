@@ -28,6 +28,7 @@ import { Tabs, Tab } from 'material-ui/Tabs';
 
 import Typography from '@material-ui/core/Typography';
 
+import uuid from 'uuid/v1';
 
 import shortid from 'shortid';
 import isEmpty from 'lodash.isempty';
@@ -43,11 +44,18 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
+import { getPoint, updatePoint, deletePoint, insertPoint } from './actions/adminActions';
+
+
 import pinAlert from './pin-alert.png';
 
 import Iframe from 'react-iframe';
 import ThumbUp from '@material-ui/icons/ThumbUp';
 
+import PointDialog from './stuff/PointDialog';
+import { TableRowColumn } from 'material-ui';
+import { updateSecurityUser } from './actions/adminActions';
+import { access } from 'fs';
 
 //const pngs = require.context('../../tiles', true, /\.png$/);
 
@@ -100,6 +108,7 @@ function TabContainer(props) {
 };
 
 
+
 class MapsForm extends React.Component {
     constructor(props) {
         super(props);
@@ -121,6 +130,12 @@ class MapsForm extends React.Component {
             stationsList,
             dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
             dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
+            _map: {},
+            openDialog: false,
+            lat: 0,
+            lon: 0,
+            idd: uuid(),
+            isLoading: false
         };
 
 
@@ -133,7 +148,41 @@ class MapsForm extends React.Component {
         locations: ''
     };
 
+    createButton(label, container) {
+        var btn = L.DomUtil.create('button', '', container);
+        btn.setAttribute('type', 'button');
+        btn.innerHTML = label;
+        // container.appendChild(btn);
+        return btn;
+    }
 
+    handleSnackClose() {
+        this.setState({ isLoading: false });
+
+    };
+
+    onMapClick(e) {
+        var popup = L.popup();
+        const { _map } = this.state;
+
+        popup
+            .setLatLng(e.latlng)
+            .setContent('<b>Добавить точку наблюдения       </b>' + '<button type="button" class="btn-primary" id = "btn_add" data = "add" >OK</button>'
+                + '&nbsp;&nbsp;&nbsp;&nbsp; <button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button>')
+            .openOn(_map);
+
+        var dom = L.DomUtil.get('btn_add');
+
+        L.DomEvent.addListener(L.DomUtil.get('btn_add'), 'click', () => {
+            _map.closePopup();
+
+            this.setState({ openDialog: true, lat: e.latlng.lat, lon: e.latlng.lng });
+
+        });
+        L.DomEvent.addListener(L.DomUtil.get('btn_cancel'), 'click', () => {
+            _map.closePopup();
+        });
+    }
 
     onClickInner = () => {
         this.setState({ bounds: inner })
@@ -158,9 +207,17 @@ class MapsForm extends React.Component {
         this.setState({ viewport })
     }
 
+
+map_load()
+{
+    this.props.getPoint().then(data => {
+    alert("ok")
+    })
+}
+
     componentDidMount() {
 
-     
+
         const { stationsList } = this.props;
         let params = {};
         this.props.queryEvent(params).then(data => {
@@ -176,8 +233,12 @@ class MapsForm extends React.Component {
                 lng = data[0].longitude;
             }
             var lmap = L.map('mapBox', { center: [lat, lng], zoom: 10 });
+            this.setState({ _map: lmap });
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(lmap);
+
+            lmap.on('contextmenu', this.onMapClick.bind(this));
             //var greenIcon = new LeafIcon({iconUrl: 'leaf-green.png'});
+            this.map_load();
             data.map(item => {
                 params.station = item.id;
                 this.props.queryOperativeEvent(params).then(values => {
@@ -209,16 +270,16 @@ class MapsForm extends React.Component {
                                 range_macs = quotient / element.max_m;
                                 class_css = 'alert_success';
 
-                                if (range_macs > 1){
+                                if (range_macs > 1) {
                                     class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
                                     _alert = true;
                                 }
-                                if (range_macs >= 5){
+                                if (range_macs >= 5) {
                                     class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
                                     _alert = true;
 
                                 }
-                                if (range_macs >= 10){
+                                if (range_macs >= 10) {
                                     class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
                                     _alert = true;
                                 }
@@ -229,7 +290,7 @@ class MapsForm extends React.Component {
                                     'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(3), 'className': class_css
                                 })
 
-                                var prcnt = range_macs ;
+                                var prcnt = range_macs;
 
                                 if (class_css != 'alert_success') {
                                     popupContent += '<div style = "background-color: #ff8080">' + element.chemical + " : " + quotient.toFixed(3) + " (" + prcnt.toFixed(3) + " долей ПДК)" + '</div>';
@@ -324,12 +385,53 @@ class MapsForm extends React.Component {
             })
         });
     }
-     onClick (event)  {
+    onClick(event) {
         if (event == 'true')
-        window.open("https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon");
+            window.open("https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon");
     }
-    
-   
+    handleDialogAdd() {
+        let { idd, descr, place, lat, lon } = this.state;
+
+        if (isEmpty(descr) && isEmpty(place)) {
+            //insert action
+
+            alert("Адрес и описание точки не может быть одновременно не заполнено!");
+
+        } else {
+
+            this.props.insertPoint({ idd, descr, place, lat, lon })
+                .then(resp => {
+
+                    if (resp.status == 200) {
+                        this.setState({ snack_msg: 'Данные успешно добавлены...' });
+                        this.setState({ isLoading: true });
+
+
+                    } else {
+                        this.setState({ snack_msg: 'Ошибка сервера...' });
+
+                        this.setState({ isLoading: true });
+                    };
+                    this.setState({ openDialog: false });
+
+                });
+
+
+        }
+
+    }
+
+    handleDialogClose() {
+        this.setState({ openDialog: false });
+    };
+
+    handleDialogChange = name => event => {
+        this.setState({
+            [name]: event.target.value,
+        });
+    };
+
+
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
         const { selection, selectAll, stationsList } = this.state;
@@ -338,10 +440,9 @@ class MapsForm extends React.Component {
         const { sensorsList } = this.props;
         const { tab_no } = this.state;
 
-        
+
 
         return (
-
 
             <Paper className={classes.root}>
                 <script src="leaflet/leaflet.js"></script>
@@ -351,9 +452,32 @@ class MapsForm extends React.Component {
                         <div id='container'>
                             <div id='mapBox' />
                         </div>
+                        <PointDialog
+                            openDialog={this.state.openDialog}
+                            lat={this.state.lat}
+                            lon={this.state.lon}
+                            idd={this.state.idd}
 
+                            handleSnackClose={this.handleSnackClose.bind(this)}
+
+                            handleDialogClose={this.handleDialogClose.bind(this)}
+                            handleAdd={this.handleDialogAdd.bind(this)}
+                            handleChange={this.handleDialogChange.bind(this)}
+                        />
+
+
+                        <Snackbar
+                            open={this.state.isLoading}
+                            snack_msg={this.state.snack_msg}
+                            // TransitionComponent={<Slider direction="up" />}
+                            autoHideDuration={3000}
+                            onClose={this.handleSnackClose.bind(this)}
+
+                            message={<span id="message-id">{this.state.snack_msg}</span>}
+
+                        />
                     </Tab>
-    
+
                 </Tabs>
 
             </Paper >
@@ -379,4 +503,4 @@ MapsForm.contextType = {
     // router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent, queryOperativeEvent })(withRouter(withStyles(styles)(MapsForm)));
+export default connect(mapStateToProps, { queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint })(withRouter(withStyles(styles)(MapsForm)));
