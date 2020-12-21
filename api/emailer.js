@@ -99,7 +99,18 @@ function cron_email() {
                                                                 switch (i) { // type of alert
                                                                     case 100:
                                                                         //chemical alert - concentration exceeds 5 times less
-                                                                        try_email(transporter, _element, _user.email, namestation);
+                                                                        try_email(transporter, _element, _user.email, namestation).then(_status => {
+                                                                            var last_time = new Date().format('Y-MM-dd HH:mm:SS');
+                                                                            console.log('Time is : ', last_time);
+
+                                                                            CRON.where({ id: 0 }).save({
+                                                                                date_time: last_time
+                                                                            }, { patch: true }).catch(err => {
+                                                                                console.log('SQL update CRON table issue: ', err);
+                                                                            });
+
+
+                                                                        });
 
 
                                                                         break;
@@ -138,14 +149,7 @@ function cron_email() {
                                                             }
                                                         });
                                                     });
-                                                    //console.log('Time is : ', last_time);
-                                                    var last_time = new Date().format('Y-MM-dd HH:mm:SS');
 
-                                                    CRON.where({ id: 0 }).save({
-                                                        date_time: last_time
-                                                    }, { patch: true }).catch(err => {
-                                                        console.log('SQL update CRON table issue: ', err);
-                                                    });
                                                 });
                                             }
                                         }

@@ -48,6 +48,7 @@ import { getPoint, updatePoint, deletePoint, insertPoint } from './actions/admin
 
 
 import pinAlert from './pin-alert.png';
+import pinGreen from './pin-green.png';
 
 import Iframe from 'react-iframe';
 import ThumbUp from '@material-ui/icons/ThumbUp';
@@ -88,6 +89,9 @@ const styles = theme => ({
     alert_success: {
         color: '#000000',
         backgroundColor: '#ffffff'
+    },
+    pin1: {
+        color: '#000000',
     }
 
 
@@ -131,11 +135,14 @@ class MapsForm extends React.Component {
             dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
             dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
             _map: {},
+            _markers: [],
             openDialog: false,
             lat: 0,
             lon: 0,
             idd: uuid(),
-            isLoading: false
+            isLoading: false,
+            inMeasure: false,
+            iddMeasure: ''
         };
 
 
@@ -164,24 +171,40 @@ class MapsForm extends React.Component {
     onMapClick(e) {
         var popup = L.popup();
         const { _map } = this.state;
+        if (!this.state.inMeasure) {
+            popup
+                .setLatLng(e.latlng)
+                .setContent('<b>Добавить точку наблюдения      <br/><br/>' + '<div align ="center"><button type="button" class="btn-primary" id = "btn_add" data = "add" >OK</button>'
+                    + '&nbsp;&nbsp;&nbsp;&nbsp; <button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>')
+                .openOn(_map);
 
-        popup
-            .setLatLng(e.latlng)
-            .setContent('<b>Добавить точку наблюдения       </b>' + '<button type="button" class="btn-primary" id = "btn_add" data = "add" >OK</button>'
-                + '&nbsp;&nbsp;&nbsp;&nbsp; <button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button>')
-            .openOn(_map);
+            //var dom = L.DomUtil.get('btn_add');
 
-        var dom = L.DomUtil.get('btn_add');
+            L.DomEvent.addListener(L.DomUtil.get('btn_add'), 'click', () => {
+                _map.closePopup();
 
-        L.DomEvent.addListener(L.DomUtil.get('btn_add'), 'click', () => {
-            _map.closePopup();
+                this.setState({ openDialog: true, lat: e.latlng.lat, lon: e.latlng.lng });
 
-            this.setState({ openDialog: true, lat: e.latlng.lat, lon: e.latlng.lng });
+            });
+            L.DomEvent.addListener(L.DomUtil.get('btn_cancel'), 'click', () => {
+                _map.closePopup();
+            });
+        } else {
+            popup
+                .setLatLng(e.latlng)
+                .setContent("Завершить текущее наблюдение <br/><br/> " +
+                    '<div align = "center"> <button type="button" class="btn-primary" id = "btn_close" data = "close" >OK</button> &nbsp; &nbsp; <button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>')
+                .openOn(_map);
 
-        });
-        L.DomEvent.addListener(L.DomUtil.get('btn_cancel'), 'click', () => {
-            _map.closePopup();
-        });
+
+            L.DomEvent.addListener(L.DomUtil.get('btn_close'), 'click', () => {
+                _map.closePopup();
+                this.closeMeasure();
+            });
+            L.DomEvent.addListener(L.DomUtil.get('btn_cancel'), 'click', () => {
+                _map.closePopup();
+            });
+        }
     }
 
     onClickInner = () => {
@@ -208,12 +231,111 @@ class MapsForm extends React.Component {
     }
 
 
-map_load()
-{
-    this.props.getPoint().then(data => {
-    alert("ok")
-    })
-}
+    map_load() {
+        this.props.getPoint().then(data => {
+            var inMeasure = false;
+            var iddMeasure = '';
+            if (data.length > 0) {
+                data.forEach((item) => {
+                    const { _map } = this.state;
+
+
+                    
+                    if ((item.date_time_end < item.date_time_begin)) {
+                        inMeasure = true;
+                        iddMeasure = item.idd;
+
+
+                    let _Icon = L.icon({
+                        iconUrl: pinAlert,
+                        shadowUrl: markerShadow
+                    });
+
+                        var marker = L.marker([item.lat, item.lon], { icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin, opacity: 1 }).addTo(_map);
+
+                    } else {
+
+                        let _Icon = L.icon({
+                            iconUrl: markerPin,
+                            shadowUrl: markerShadow
+                        });
+                        var marker = L.marker([item.lat, item.lon], { icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin + 
+                        "\n Время завершения наблюдения: " +  item.date_time_end, opacity: 1 }).addTo(_map);
+                        
+
+                    }
+                    this.setState({ _markers: [...this.state._markers, marker], inMeasure: inMeasure });
+                    if (!isEmpty(iddMeasure))
+                        this.setState({ iddMeasure: iddMeasure });
+
+
+                })
+            }
+        })
+
+    }
+
+
+    clickPopup(e) {
+        const { _map, _markers, inMeasure } = this.state;
+        //_markers[_markers.length-1].openPopup();
+        var popup = L.popup();
+
+        popup
+            .setLatLng(e.latlng)
+            .setContent((!inMeasure ? "Выбрать текущее положение для наблюдения <br/><br/>" +
+                '<div align = "center"> <button type="button" class="btn-primary "id = "btn_add" data = "add" >OK</button> &nbsp; &nbsp; <button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>' :
+                "Завершить текущее наблюдение <br/><br/> " +
+                '<div align = "center"> <button type="button" class="btn-primary" id = "btn_close" data = "close" >OK</button> &nbsp; &nbsp; <button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>'))
+            .openOn(_map);
+
+        //var dom = L.DomUtil.get('btn_add');
+        if (!inMeasure)
+
+            L.DomEvent.addListener(L.DomUtil.get('btn_add'), 'click', () => {
+                _map.closePopup();
+                this.openMeasure(e.latlng);
+            });
+        if (inMeasure)
+            L.DomEvent.addListener(L.DomUtil.get('btn_close'), 'click', () => {
+                _map.closePopup();
+                this.closeMeasure();
+            });
+        L.DomEvent.addListener(L.DomUtil.get('btn_cancel'), 'click', () => {
+            _map.closePopup();
+        });
+
+
+
+    }
+
+    openMeasure(params) {
+        if (!this.state.inMeasure) {
+            this.setState({ openDialog: true, lat: params.lat, lon: params.lng });
+        } else {
+            //alert("alert")
+            if (confirm('Предыдущие измерения не завршены! Завершить?')) {
+                this.setState({ openDialog: true, lat: params.lat, lon: params.lng });
+
+            }
+
+        }
+    }
+
+
+    closeMeasure(params) {
+        var isReal = confirm('Завершить, уверены?');
+        if (isReal) {
+            if (!isEmpty(this.state.iddMeasure))
+                this.props.updatePoint({ idd: this.state.iddMeasure, date_time_end: '' }).then(res => {
+                    this.setState({ inMeasure: false, iddMeasure: '', _markers: [] })
+                    this.map_load();
+                    this.setState({ snack_msg: 'Измерения по текущей точке завершены...' });
+                    this.setState({ isLoading: true });
+                });
+
+        }
+    }
 
     componentDidMount() {
 
@@ -304,17 +426,24 @@ map_load()
 
                         if (!_alert) {
                             let _Icon = L.icon({
-                                iconUrl: markerPin,
-                                shadowUrl: markerShadow
+                                iconUrl: pinGreen,
+                                shadowUrl: markerShadow,
                             });
-                            var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).addTo(lmap);
+                            var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).on('click', (e) => {
+                                console.log(e.latlng);
+                                this.clickPopup(e);
+                            }).addTo(lmap);
+
+
                         }
                         else {
                             let _Icon = L.icon({
                                 iconUrl: pinAlert,
                                 shadowUrl: markerShadow
                             });
-                            var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).addTo(lmap);
+                            var marker = L.marker([item.latitude, item.longitude], { icon: _Icon, title: item.namestation + "\n" + item.place, opacity: 1 }).addTo(lmap).on('click', function (e) {
+                                console.log(e.latlng);
+                            });
 
                         }
 
@@ -378,17 +507,26 @@ map_load()
 
 
                         };
-                        marker.bindPopup(popupContent, { autoClose: false });
+                        popupContent += (!this.state.inMeasure ? " <br/>Выбрать для наблюдения: " +
+                            '<button type="button" class="btn-primary" id = "btn_add" data = "add" >OK</button>' :
+                            " <br/>Завершить наблюдение: " +
+                            '<button type="button" class="btn-primary" id = "btn_close" data = "close" >OK</button>')
+                        //marker.bindPopup(popupContent, { autoClose: false });
+                        this.setState({ _markers: [...this.state._markers, marker] });
 
                     }
                 });
             })
         });
     }
+
+
+
     onClick(event) {
         if (event == 'true')
             window.open("https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon");
     }
+
     handleDialogAdd() {
         let { idd, descr, place, lat, lon } = this.state;
 
@@ -405,7 +543,7 @@ map_load()
                     if (resp.status == 200) {
                         this.setState({ snack_msg: 'Данные успешно добавлены...' });
                         this.setState({ isLoading: true });
-
+                        this.map_load();
 
                     } else {
                         this.setState({ snack_msg: 'Ошибка сервера...' });
@@ -448,7 +586,7 @@ map_load()
                 <script src="leaflet/leaflet.js"></script>
                 <Tabs >
 
-                    <Tab label="Карта постов наблюдения" >
+                    <Tab label="Карта точек наблюдения" >
                         <div id='container'>
                             <div id='mapBox' />
                         </div>

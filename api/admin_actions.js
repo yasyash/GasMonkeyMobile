@@ -22,6 +22,7 @@ import Stations from '../models/stations'
 import Macs from '../models/macs';
 import DATA from '../models/data';
 import POINTS from '../models/points';
+import ftp_upload from './ftp_actions';
 
 import { isString } from 'util';
 
@@ -52,26 +53,41 @@ router.post('/point_delete', authenticate, (req, resp) => {
 router.post('/point_update', authenticate, (req, resp) => {
 
     let data = req.body;
-    //console.log( data.last_time);
+    //console.log( data);
 
     let date_time_begin = data.date_time_begin;
     let date_time_end = data.date_time_end;
-    if (isEmpty(date_time_begin))
-        date_time_begin = new Date().format('dd-MM-Y H:mm:SS');
-    if (isEmpty(date_time_end))
-        date_time_end = new Date().format('dd-MM-Y H:mm:SS');
-    let place = data.place;
-    let descr = data.descr;
-    let lon = data.lon;
-    let lat = data.lat;
-    let is_present = true;
-    POINTS.where({ id: data.id })
-        .save({
-            date_time_begin, date_time_end, place, descr, lat, lon
-        }, { patch: true })
-        .then(result => {
-            resp.json({ result });
-        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+
+    if (isEmpty(date_time_end)) {
+        date_time_end = new Date().format('dd-MM-Y H:mm:SS'); //in case if measure close
+
+        POINTS.where({ idd: data.idd })
+            .save({
+                date_time_end
+            }, { patch: true })
+            .then(result => {
+
+                ftp_upload();
+                resp.json({ result });
+
+            }).catch(err => resp.status(500).json({ error: ' ' + err }));
+
+    } else {
+        let place = data.place;
+        let descr = data.descr;
+        let lon = data.lon;
+        let lat = data.lat;
+        let is_present = true;
+
+        POINTS.where({ idd: data.idd })
+            .save({
+                date_time_begin, date_time_end, place, descr, lat, lon
+            }, { patch: true })
+            .then(result => {
+                resp.json({ result });
+            }).catch(err => resp.status(500).json({ error: ' ' + err }));
+
+    }
     // write the result
 
 })
@@ -94,30 +110,65 @@ router.post('/point_insert', authenticate, (req, resp) => {
             if (!isEmpty(arr[0]))
                 id = String(Number(arr[0].id) + 1);
 
-                let date_time_begin = data.date_time_begin;
-                //let date_time_end = data.date_time_end;
-                if (isEmpty(date_time_begin))
-                    date_time_begin = new Date().format('Y-MM-dd H:mm:SS');
-               // if (isEmpty(date_time_end))
-                //    date_time_end = new Date().format('Y-mm-dd H:mm:SS');
-                let idd = data.idd;
+            let date_time_begin = data.date_time_begin;
+            //let date_time_end = data.date_time_end;
+            if (isEmpty(date_time_begin))
+                date_time_begin = new Date().format('Y-MM-dd H:mm:SS');
+            // if (isEmpty(date_time_end))
+            //    date_time_end = new Date().format('Y-mm-dd H:mm:SS');
+            let idd = data.idd;
 
-                let place = data.place;
-                let descr = data.descr;
-                let lon = data.lon;
-                let lat = data.lat;
-                let is_present = true;
+            let place = data.place;
+            let descr = data.descr;
+            let lon = data.lon;
+            let lat = data.lat;
+            let is_present = true;
 
-                console.log(date_time_begin );
 
-            //let id = Number(arr[0].idd) + 1;
-            //    console.log({  date_time, serialnum, name, result, person, note, inv_num, is_present })
             POINTS.forge({ id }).save({
                 date_time_begin, place, descr, lat, lon, idd, is_present
 
             }, { method: 'insert' })
-                .then(result => resp.json({ success: true }))
-                .catch(err => resp.status(500).json({ error: err }));
+                .then(
+
+                    SOAP.query('where', 'is_present', '=', 'true').orderBy('id', 'DESC').fetchAll().then(_station => {
+                        var result = JSON.stringify(_station);
+                        var station = JSON.parse(result);
+                        var id = station[0].id;
+                        var idd_old = station[0].idd;
+                        SOAP.where({ id })
+                            .save({
+                                idd
+                            }, { patch: true })
+                            .then(
+                                DEV.where({ idd: idd_old }).save({
+                                    idd
+                                }, { patch: true })
+                                    .then(
+
+                                        FTP.where({ id:12 })
+                                            .save({
+
+                                                name: idd
+
+                                            }, { patch: true })
+                                            .then(result => {
+                                                resp.json({ result });
+                                            }).catch(err => resp.status(500).json({ error: 'FTP update error' }))
+                                    ).catch(err => resp.status(500).json({ error: 'Devices update error' }))
+
+                            ).catch(err => resp.status(500).json({ error: 'Stations update error' }));
+
+
+                    }).catch(err => {
+
+                        resp.status(500).json({ error: 'Stations query error' })
+                    })
+
+
+
+                )
+                .catch(err => resp.status(500).json({ error: 'Point insert error' }));
 
 
             //      console.log(arr[0].idd);
@@ -534,6 +585,7 @@ router.post('/soap_update', authenticate, (req, resp) => {
     // write the result
 
 })
+
 
 router.post('/soap_activate', authenticate, (req, resp) => {
     //  

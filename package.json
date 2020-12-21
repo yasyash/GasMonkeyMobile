@@ -111,7 +111,7 @@
     "webpack-hot-middleware": "^2.22.1"
   },
   "scripts": {
-    "server": "babel-node --max-old-space-size=8192 -- api/index.js",
+    "server": "babel-node --max-old-space-size=1024 -- api/index.js",
     "production": "NODE_ENV=production nodemon --watch server --exec babel-node -- api/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

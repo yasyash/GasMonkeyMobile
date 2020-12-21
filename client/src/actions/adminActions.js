@@ -32,7 +32,7 @@ export function updatePoint(paramstr) {
     // const data = JSON.stringify(paramstr);
     //  console.log('parameters is ', data);
     return dispatch => {
-        return Axios.post('/api/admin/point_update', ...paramstr)
+        return Axios.post('/api/admin/point_update', paramstr)
             .then(resp => resp)
     };
 };
@@ -56,10 +56,10 @@ export function getPoint() {
     return dispatch => {
         return Axios.get('/api/admin/point_get')
             .then(resp => {
-                let srv_list = [];
+                let points_list = [];
                 let data = resp.data.points;
                 data.forEach(element => {
-                    point_list.push({
+                    points_list.push({
                         date_time_begin: new Date(element.date_time_begin).format('dd-MM-Y HH:mm:SS'),
                         date_time_end: new Date(element.date_time_end).format('dd-MM-Y HH:mm:SS'),
                         idd: String(element.idd),
@@ -72,7 +72,7 @@ export function getPoint() {
                 });
 
 
-                return wrapData(srv_list);
+                return wrapData(points_list);
             })
     };
 };
