@@ -240,16 +240,16 @@ class MapsForm extends React.Component {
                     const { _map } = this.state;
 
 
-                    
+
                     if ((item.date_time_end < item.date_time_begin)) {
                         inMeasure = true;
                         iddMeasure = item.idd;
 
 
-                    let _Icon = L.icon({
-                        iconUrl: pinAlert,
-                        shadowUrl: markerShadow
-                    });
+                        let _Icon = L.icon({
+                            iconUrl: pinAlert,
+                            shadowUrl: markerShadow
+                        });
 
                         var marker = L.marker([item.lat, item.lon], { icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin, opacity: 1 }).addTo(_map);
 
@@ -259,9 +259,11 @@ class MapsForm extends React.Component {
                             iconUrl: markerPin,
                             shadowUrl: markerShadow
                         });
-                        var marker = L.marker([item.lat, item.lon], { icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin + 
-                        "\n Время завершения наблюдения: " +  item.date_time_end, opacity: 1 }).addTo(_map);
-                        
+                        var marker = L.marker([item.lat, item.lon], {
+                            icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin +
+                                "\n Время завершения наблюдения: " + item.date_time_end, opacity: 1
+                        }).addTo(_map);
+
 
                     }
                     this.setState({ _markers: [...this.state._markers, marker], inMeasure: inMeasure });

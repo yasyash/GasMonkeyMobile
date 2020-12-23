@@ -777,7 +777,7 @@ handleClose = () => {
                         <form className={classes.root} autoComplete="off">
                         <FormControl className={classes.formControl}>
 
-                            <InputLabel htmlFor="station_name" >Отчет по станции</InputLabel>
+                            <InputLabel htmlFor="station_name" >Отчет по точке</InputLabel>
 
                                 <Select
                                     value={this.state.station_name}

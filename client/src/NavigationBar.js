@@ -44,6 +44,7 @@ class NavigationBar extends React.Component {
       <ul className="nav navbar-nav navbar-right">
 
         <li><Link to="/admin">Администрирование  &nbsp; &nbsp;</Link>
+          <Link to="/points">Точки отбора &nbsp; &nbsp;</Link>
 
           <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
@@ -51,7 +52,7 @@ class NavigationBar extends React.Component {
           <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
           <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
           <Link to="/maps">Карты  &nbsp; &nbsp;</Link>
-          <a href = "https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon" target="_blank">GPS кабинет</a>
+          <a href="https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon" target="_blank">GPS кабинет</a>
 
           <a href="#" onClick={this.logout.bind(this)}>   Выход</a></li>
       </ul>
@@ -59,6 +60,8 @@ class NavigationBar extends React.Component {
 
     const userLinks = (
       <ul className="nav navbar-nav navbar-right">
+        <Link to="/points">Точки отбора &nbsp; &nbsp;</Link>
+
         <li><Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
           <Link to="/stats">Статистика  &nbsp; &nbsp;</Link>

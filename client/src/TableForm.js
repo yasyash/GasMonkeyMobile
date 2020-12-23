@@ -271,9 +271,7 @@ class TableForm extends React.Component {
         });
     };
 
-    //  isSelected(index) {
-    //      return this.state.selected.indexOf(index) !== -1;
-    //  };
+   
     handleClose() {
         this.setState({ isLoading: false });
         this.setState({ isUpdated: false });
@@ -311,9 +309,7 @@ class TableForm extends React.Component {
             }
         });
 
-        //alert('loadData');
-
-        //   this.props.createMyEvent(this.state);
+    
     };
 
     async    loadData(qtype) {

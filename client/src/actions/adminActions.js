@@ -49,6 +49,26 @@ export function insertPoint(paramstr) {
     };
 };
 
+export function updatePointAll(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/point_update_all', paramstr)
+            .then(resp => resp)
+    };
+};
+
+export function changePoint(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/point_change', paramstr)
+            .then(resp => resp)
+    };
+};
+
 export function getPoint() {
 
     // const data = JSON.stringify(paramstr);

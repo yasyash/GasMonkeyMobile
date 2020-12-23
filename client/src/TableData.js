@@ -488,7 +488,6 @@ class TableData extends React.Component {
             getTrProps: (s, r) => {
                 let selected = false;
                 //  background color change
-                // here it is...
                 if (r) {
                     selected = this.isSelected(r.original._id);
                 }

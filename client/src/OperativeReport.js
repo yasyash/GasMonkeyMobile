@@ -414,7 +414,7 @@ class OperativeReport extends React.Component {
                     <table style={{ "width": '100%' }} id="operative_report_table_header">
                         <tbody>
                             <tr>
-                                <td style={{ 'width': '45%' }}>Станция: {this.state.station_name}</td>
+        <td style={{ 'width': '45%' }}>Лаборатория: {this.state.station_name} </td>
 
                                 <td style={{ 'width': '45%', 'textAlign': 'right' }}>{new Date().format('dd-MM-Y H:mm:SS')}</td>
                                 <td style={{ 'width': '5%' }}>&nbsp;</td>
@@ -508,44 +508,43 @@ class OperativeReport extends React.Component {
                                 <td >Н, %</td>
                                 <td >{rows_service.Hout}</td>
                                 <td >3</td>
-                                <td >Т зонд 3, °С</td>
-                                <td >{rows_service.Ts3}</td>
+                                <td >Т внутр., °С</td>
+                                <td >{rows_service.Tin}</td>
                             </tr>
                             <tr >
                                 <td >4</td>
                                 <td >V, м/с</td>
                                 <td >{rows_service.WindV}</td>
-                                <td >4</td>
-                                <td >Т пав., °С</td>
-                                <td >{rows_service.Tin}</td>
+                                <td ></td>
+                                <td ></td>
+                                <td ></td>
                             </tr>
                             <tr >
                                 <td >5</td>
                                 <td >N, градус</td>
                                 <td >{rows_service.WindD}</td>
-                                <td >5</td>
-                                <td >U, В</td>
-                                <td >{rows_service.U}</td>
+                                <td ></td>
+                                <td ></td>
+                                <td ></td>
                             </tr>
                             <tr >
                                 <td >6</td>
                                 <td >Осадки, мм.</td>
                                 <td >{rows_service.Rain}</td>
-                                <td >6</td>
-                                <td >Вскрытие</td>
+                                <td ></td>
+                                <td ></td>
                                 <td >
-                                    {(!isEmpty(rows_service)) && <label style={{ padding: '0', marginBottom: '0' }} className={classnames('alert', {
-                                        'alert-danger': rows_service.Dr === true
-                                    })}> {rows_service.Dr ? alert : norm} </label>}
+                                    
+                                  
 
                                 </td>
                             </tr>
                             <tr >
                                 <td >7</td>
-                                <td >H пав., %</td>
+                                <td >H внутр., %</td>
                                 <td >{rows_service.Hin}</td>
-                                <td >7</td>
-                                <td >Пожар</td>
+                                <td ></td>
+                                <td ></td>
                                 <td >
                                     {(!isEmpty(rows_service)) && <label style={{ padding: '0', marginBottom: '0' }} className={classnames('alert', {
                                         'alert-danger': rows_service.Fr === true

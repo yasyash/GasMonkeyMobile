@@ -37,9 +37,9 @@ router.post('/point_delete', authenticate, (req, resp) => {
     // let obj = qs.parse(query);
     //let data = JSON.parse(obj.data);
     let data = req.body;
-    //console.log(data.idd);
+    //console.log(data);
 
-    POINTS.where({ id: data.id })
+    POINTS.where({ idd: data.id })
         .save({
             is_present: false
         }, { patch: true })
@@ -53,7 +53,7 @@ router.post('/point_delete', authenticate, (req, resp) => {
 router.post('/point_update', authenticate, (req, resp) => {
 
     let data = req.body;
-    //console.log( data);
+    console.log(data);
 
     let date_time_begin = data.date_time_begin;
     let date_time_end = data.date_time_end;
@@ -63,7 +63,7 @@ router.post('/point_update', authenticate, (req, resp) => {
 
         POINTS.where({ idd: data.idd })
             .save({
-                date_time_end
+                date_time_end, in_measure: false
             }, { patch: true })
             .then(result => {
 
@@ -91,6 +91,57 @@ router.post('/point_update', authenticate, (req, resp) => {
     // write the result
 
 })
+
+router.post('/point_update_all', authenticate, (req, resp) => {
+
+    let _data = req.body;
+    //console.log( data);
+    try {
+
+        if (_data.length > 0) {
+            _data.forEach((data, indx) => {
+                let date_time_begin = data.date_time_begin;
+                let date_time_end = data.date_time_end;
+
+                if (isEmpty(date_time_end)) {
+                    //date_time_end = new Date().format('dd-MM-Y H:mm:SS'); //in case if measure close
+                    let place = data.place;
+                    let descr = data.descr;
+                    let lon = data.lon;
+                    let lat = data.lat;
+                    POINTS.where({ idd: data.idd })
+                        .save({
+                            date_time_begin, place, descr, lat, lon
+                        }, { patch: true })
+                        .then(
+
+                        ).catch(err => resp.status(500).json({ error: 'Update all points error on ID = ' + data.idd + err }));
+
+                } else {
+                    let place = data.place;
+                    let descr = data.descr;
+                    let lon = data.lon;
+                    let lat = data.lat;
+                    let is_present = true;
+
+                    POINTS.where({ idd: data.idd })
+                        .save({
+                            date_time_begin, date_time_end, place, descr, lat, lon
+                        }, { patch: true })
+                        .then(
+                        ).catch(err => resp.status(500).json({ error: 'Update all points error on ID = ' + data.idd + err }));
+
+                }
+                // write the result
+            })
+        }
+        resp.status(200).json({ err: 'Update all points OK.' })
+    }
+    catch (err) {
+        return resp.status(500).json({ error: 'Update all points error on ID = ' + data.idd + err })
+    }
+})
+
 router.post('/point_insert', authenticate, (req, resp) => {
     //  
 
@@ -126,7 +177,7 @@ router.post('/point_insert', authenticate, (req, resp) => {
 
 
             POINTS.forge({ id }).save({
-                date_time_begin, place, descr, lat, lon, idd, is_present
+                date_time_begin, place, descr, lat, lon, idd, is_present, in_measure: true
 
             }, { method: 'insert' })
                 .then(
@@ -138,7 +189,7 @@ router.post('/point_insert', authenticate, (req, resp) => {
                         var idd_old = station[0].idd;
                         SOAP.where({ id })
                             .save({
-                                idd
+                                idd, date_time_in: date_time_begin, place: place + "  " + descr
                             }, { patch: true })
                             .then(
                                 DEV.where({ idd: idd_old }).save({
@@ -146,7 +197,7 @@ router.post('/point_insert', authenticate, (req, resp) => {
                                 }, { patch: true })
                                     .then(
 
-                                        FTP.where({ id:12 })
+                                        FTP.where({ id: 12 })
                                             .save({
 
                                                 name: idd
@@ -180,6 +231,84 @@ router.post('/point_insert', authenticate, (req, resp) => {
 
 })
 
+router.post('/point_change', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+
+
+    let idd = data.idd;
+
+
+
+
+    SOAP.query('where', 'is_present', '=', 'true').orderBy('id', 'DESC').fetchAll().then(_station => {
+        var result = JSON.stringify(_station);
+        var station = JSON.parse(result);
+        var id = station[0].id;
+        var idd_old = station[0].idd;
+
+
+        POINTS.where({ idd }).fetchAll().then(_point => {
+            var result = JSON.stringify(_point);
+            var point = JSON.parse(result);
+
+            let place = point[0].place;
+            let descr = point[0].descr;
+            let lon = point[0].lon;
+            let lat = point[0].lat;
+            let date_time_begin = point[0].date_time_begin;
+            let date_time_end = point[0].date_time_end;
+
+            //console.log(place, lat, lon, descr, 'station id =', id);
+
+            SOAP.where({ id })
+                .save({
+                    idd, date_time_in: date_time_begin, date_time_out: date_time_end, place: place + "  " + descr
+                }, { patch: true })
+                .then(
+                    DEV.where({ idd: idd_old }).save({
+                        idd
+                    }, { patch: true })
+                        .then(
+
+                            FTP.where({ id: 12 })
+                                .save({
+
+                                    name: idd
+
+                                }, { patch: true })
+                                .then(result => {
+                                    resp.json({ result });
+                                }).catch(err => resp.status(500).json({ error: 'FTP update error ' + err }))
+                        ).catch(err => resp.status(500).json({ error: 'Devices update error ' + err }))
+
+                ).catch(err => resp.status(500).json({ error: 'Stations update error ' + err }));
+        }).catch(err => {
+
+            resp.status(500).json({ error: 'Points query error ' + err })
+        })
+
+
+    }).catch(err => {
+
+        resp.status(500).json({ error: 'Stations query error' })
+    })
+
+
+
+
+
+
+    //      console.log(arr[0].idd);
+
+
+
+
+})
 
 router.get('/point_get', authenticate, (req, resp) => {
     //  
