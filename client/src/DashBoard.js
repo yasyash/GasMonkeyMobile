@@ -25,7 +25,7 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import StationsIcon from '@material-ui/icons/AccountBalance';
 import StationIcon from './icons/Stations';
-import Backdown from './icons/Backdown';
+import Backdown from '@material-ui/icons/CloudDownload';
 
 // core components
 import GridItem from "material-dashboard-react/components/Grid/GridItem";
@@ -44,7 +44,8 @@ import Divider from '@material-ui/core/Divider';
 
 import isEmpty from 'lodash.isempty';
 import CloudyIcon from '@material-ui/icons/WbCloudy';
-import ExploreIcon from '@material-ui/icons/Explore';
+import Weather from './icons/Weather';
+import CloudOffIcon from '@material-ui/icons/CloudOff';
 //import moment from 'moment';
 //import Sidebar from 'material-dashboard-react/components/Sidebar/Sidebar';
 //import appRoutes from 'material-dashboard-react/routes/index';
@@ -95,7 +96,7 @@ const styles = theme => ({
   },
   inactiveicon:
   {
-backgroundColor: 'grey'
+    backgroundColor: 'grey'
   },
   message: {
     textAlign: 'justify',
@@ -390,7 +391,7 @@ class DashBoard extends Component {
                       <Card>
                         <CardHeader stats icon >
                           <CardIcon color={filter[filter.length - 1].is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
-                            <Backup />
+                            {filter[0].increase ? <Backup /> : <Backdown />}
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {(element.chemical == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
                           <p className={classes.cardCategory}> {(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : (measure / element.max_m).toFixed(3)} долей ПДК</p>
@@ -423,16 +424,12 @@ class DashBoard extends Component {
                         return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
                       })
                     ),
-                    (_filter.length > 0) && ( filter =[] ),
-
-
-
-
+                    (_filter.length > 0) && (filter = []),
                     (filter.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_' + filter[0].typemeasure}>
                       <Card>
                         <CardHeader stats icon  >
-                          <CardIcon color={"info"} style={{ padding: "5px", color: "grey" }}  >
-                            <Backup />
+                          <CardIcon color={"info"} style={{ padding: "5px", color: "lightgrey" }}  >
+                            <CloudOffIcon />
                           </CardIcon>
 
 
@@ -465,7 +462,7 @@ class DashBoard extends Component {
                       <Card>
                         <CardHeader stats icon >
                           <CardIcon color={element.is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
-                            <ExploreIcon />
+                            <Weather />
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {measure.toFixed(1)} {_type_measure[0].unit_name}</p>
                           <h3 className={classes.cardTitle}>{_type_measure[0].typemeasure}</h3>
@@ -657,7 +654,7 @@ class DashBoard extends Component {
                       <Card>
                         <CardHeader stats icon >
                           <CardIcon color={filter[filter.length - 1].is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
-                            <Backup />
+                            {filter[0].increase ? <Backup /> : <Backdown />}
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {(element.chemical == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
                           <p className={classes.cardCategory}>{(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : (measure / element.max_m).toFixed(3)} долей ПДК</p>
@@ -678,7 +675,42 @@ class DashBoard extends Component {
 
                   ))}
 
+                {(macsList) &&
+                  macsList.map((element, j) => (
+                    (sensorsList.length > 0) && (
+                      filter = sensorsList.filter((opt, k, arr) => {
+                        return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
+                      })
+                    ),
+                    (filter.length > 0) && (
+                      _filter = dataList.filter((opt, k, arr) => {
+                        return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
+                      })
+                    ),
+                    (_filter.length > 0) && (filter = []),
+                    (filter.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_' + filter[0].typemeasure}>
+                      <Card>
+                        <CardHeader stats icon  >
+                          <CardIcon color={"info"} style={{ padding: "5px", color: "lightgrey" }}  >
+                            <CloudOffIcon />
+                          </CardIcon>
 
+
+                          <h3 className={classes.cardTitle}>{filter[0].typemeasure}</h3>
+                          <p className={classes.cardCategory}>Отключен...</p>
+
+                        </CardHeader>
+                        <CardFooter stats>
+                          <div className={classes.stats}>
+                            <Place />
+                            {item.place} </div>
+                        </CardFooter>
+                      </Card>
+
+                    </GridItem>)
+
+
+                  ))}
                 <hr style={{ width: "80%", size: "1" }} />
 
                 {(weatherList) &&
@@ -691,7 +723,7 @@ class DashBoard extends Component {
                       <Card>
                         <CardHeader stats icon >
                           <CardIcon color={element.is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
-                            <ExploreIcon />
+                            <Weather />
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {measure.toFixed(1)} {_type_measure[0].unit_name}</p>
                           <h3 className={classes.cardTitle}>{_type_measure[0].typemeasure}</h3>

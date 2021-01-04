@@ -1276,7 +1276,8 @@ export function queryDashBoardDataOperativeEvent(paramstr) {
                             unit_name: element.unit_name,
                             measure: element.measure,
                             is_alert: element.is_alert,
-                            momental_measure : element.momental_measure
+                            momental_measure : element.momental_measure,
+                            increase: element.increase
                         });
                     });
 

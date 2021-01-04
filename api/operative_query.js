@@ -160,7 +160,7 @@ router.get('/board', authenticate, (req, resp) => {
 
 
             var data_list = [];
-            console.log('data entry = ', __data_list.length);
+            //console.log('data entry = ', __data_list.length);
 
             ///20 min averaging
             _data_sensors.map((element, j) => {
@@ -193,12 +193,18 @@ router.get('/board', authenticate, (req, resp) => {
                             var max_m = 10000; //fake treshould for not gazanalytic measure (Voltage, weather etc.)
                         }
 
+                        var increase = true;
+                        if (_data.length > 1) {
+                            (_data[_data.length - 1].measure > _data[_data.length - 2].measure) ? increase = true : increase = false;
+
+                            //console.log("last ", _data[_data.length - 1]," prev ",  _data[_data.length - 2])
+                        }
+
                         data_list.push({
                             'id': _data[_data.length - 1].idd, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
                             'date_time': _data[_data.length - 1].date_time, 'unit_name': element.unit_name, 'measure': _measure / _data.length,
-                            'is_alert': ((_measure / _data.length > Number(max_m)) ? true : false), 'momental_measure': Number(_data[_data.length - 1].measure)
+                            'is_alert': ((_measure / _data.length > Number(max_m)) ? true : false), 'momental_measure': Number(_data[_data.length - 1].measure), 'increase': increase
                         });
-
                     }
 
                 }
@@ -214,8 +220,8 @@ router.get('/board', authenticate, (req, resp) => {
                        data_list = [...data_list, ..._tmp];
                    }
                });*/
-            console.log('exit = ', data_list.length);
-            console.log('data = ', data_list);
+            //console.log('exit = ', data_list.length);
+            //console.log('data = ', data_list);
 
             let response = [data_list, data_sensors, consentration, logs_list];
             resp.json({ response });
