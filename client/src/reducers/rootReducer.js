@@ -26,8 +26,10 @@ import logsList from './logsList';
 
 import stationsList from './getStationsList';
 
+import time from './time';
+
 export default createStore(
-    combineReducers({stationsList,
+    combineReducers({time, stationsList,
         logsList, meteoStation, datePickers, macsList, activeStationsList, activeSensorsList, meteoList,
         dataList, sensorsList, flashMessages, auth
     }),

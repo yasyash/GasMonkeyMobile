@@ -142,9 +142,8 @@ router.get('/board', authenticate, (req, resp) => {
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: 'data error' })),
         Sensors.query({
-            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor', 'measure_class'],
-            where: ({ is_present: true }),
-            where: ({ measure_class: 'data' })
+            select: ['idd','serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor', 'measure_class'],
+            where: ({ is_present: true })
         })
             .fetchAll()
             .catch(err => resp.status(500).json({ error: 'sensors error' })),
@@ -197,7 +196,7 @@ router.get('/board', authenticate, (req, resp) => {
                         data_list.push({
                             'id': _data[_data.length - 1].idd, 'typemeasure': _data[_data.length - 1].typemeasure, 'serialnum': _data[_data.length - 1].serialnum,
                             'date_time': _data[_data.length - 1].date_time, 'unit_name': element.unit_name, 'measure': _measure / _data.length,
-                            'is_alert': ((_measure / _data.length > Number(max_m)) ? true : false)
+                            'is_alert': ((_measure / _data.length > Number(max_m)) ? true : false), 'momental_measure': Number(_data[_data.length - 1].measure)
                         });
 
                     }
@@ -206,16 +205,18 @@ router.get('/board', authenticate, (req, resp) => {
             })////
 
 
-         /*   _data_sensors.forEach(element => {
-                console.log('data sensors = ', element.serialnum);
-                var _tmp = __data_list.filter((opt, k, arr) => {
-                    return ((opt.serialnum == element.serialnum));
-                })
-                if (_tmp.length > 0) {
-                    data_list = [...data_list, ..._tmp];
-                }
-            });*/
+            /*   _data_sensors.forEach(element => {
+                   console.log('data sensors = ', element.serialnum);
+                   var _tmp = __data_list.filter((opt, k, arr) => {
+                       return ((opt.serialnum == element.serialnum));
+                   })
+                   if (_tmp.length > 0) {
+                       data_list = [...data_list, ..._tmp];
+                   }
+               });*/
             console.log('exit = ', data_list.length);
+            console.log('data = ', data_list);
+
             let response = [data_list, data_sensors, consentration, logs_list];
             resp.json({ response });
         })

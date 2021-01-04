@@ -62,7 +62,7 @@ const FoldableTable = FoldableTableHOC(CheckboxTable);
 
 import PointDialog from './stuff/PointDialog';
 import { TableRowColumn } from 'material-ui';
-import { updateSecurityUser } from './actions/adminActions';
+import { timeAddAction, timeDeleteAction } from './actions/dateAddAction';
 import { access } from 'fs';
 
 //const pngs = require.context('../../tiles', true, /\.png$/);
@@ -618,6 +618,8 @@ class PointsForm extends React.Component {
     };
 
     handleActivate() {
+        var filter = [];
+        const { points_list } = this.state;
 
         if (this.state.point_actual) {
             if (this.state.inMeasure) {
@@ -629,6 +631,11 @@ class PointsForm extends React.Component {
                             this.props.changePoint({ idd: this.state.point_actual }).then(resp => {
                                 if (resp.status == 200) {
                                     this.map_load();
+
+                                    filter = points_list.filter((item) => {
+                                        return item.idd == this.state.point_actual;
+                                    });
+
                                     this.setState({ point_actual: '', selection: '' });
 
                                     this.setState({ isLoading: true });
@@ -649,6 +656,11 @@ class PointsForm extends React.Component {
                 this.props.changePoint({ idd: this.state.point_actual }).then(resp => {
                     if (resp.status == 200) {
                         this.map_load();
+
+                                    filter = points_list.filter((item) => {
+                                        return item.idd == this.state.point_actual;
+                                    });
+
                         this.setState({ point_actual: '', selection: '' });
 
                         this.setState({ isLoading: true });
@@ -659,8 +671,10 @@ class PointsForm extends React.Component {
                     }
                 })
             }
-        } else{
-            alert ("Необходимо выбрать точку...");
+            if (filter.length > 0)
+                this.props.timeAddAction({ date_time_end: filter[0].date_time_end });
+        } else {
+            alert("Необходимо выбрать точку...");
         }
     };
 
@@ -700,7 +714,7 @@ class PointsForm extends React.Component {
 
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Данные удалены...' });
-
+                        this.props.timeDeleteAction();
                     } else {
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Ошибка сервера...' });
@@ -908,4 +922,4 @@ PointsForm.contextType = {
     // router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint, updatePointAll, changePoint })(withRouter(withStyles(styles)(PointsForm)));
+export default connect(mapStateToProps, { queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint, updatePointAll, changePoint, timeAddAction, timeDeleteAction })(withRouter(withStyles(styles)(PointsForm)));

@@ -327,6 +327,7 @@ class SoapForm extends React.Component {
         }
     }
 
+    
     handleDelete() {
         if (!isEmpty(this.state.soap_actual)) {
             var isReal = confirm("Вы уверены?...");

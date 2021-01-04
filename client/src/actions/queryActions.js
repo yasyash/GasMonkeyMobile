@@ -1275,16 +1275,19 @@ export function queryDashBoardDataOperativeEvent(paramstr) {
                             date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
                             unit_name: element.unit_name,
                             measure: element.measure,
-                            is_alert: element.is_alert
+                            is_alert: element.is_alert,
+                            momental_measure : element.momental_measure
                         });
                     });
 
                     sensors_list.forEach(element => {
                         sensorsTable.push({
+                            id:  element.idd,
                             typemeasure: element.typemeasure,
                             serialnum: element.serialnum,
                             unit_name: element.unit_name,
                             is_wind_sensor: element.is_wind_sensor,
+                            measure_class: element.measure_class
                         });
                     });
                     var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115, 120, 200, 404, 500]; //all type error

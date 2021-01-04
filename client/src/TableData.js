@@ -395,7 +395,7 @@ class TableData extends React.Component {
 
 
     handleChange(name, value) {
-        if (isNumber(parseInt(value))) { var val = parseInt(value) } else { var val = value };
+        if (isNumber(parseFloat(value))) { var val = parseFloat(value) } else { var val = value };
 
         this.setState({ [name]: val });
 
