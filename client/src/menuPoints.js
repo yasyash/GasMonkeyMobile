@@ -34,13 +34,17 @@ import Paper from '@material-ui/core/Paper';
 import { connect } from 'react-redux';
 import isEmpty from 'lodash.isempty';
 
-import { saveAs } from 'file-saver'
+import { saveAs } from 'file-saver';
 
 import { dateAddAction } from './actions/dateAddAction';
 
-import Visibility from './icons/eye-check';
-import DeleteForever from '@material-ui/icons/DeleteForever';
-import LockIcon from '@material-ui/icons/Lock';
+import Visibility from '@material-ui/icons/VisibilityTwoTone';
+import DeleteForever from '@material-ui/icons/DeleteForeverTwoTone';
+import LockIcon from '@material-ui/icons/LockTwoTone';
+import Backdown from '@material-ui/icons/CloudDownloadTwoTone';
+import CloudOffIcon from '@material-ui/icons/CloudOffTwoTone';
+import NoteAdd from '@material-ui/icons/NoteAddTwoTone';
+
 //import isDate from 'lodash.isdate';
 /**
  * Three controlled examples, the first allowing a single selection, the second multiple selections,
@@ -197,6 +201,13 @@ class MenuPoints extends Component {
 
     }
 
+    handleSnackClose() {
+        this.setState({ isLoading: false });
+
+    };
+
+
+
     handleExcelSave = (name) => {
 
         const { dateReportEnd } = this.props;
@@ -344,6 +355,17 @@ class MenuPoints extends Component {
     handleActivate = () => {
         this.props.handleActivate();
     };
+    handleAddPoint = () => {
+        this.props.handleAddPoint();
+    };
+
+
+    handleMeasureActivate = () => {
+        this.props.handleMeasureActivate();
+    };
+    handleMeasureStop = () => {
+        this.props.handleMeasureStop();
+    };
     handleLockClick = () => {
         this.props.handleLockClick();
     };
@@ -381,7 +403,14 @@ class MenuPoints extends Component {
             <nav className="navbar form-control classes.container">
                 <div className="navbar-header"   >
 
+                    <Tooltip id="tooltip-charts-view3" title="Добавить точку для наблюдения">
+                        <IconButton className={classes.button} onClick={this.handleAddPoint} aria-label="Добавить точку для наблюдения">
 
+                            <Icon className={classes.icon} color="primary">
+                                < NoteAdd />
+                            </Icon>
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip id="tooltip-charts-view3" title="Выбрать точку для обработки">
                         <IconButton className={classes.button} onClick={this.handleActivate} aria-label="Активировать">
 
@@ -392,16 +421,28 @@ class MenuPoints extends Component {
                     </Tooltip>
 
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                            <Tooltip id="tooltip-charts-view4" title="Завершить текущее наблюдение">
-                        <IconButton className={classes.button} onClick={this.handleLockClick} aria-label="Завершить">
+                    <Tooltip id="tooltip-charts-view6" title="Начать сбор данных">
+                        <IconButton className={classes.button} onClick={this.handleMeasureActivate} aria-label="Начать сбор данных">
 
                             <Icon className={classes.icon} color="primary">
-                                < LockIcon />
+                                < Backdown />
                             </Icon>
                         </IconButton>
                     </Tooltip>
+
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <Tooltip id="tooltip-charts-view6" title="Остановить сбор данных">
+                        <IconButton className={classes.button} onClick={this.handleMeasureStop} aria-label="Остановить сбор данных">
+
+                            <Icon className={classes.icon} color="primary">
+                                < CloudOffIcon />
+                            </Icon>
+                        </IconButton>
+                    </Tooltip>
+
+
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                            <Tooltip id="tooltip-charts-view4" title="Удалить из списка наблюдений">
+                            <Tooltip id="tooltip-charts-view5" title="Удалить из списка наблюдений">
                         <IconButton className={classes.button} onClick={this.handleDeleteClick} aria-label="Удалить">
 
                             <Icon className={classes.icon} color="primary">
@@ -541,6 +582,8 @@ class MenuPoints extends Component {
                     </IconMenu>
 
                 </div>
+
+
 
                 <Snackbar
                     open={this.props.isLoading}

@@ -23,6 +23,7 @@ import Macs from '../models/macs';
 import DATA from '../models/data';
 import POINTS from '../models/points';
 import ftp_upload from './ftp_actions';
+import { exec } from 'child_process';
 
 import { isString } from 'util';
 
@@ -44,9 +45,97 @@ router.post('/point_delete', authenticate, (req, resp) => {
             is_present: false
         }, { patch: true })
         .then(result => {
-            resp.json({ result });
+
+            exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`error: ${error.message}`);
+                    resp.json({ result : error });
+                }
+    
+                if (stderr) {
+                    console.error(`stderr: ${stderr}`);
+                    resp.json({ result : stderr });
+                }
+    
+    
+                resp.json({ result : result });
+    
+            });
         }).catch(err => resp.status(500).json({ error: ' ' + err }));
     // write the result
+
+})
+
+router.post('/point_measure_activate', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+    //console.log(data);
+    POINTS.where({ idd: data.idd })
+    .save({
+        date_time_end: null , in_measure: true
+    }, { patch: true })
+    .then(result => {
+
+        exec('sudo systemctl start fetcher-weather.service', (error, stdout, stderr) => {
+            if (error) {
+                console.error(`error: ${error.message}`);
+                resp.json({ result : error });
+            }
+
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+                resp.json({ result : stderr });
+            }
+
+
+            resp.json({ result : result });
+
+        });
+
+    }).catch(err => resp.status(500).json({ error: ' ' + err }));
+   
+
+})
+
+router.post('/point_measure_stop', authenticate, (req, resp) => {
+    //  
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+    //console.log(data);
+   var date_time_end = new Date().format('dd-MM-Y H:mm:SS'); //in case if measure close
+
+    POINTS.where({ idd: data.idd })
+    .save({
+        date_time_end, in_measure: false
+    }, { patch: true })
+    .then(result => {
+
+        exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
+            if (error) {
+                console.error(`error: ${error.message}`);
+                resp.json({ result : error });
+            }
+
+            if (stderr) {
+                console.error(`stderr: ${stderr}`);
+                resp.json({ result : stderr });
+            }
+
+
+            resp.json({ result : result });
+
+        });
+
+    }).catch(err => resp.status(500).json({ error: ' ' + err }));
+   
+
 
 })
 
@@ -68,7 +157,20 @@ router.post('/point_update', authenticate, (req, resp) => {
             .then(result => {
 
                 ftp_upload();
-                resp.json({ result });
+                exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
+                    if (error) {
+                        console.error(`error: ${error.message}`);
+                        resp.json({ result : error });
+                    }
+        
+                    if (stderr) {
+                        console.error(`stderr: ${stderr}`);
+                        resp.json({ result : stderr });
+                    }
+        
+        
+                    resp.json({ result : result });
+                });
 
             }).catch(err => resp.status(500).json({ error: ' ' + err }));
 
@@ -204,7 +306,21 @@ router.post('/point_insert', authenticate, (req, resp) => {
 
                                             }, { patch: true })
                                             .then(result => {
-                                                resp.json({ result });
+                                                exec('sudo systemctl start fetcher-weather.service', (error, stdout, stderr) => {
+                                                    if (error) {
+                                                        console.error(`error: ${error.message}`);
+                                                        resp.json({ result : error });
+                                                    }
+                                        
+                                                    if (stderr) {
+                                                        console.error(`stderr: ${stderr}`);
+                                                        resp.json({ result : stderr });
+                                                    }
+                                        
+                                        
+                                                    resp.json({ result : result });
+
+                                                });
                                             }).catch(err => resp.status(500).json({ error: 'FTP update error' }))
                                     ).catch(err => resp.status(500).json({ error: 'Devices update error' }))
 
@@ -383,7 +499,7 @@ router.post('/srv_insert', authenticate, (req, resp) => {
     // let obj = qs.parse(query);
     //let data = JSON.parse(obj.data);
     let data = req.body;
-    console.log(data);
+    //console.log(data);
 
     //  console.log(req.body);
 
@@ -460,7 +576,7 @@ router.post('/api_insert', authenticate, (req, resp) => {
             var result_parse0 = JSON.stringify(result);
             var arr = JSON.parse(result_parse0);
             let id = 1;
-            console.log(String(Number(arr[0].id) + 1))
+           // console.log(String(Number(arr[0].id) + 1))
             if (!isEmpty(arr[0]))
                 id = String(Number(arr[0].id) + 1);
 

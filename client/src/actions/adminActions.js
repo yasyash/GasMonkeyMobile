@@ -18,6 +18,42 @@ function wrapData(data_in) {
 
 //Points handling
 
+export function getActivePoint() {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.get('/api/admin/soap_get')
+            .then(resp => {
+                let list = [];
+                let data = resp.data.ftplist;
+
+                data.forEach(element => {
+                    if (element.is_present)
+                        list.push({
+                            address: element.address,
+                            is_present: element.is_present ? 'включена' : 'деактивирована',
+                            login: element.login,
+                            password_soap: element.password_soap,
+                            updateperiod: element.updateperiod,
+                            namestation: element.namestation,
+                            useraccessright: element.useraccessright,
+                            date_time_in: new Date(element.date_time_in).format('dd-MM-Y HH:mm:SS'),
+                            idd: element.idd,
+                            place: element.place,
+                            latitude: element.latitude,
+                            longitude: element.longitude
+                        })
+
+                });
+
+
+                return wrapData(list);
+            })
+    };
+};
+
+
 export function deletePoint(paramstr) {
 
     // const data = JSON.stringify(paramstr);
@@ -36,6 +72,27 @@ export function updatePoint(paramstr) {
             .then(resp => resp)
     };
 };
+
+export function measureActivate(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/point_measure_activate', paramstr)
+            .then(resp => resp)
+    };
+};
+
+export function measureStop(paramstr) {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.post('/api/admin/point_measure_stop', paramstr)
+            .then(resp => resp)
+    };
+};
+
 export function insertPoint(paramstr) {
 
     // const data = JSON.stringify(paramstr);
@@ -515,13 +572,13 @@ export function getDev() {
                         filter = stns.filter((item, i, arr) => {
                             return item.idd == element.idd;
                         });
-                        if (filter.lenght > 0)
+                        if (filter.length > 0)
                             idd_old = filter[0].idd;
                     }
                     macs_filter = macs.filter((item, i, arr) => {
                         return item.chemical == element.typemeasure;
                     });
-                    if (filter.lenght > 0)
+                    if (filter.length > 0)
 
                         list.push({
                             id: String(element.id),
