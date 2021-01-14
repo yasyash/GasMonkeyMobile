@@ -50,8 +50,15 @@ router.get('/', authenticate, (req, resp) => {
             .catch(err => resp.status(500).json({ error: err })),
         Macs.fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
-        ((data_list, data_sensors, consentration) => {
-            let response = [data_list, data_sensors, consentration];
+        Data.query('whereBetween', 'date_time', between_date)
+            .query('where', 'idd', data.station)
+            .query({
+                andWhereRaw: ("((date_time::varchar like '%:%0:%') or (date_time::varchar like '%:%5:%') ) and (typemeasure = 'Направление ветра' or typemeasure = 'Интенс. осадков' or typemeasure = 'Влажность внеш.' or typemeasure = 'Скорость ветра' or typemeasure = 'Атм. давление' or typemeasure = 'Темп. внешняя')")
+            })
+            .orderBy('date_time', 'ASC').fetchAll()
+            .catch(err => resp.status(500).json({ error: err })),
+        ((data_list, data_sensors, consentration, meteo) => {
+            let response = [data_list, data_sensors, consentration, meteo];
             resp.json({ response });
         })
 
@@ -142,7 +149,7 @@ router.get('/board', authenticate, (req, resp) => {
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: 'data error' })),
         Sensors.query({
-            select: ['idd','serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor', 'measure_class'],
+            select: ['idd', 'serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor', 'measure_class'],
             where: ({ is_present: true })
         })
             .fetchAll()

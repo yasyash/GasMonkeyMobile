@@ -112,6 +112,7 @@ router.get('/many', authenticate, (req, resp) => {
             Promise.join(
                 Data.query('whereBetween', 'date_time', between_date)
                     .query('whereIn', 'serialnum', data.sensors)
+                    .query('whereIn', 'idd', data.station)
                     .orderBy('date_time', 'ASC').fetchAll()
                     .catch(err => resp.status(500).json({ error: err })),
                 Sensors.query({
@@ -128,7 +129,7 @@ router.get('/many', authenticate, (req, resp) => {
                     let response = [data_list, data_sensors, consentration];
                     var _data_list = JSON.parse(JSON.stringify(data_list));
 
-                    //console.log("data list ", _data_list);
+                    //console.log("data list ", [data.station]);
                     resp.json({ response });
                 })
 

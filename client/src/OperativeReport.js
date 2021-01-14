@@ -33,6 +33,7 @@ import MenuReport from './menuReport';
 import { queryOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
 import { reportGen, reportXlsGen } from './actions/genReportActions';
 import { dateAddAction } from './actions/dateAddAction';
+import { dateAddReportAction } from './actions/dateAddAction';
 
 
 const styles = theme => ({
@@ -171,6 +172,18 @@ class OperativeReport extends React.Component {
         return data;
     };
 
+    handlePickerChange(date) {
+
+        let _newDate = Date.parse(date);
+        let ms = _newDate - 1200000;
+
+        let dateTimeBegin = new Date(ms).format('Y-MM-ddTHH:mm');
+
+        this.setState({ dateTimeEnd: date, dateTimeBegin: dateTimeBegin });
+        dateAddReportAction({ 'dateReportBegin': dateTimeBegin });
+        dateAddReportAction({ 'dateReportEnd': date });
+    }
+
     handleReportChange = (state) => {
         this.setState({ station_actual: state.station_actual, station_name: state.station_name });
 
@@ -287,7 +300,7 @@ class OperativeReport extends React.Component {
                     });
                 })
                 values.push({
-                    date: new Date().format('dd-MM-Y H:mm:SS'), pollution: pollution, P: rows_service.P,
+                    date: 'Точка отбора: ' + this.props.point_descr + '    время:  ' + new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm:SS'), pollution: pollution, P: rows_service.P,
                     Tout: rows_service.Tout,
                     Hout: rows_service.Hout,
                     WindV: rows_service.WindV,
@@ -403,7 +416,7 @@ class OperativeReport extends React.Component {
                     dateReportEnd={this.state.dateTimeEnd}
                     report_type='operative'
                     data_4_report={this.state.data_4_report}
-
+                    handlePickerChange={this.handlePickerChange.bind(this)}
                     handleReportChange={this.handleReportChange.bind(this)}
                     handleSnackClose={this.handleSnackClose.bind(this)}
 
@@ -414,9 +427,9 @@ class OperativeReport extends React.Component {
                     <table style={{ "width": '100%' }} id="operative_report_table_header">
                         <tbody>
                             <tr>
-        <td style={{ 'width': '45%' }}>Лаборатория: {this.state.station_name} </td>
+                                <td style={{ 'width': '45%' }}>Лаборатория: {this.state.station_name} </td>
 
-                                <td style={{ 'width': '45%', 'textAlign': 'right' }}>{new Date().format('dd-MM-Y H:mm:SS')}</td>
+                                <td style={{ 'width': '45%', 'textAlign': 'right' }}>{new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm')}</td>
                                 <td style={{ 'width': '5%' }}>&nbsp;</td>
                             </tr>
                         </tbody>
@@ -449,10 +462,10 @@ class OperativeReport extends React.Component {
                                     дата
                 </td>
                                 <td style={{ 'width': '15%' }} >
-                                    время
+                                    время завершения
                 </td>
                                 <td style={{ 'width': '20%' }} >
-                                    значение
+                                    среднее значение
                 </td>
                             </tr>
                             {(rows_measure) &&// if not empty
@@ -479,13 +492,13 @@ class OperativeReport extends React.Component {
                                 <td style={{ 'width': '25%' }} >
                                     Наименование           </td>
                                 <td style={{ 'width': '20%' }} >
-                                    Значение      </td>
+                                    Среднее значение      </td>
                                 <td style={{ 'width': '15%' }} >
                                     №     </td>
                                 <td style={{ 'width': '15%' }} >
                                     Наименование           </td>
                                 <td style={{ 'width': '20%' }} >
-                                    Значение      </td>
+                                    Среднее значение      </td>
                             </tr>
                             <tr >
                                 <td >1</td>
@@ -534,8 +547,8 @@ class OperativeReport extends React.Component {
                                 <td ></td>
                                 <td ></td>
                                 <td >
-                                    
-                                  
+
+
 
                                 </td>
                             </tr>
@@ -564,7 +577,7 @@ function mapStateToProps(state) {
     let station = '';
     let tmp = '';
     if (state.activeStationsList[1]) {
-        tmp = state.activeStationsList.slice(state.activeStationsList.length - 1, );
+        tmp = state.activeStationsList.slice(state.activeStationsList.length - 1);
         sensors = tmp[0].sensors;
 
     };
@@ -601,5 +614,11 @@ OperativeReport.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(null, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen })(withRouter(withStyles(styles)(OperativeReport)
+function mapStateToProps(state) {
+    return {
+        point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr,
+    };
+}
+
+export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen })(withRouter(withStyles(styles)(OperativeReport)
 ));

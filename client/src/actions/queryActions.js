@@ -548,6 +548,8 @@ export function queryOperativeEvent(paramstr) {
                     let data_list = data.response[0];
                     let sensors_list = data.response[1];
                     var macsTable = data.response[2];
+                    var meteo = data.response[3];
+
                     let unit_name = '';
                     let prev = '';
                     let i = 0;
@@ -579,7 +581,7 @@ export function queryOperativeEvent(paramstr) {
 
 
                 }
-                return { dataTable, sensorsTable, macsTable };
+                return { dataTable, sensorsTable, macsTable, meteo };
             });
 
 

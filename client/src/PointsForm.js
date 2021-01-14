@@ -45,7 +45,8 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
 import { getPoint, updatePoint, deletePoint, insertPoint, updatePointAll, changePoint, measureActivate, measureStop, getActivePoint } from './actions/adminActions';
-
+import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
+import { deleteActiveStationsList } from './actions/stationsAddAction';
 
 import pinAlert from './pin-alert.png';
 import pinGreen from './pin-green.png';
@@ -388,11 +389,12 @@ class PointsForm extends React.Component {
 
 
     map_load() {
+        var inMeasure = false;
+        var iddMeasure = '';
         this.props.getPoint().then(data => {
-            var inMeasure = false;
-            var iddMeasure = '';
+
             if (data.length > 0) {
-                data.forEach((item) => {
+                data.forEach((item, index) => {
                     const { _map } = this.state;
 
 
@@ -401,27 +403,26 @@ class PointsForm extends React.Component {
                         inMeasure = true;
                         iddMeasure = item.idd;
                         item.date_time_end = "";
-
-
+                        //pointDeleteAction();
+                        //pointAddAction({ iddMeasure: iddMeasure, inMeasure: inMeasure, place: item.place, descr: item.descr });
 
                     } else {
 
-
-
                     }
-
 
                 })
 
                 this.setState({ inMeasure: inMeasure, points_list: data });
-                if (!isEmpty(iddMeasure))
-                    this.setState({ iddMeasure: iddMeasure });
 
             }
         }).then(out => {
             this.props.getActivePoint().then(_data => {
-                if ((_data.length > 0))
-                    this.setState({ lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
+                if ((_data.length > 0)) {
+                    pointDeleteAction();
+                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '' });
+
+                    this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
+                }
             })
         })
 
@@ -560,6 +561,81 @@ class PointsForm extends React.Component {
         );
     } I
 
+    renderEditable(cellInfo) {
+
+        function _html_out(_obj) {
+            if (isEmpty(_obj.state.points_list)) {
+                try {
+                    //   var _tmp = Date.parse(_obj.props.points_list[0]["date_time_begin"]);
+                    // if (!isNaN(_tmp))
+                    return { __html: _obj.props.points_list[cellInfo.index][cellInfo.column.id] }
+                    //   else
+                    //       return { __html: _obj.props.points_list[cellInfo.index + 1][cellInfo.column.id] }
+
+                }
+                catch (err) {
+                    return { __html: _obj.props.points_list[cellInfo.index + 1][cellInfo.column.id] }
+                }
+
+            } else {
+                try {
+                    // var _tmp = Date.parse(_obj.state.points_list[0]["date_time_begin"]);
+                    // if (!isNaN(_tmp))
+                    return { __html: _obj.state.points_list[cellInfo.index][cellInfo.column.id] }
+                    //else
+                    //    return { __html: _obj.state.points_list[cellInfo.index + 1][cellInfo.column.id] }
+
+                }
+                catch (err) {
+                    return { __html: _obj.state.dataLipoints_listst[cellInfo.index + 1][cellInfo.column.id] }
+                }
+
+            }
+        };
+        return (
+            <div
+                style={{ backgroundColor: "#f5f5f5" }}
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={e => {
+                    {
+
+                        var data;
+                        if (isEmpty(this.state.points_list)) {
+                            data = [...this.props.points_list];
+
+                        } else {
+                            data = [...this.state.points_list];
+                        }
+
+                        try {
+                            // var _tmp = Date.parse(data[0]["date_time_begin"]);
+                            // if (!isNaN(_tmp))
+                            data[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
+                            // else
+                            //     data[cellInfo.index + 1][cellInfo.column.id] = e.target.innerHTML;
+
+                        }
+                        catch (err) {
+                            data[cellInfo.index + 1][cellInfo.column.id] = e.target.innerHTML;
+                        }
+
+                        this.setState({ points_list: data });
+
+                    }
+                }}
+
+
+                dangerouslySetInnerHTML={
+                    _html_out(this)
+                }
+
+
+            />
+        );
+    } I
+
+
     handleToggleEdit(event, toggled, isForceToggle) {
         const { title, points_list, points_old_list } = this.state;
         var _title = [];
@@ -647,6 +723,9 @@ class PointsForm extends React.Component {
 
                                     this.setState({ isLoading: true });
                                     this.setState({ snack_msg: 'Наблюдения завершены. Иная точка наблюдения загружена...' });
+                                    this.toggleSelection(this.state.point_actual, '', this.state.selection);
+                                    this.props.deleteActiveStationsList();
+
                                 } else {
                                     this.setState({ isLoading: true });
                                     this.setState({ snack_msg: 'Ошибка сервера...' });
@@ -672,6 +751,9 @@ class PointsForm extends React.Component {
 
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Точка наблюдения загружена...' });
+                        this.toggleSelection(this.state.point_actual, '', this.state.selection);
+                        this.props.deleteActiveStationsList();
+
                     } else {
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Ошибка сервера...' });
@@ -687,7 +769,7 @@ class PointsForm extends React.Component {
 
     handleAddPoint() {
         if (!this.state.inMeasure) {
-            this.setState({ openDialog: true, descr:'', place:'', idd: uuid(), lat: this.state.lat, lon: this.state.lon });
+            this.setState({ openDialog: true, descr: '', place: '', idd: uuid(), lat: this.state.lat, lon: this.state.lon });
         } else {
             alert("Необходимо завершить сбор данных для данной точки наблюдения - затем создать новую?...");
         }
@@ -705,21 +787,23 @@ class PointsForm extends React.Component {
                     this.props.measureActivate({ idd: this.state.point_actual }).then(resp => {
                         if (resp.status == 200) {
                             //this.props.changePoint({ idd: this.state.point_actual }).then(resp => {
-                               // if (resp.status == 200) {
-                                    this.map_load();
+                            // if (resp.status == 200) {
+                            this.map_load();
 
-                                //    filter = points_list.filter((item) => {
-                                //        return item.idd == this.state.point_actual;
-                                //    });
+                            //    filter = points_list.filter((item) => {
+                            //        return item.idd == this.state.point_actual;
+                            //    });
 
-                                    this.setState({ inMeasure: true });
+                            this.setState({ inMeasure: true });
 
-                                    this.setState({ isLoading: true });
-                                    this.setState({ snack_msg: 'Начат сбор данных для данной точки...' });
-                              //  } else {
-                               //     this.setState({ isLoading: true });
-                               //     this.setState({ snack_msg: 'Ошибка сервера...' });
-                               // }
+                            this.setState({ isLoading: true });
+                            this.setState({ snack_msg: 'Начат сбор данных для данной точки...' });
+                            this.toggleSelection(this.state.point_actual, '', this.state.selection);
+
+                            //  } else {
+                            //     this.setState({ isLoading: true });
+                            //     this.setState({ snack_msg: 'Ошибка сервера...' });
+                            // }
                             //})
 
                         } else {
@@ -749,23 +833,24 @@ class PointsForm extends React.Component {
                 if (isReal) {
                     this.props.measureStop({ idd: this.state.iddMeasure }).then(resp => {
                         if (resp.status == 200) {
-                           // this.props.changePoint({ idd: this.state.point_actual }).then(resp => {
-                               // if (resp.status == 200) {
-                                    this.map_load();
+                            // this.props.changePoint({ idd: this.state.point_actual }).then(resp => {
+                            // if (resp.status == 200) {
+                            this.map_load();
 
-                                //    filter = points_list.filter((item) => {
-                                //        return item.idd == this.state.point_actual;
-                                //    });
+                            //    filter = points_list.filter((item) => {
+                            //        return item.idd == this.state.point_actual;
+                            //    });
 
-                                    this.setState({ inMeasure: false });
+                            this.setState({ inMeasure: false });
 
-                                    this.setState({ isLoading: true });
-                                    this.setState({ snack_msg: 'Остановлен сбор данных для данной точки...' });
-                               // } else {
-                               //     this.setState({ isLoading: true });
-                               //     this.setState({ snack_msg: 'Ошибка сервера...' });
-                               // }
-                           // })
+                            this.setState({ isLoading: true });
+                            this.setState({ snack_msg: 'Остановлен сбор данных для данной точки...' });
+                            this.toggleSelection(this.state.point_actual, '', this.state.selection);
+                            // } else {
+                            //     this.setState({ isLoading: true });
+                            //     this.setState({ snack_msg: 'Ошибка сервера...' });
+                            // }
+                            // })
 
                         } else {
                             this.setState({ isLoading: true });
@@ -797,6 +882,7 @@ class PointsForm extends React.Component {
 
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Наблюдения завершены...' });
+                        this.toggleSelection(this.state.point_actual, '', this.state.selection);
 
 
                     } else {
@@ -874,6 +960,7 @@ class PointsForm extends React.Component {
                     if (resp.status == 200) {
                         this.setState({ snack_msg: 'Данные успешно добавлены...' });
                         this.setState({ isLoading: true });
+                        this.props.deleteActiveStationsList();
                         this.map_load();
 
                     } else {
@@ -1049,5 +1136,5 @@ PointsForm.contextType = {
 
 export default connect(mapStateToProps, {
     queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint, updatePointAll, changePoint, timeAddAction, timeDeleteAction,
-    measureActivate, measureStop, getActivePoint
+    measureActivate, measureStop, getActivePoint, pointAddAction, pointDeleteAction, deleteActiveStationsList
 })(withRouter(withStyles(styles)(PointsForm)));

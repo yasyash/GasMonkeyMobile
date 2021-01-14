@@ -16,3 +16,4 @@ export function timeAddAction(data) {
 export function timeDeleteAction(data) {
     store.dispatch({ type: DELETE_CURRENT_TIME, data });
 }
+

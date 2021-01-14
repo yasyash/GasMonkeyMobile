@@ -28,8 +28,10 @@ import stationsList from './getStationsList';
 
 import time from './time';
 
+import points from './pointDriving';
+
 export default createStore(
-    combineReducers({time, stationsList,
+    combineReducers({points, time, stationsList,
         logsList, meteoStation, datePickers, macsList, activeStationsList, activeSensorsList, meteoList,
         dataList, sensorsList, flashMessages, auth
     }),

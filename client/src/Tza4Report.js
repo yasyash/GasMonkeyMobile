@@ -103,6 +103,9 @@ class Tza4Report extends React.Component {
             tza4: [],
             adds: [],
             data_4_report: [],
+            tza4_meteo: [],
+            checked_meteo: false,
+            autoHideDuration: 3000
 
         };
 
@@ -184,25 +187,29 @@ class Tza4Report extends React.Component {
         params.station_name = state.station_name;
         params.chemical = state.chemical
         params.get = true;
-
+        params.checked_meteo = this.state.checked_meteo;
+        this.setState({ isLoading: true });
+        this.setState({autoHideDuration: 200000, snack_msg: 'Дождитесь завершения операции...' });
         reportGet_tza4(params).then(resp => {
             if (resp) {
 
                 let adds = resp.adds;
                 let tza4_tmpl = resp.tza4;
                 let data = resp.data;
+                let tza4_meteo = resp.meteo;
 
                 this.setState({ 'data_4_report': data });
                 // this.setState({ 'station_name': state.station_name });
                 this.setState({ 'adds': adds });
+                this.setState({ 'tza4_meteo': tza4_meteo });
                 this.setState({ 'tza4': tza4_tmpl });
 
                 this.setState({ isLoading: true });
-                this.setState({ snack_msg: 'Данные успешно загружены...' });
+                this.setState({ autoHideDuration: 3000, snack_msg: 'Данные успешно загружены...' });
             }
             else {
                 this.setState({ isLoading: false })
-                this.setState({ snack_msg: 'Данные отсутствуют...' })
+                this.setState({autoHideDuration: 3000, snack_msg: 'Данные отсутствуют...' })
 
             };
 
@@ -218,7 +225,9 @@ class Tza4Report extends React.Component {
         this.setState({ isUpdated: false });
 
     };
-
+    handleToggleMeteo(name, event) {
+        this.setState({ [name]: event.target.checked });
+    }
 
     componentWillMount() {
 
@@ -229,9 +238,9 @@ class Tza4Report extends React.Component {
 
     render() {
         const { classes } = this.props;
-        const { tza4 } = this.state;
+        const { tza4_meteo, tza4 } = this.state;
         const { adds } = this.state;
-        const { snack_msg, isLoading } = this.state;
+        const { snack_msg, isLoading, checked_meteo, autoHideDuration } = this.state;
 
 
 
@@ -242,7 +251,7 @@ class Tza4Report extends React.Component {
             <Paper >
                 <br />
                 <MenuReport
-                    {...this.props} snack_msg={snack_msg} isLoading={isLoading}
+                    {...this.props} snack_msg={snack_msg} isLoading={isLoading} autoHideDuration={autoHideDuration}
                     station_name={this.state.station_name}
                     station_actual={this.state.station_actual}
                     //dateReportBegin={this.state.dateReportBegin}
@@ -250,7 +259,8 @@ class Tza4Report extends React.Component {
                     data_4_report={this.state.data_4_report}
                     handleReportChange={this.handleReportChange.bind(this)}
                     handleSnackClose={this.handleSnackClose.bind(this)}
-
+                    handleToggleMeteo={this.handleToggleMeteo.bind(this)}
+                    checked_meteo={checked_meteo}
                 />
 
                 <Typography component="div" style={{ padding: 2 * 1 }} id="tza4_report">
@@ -370,118 +380,607 @@ class Tza4Report extends React.Component {
 
 
                             </tr>
+                        </tbody>
+                    </table>
+                    <table border="1" width="100%" style={{ 'Align': 'center' }} className={classes._td} id="tza4_report_table1">
+
+                        {(tza4) && (!checked_meteo) &&
+                            tza4.map((option, i) => ((<tbody key={'tb_' + i}>
+                                <tr key={'tr_' + i}>
+                                    <td style={{ 'width': '3%' }} >
+                                        {option[0]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[1]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[2]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[3]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[4]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[5]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[6]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[7]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[8]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[9]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[10]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[11]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[12]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[13]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[14]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[15]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[16]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[17]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[18]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[19]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[20]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[21]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[22]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[23]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[24]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[25]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[26]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[27]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[28]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[29]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[30]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[31]}
+                                    </td>
+                                </tr>
 
 
+                            </tbody>)
 
-                            {(tza4) &&
-                                tza4.map((option, i) => (
-                                    <tr key={'tr_' + i}>
-                                        <td style={{ 'width': '3%' }} >
-                                            {option[0]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[1]}
+                            ))}
 
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[2]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[3]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[4]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[5]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[6]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[7]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[8]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[9]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[10]}
 
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[11]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[12]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[13]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[14]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[15]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[16]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[17]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[18]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[19]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[20]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[21]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[22]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[23]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[24]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[25]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[26]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[27]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[28]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[29]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[30]}
-                                        </td>
-                                        <td style={{ 'width': '3%', 'fontSize': '10px' }} >
-                                            {option[31]}
-                                        </td>
-                                    </tr>
-                                ))}
-                            <tr>
+                        {(tza4) && (checked_meteo) &&
+                            tza4.map((option, i) => ((<tbody key={'tb_' + i}>
+                                <tr key={'tr_' + i}>
+                                    <td style={{ 'width': '3%' }} >
+                                        {option[0]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[1]}
 
-                            </tr>
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[2]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[3]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[4]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[5]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[6]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[7]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[8]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[9]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[10]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[11]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[12]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[13]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[14]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[15]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[16]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[17]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[18]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[19]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[20]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[21]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[22]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[23]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[24]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[25]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[26]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[27]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[28]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[29]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[30]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px', 'fontWeight': 'bold' }} >
+                                        {option[31]}
+                                    </td>
+                                </tr>
+
+                                <tr key={'tmpr_' + i}>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        Темп., С
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[1]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[2]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[3]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[4]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[5]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[6]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[7]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[8]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[9]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[10]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[11]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[12]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[13]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[14]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[15]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[16]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[17]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[18]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[19]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[20]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[21]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[22]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[23]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].tempr[24]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                </tr>
+                                <tr key={'hum_' + i}>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        Влажн., %
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[1]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[2]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[3]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[4]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[5]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[6]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[7]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[8]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[9]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[10]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[11]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[12]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[13]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[14]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[15]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[16]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[17]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[18]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[19]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[20]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[21]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[22]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[23]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].hum[24]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                </tr>
+
+                                <tr key={'spd_' + i}>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        Скор. ветра, м/с
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[1]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[2]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[3]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[4]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[5]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[6]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[7]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[8]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[9]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[10]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[11]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[12]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[13]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[14]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[15]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[16]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[17]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[18]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[19]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[20]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[21]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[22]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[23]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].spd[24]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                </tr>
+
+                                <tr key={'dir_' + i}>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        Напр. ветра, град.
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[1]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[2]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[3]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[4]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[5]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[6]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[7]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[8]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[9]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[10]}
+
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[11]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[12]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[13]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[14]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[15]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[16]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[17]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[18]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[19]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[20]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[21]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[22]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[23]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                        {option[32].dir[24]}
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td>
+                                    <td style={{ 'width': '3%', 'fontSize': '10px' }} >
+                                    </td></tr>
+                            </tbody>)
+
+                            ))}
+                        <tbody>
+
 
                             {(adds) && <tr key='adds'>
-                                <td style={{ 'width': '3%' }} colSpan="25">
+                                <td style={{ 'width': '75%' }} colSpan="25">&nbsp;
                                 </td>
                                 <td style={{ 'width': '3%', 'fontSize': '12px' }} >
                                     M

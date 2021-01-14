@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -15,11 +16,23 @@ import isEmpty from 'lodash.isempty';
 
 import Divider from 'material-ui/Divider';
 
-
+import { getPoint, getActivePoint } from './actions/adminActions';
+import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
+import CloudDoneIcon from '@material-ui/icons/CloudQueue';
+import CloudOffIcon from '@material-ui/icons/CloudOff';
 //import Notifier from './stuff/Notifier';
 
 
+
 class NavigationBar extends React.Component {
+  constructor(props) {
+    super(props);
+
+
+    this.state = {
+      point_descr: ''
+    }
+  }
 
 
   logout(e) {
@@ -27,6 +40,47 @@ class NavigationBar extends React.Component {
     this.props.logout();
   }
 
+  map_load() {
+    var inMeasure = false;
+    var iddMeasure = '';
+    this.props.getPoint().then(data => {
+
+      if (data.length > 0) {
+        data.forEach((item) => {
+
+          if ((item.date_time_end < item.date_time_begin) || (item.in_measure)) {
+            inMeasure = true;
+            iddMeasure = item.idd;
+
+          } else {
+
+          }
+
+        })
+
+      }
+    }).then(out => {
+      this.props.getActivePoint().then(_data => {
+        if ((_data.length > 0)) {
+          pointDeleteAction();
+          pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '' });
+
+          //this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
+        }
+      })
+    })
+  }
+
+  componentWillMount() {
+    this.map_load();
+    //doc.addEventListener('contextmenu', function () {
+    // alert('sds')
+    //});
+  }
+  componentDidMount() {
+    // var doc = ReactDOM.findDOMNode(this.refs.status);
+
+  }
 
   render() {
     let { isAuthenticated } = false;
@@ -92,7 +146,12 @@ class NavigationBar extends React.Component {
           <div className="container-fluid">
             <div className="navbar-header">
 
-              <Link to="/" className="navbar-text">{isAuthenticated ? ("Пользователь: " + username) : "Не авторизовано"}</Link>
+              <Link to="/" className="navbar-text">{isAuthenticated ? ("Пользователь: " + username) : "Не авторизовано"}
+              </Link>&nbsp;&nbsp;&nbsp;&nbsp;
+                {(this.props.inMeasure) && (<CloudDoneIcon fontSize="small" color="primary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}
+              {(!this.props.inMeasure) && (<CloudOffIcon fontSize="small" color="secondary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}
+    &nbsp;&nbsp;<Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
+              <b > измерения: </b> {this.props.inMeasure ? "проводятся" : "отключены"}</Link>
             </div>
 
             <div className="navbar-text">
@@ -120,10 +179,14 @@ NavigationBar.propTypes = {
 }
 
 function mapStateToProps(state) {
-  return { auth: state.auth };
+  return {
+    auth: state.auth,
+    point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr,
+    inMeasure: state.points[0].active_point.inMeasure
+  };
 }
 
 
 
-export default connect(mapStateToProps, { logout })(NavigationBar);
+export default connect(mapStateToProps, { pointAddAction, pointDeleteAction, getPoint, getActivePoint, logout })(NavigationBar);
 //export default (NavigationBar);           <Link to="/maps">Карты  &nbsp; &nbsp;</Link>

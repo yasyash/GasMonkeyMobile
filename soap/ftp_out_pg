@@ -35,7 +35,7 @@ chomp (@ARGV);
 open(FILE,$ARGV[0]) or die "Can't access to text file: $!";
 #$_ = <FILE>;
 
-#seek (FILE,-length($_),2); 				#positioning to last record which consists from lenght of $_
+#seek (FILE,-length($_),2); 				#positioning to last record which consists from length of $_
 
 #foreach (<FILE>)
 
