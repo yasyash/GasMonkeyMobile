@@ -300,7 +300,7 @@ class DailyReport extends React.Component {
                                         // console.log('base ' + time_now);
 
 
-                                        return ((up_sec >= time_now) && (time_in <= time_now) );
+                                        return ((up_sec >= time_now) && (time_in <= time_now));
                                     });
 
                                     //meteo avrg
@@ -647,7 +647,7 @@ class DailyReport extends React.Component {
                 });
                 //values.push(measure);
                 values.push({
-                    date: new Date(this.props.dateReportBegin).format('dd-MM-Y'), pollution: pollution
+                    date: 'Точка отбора: '+this.props.point_descr+ '  ' + new Date(this.props.dateReportBegin).format('dd-MM-Y'), pollution: pollution
                 });
                 data.push({ station: this.state.station_name, values: values });
 
@@ -743,7 +743,7 @@ class DailyReport extends React.Component {
             <Paper >
                 <br />
                 <MenuReport
-                    {...this.props} snack_msg={snack_msg} isLoading={isLoading} autoHideDuration ={3000}
+                    {...this.props} snack_msg={snack_msg} isLoading={isLoading} autoHideDuration={3000}
                     station_name={this.state.station_name}
                     station_actual={this.state.station_actual}
                     //dateReportBegin={this.state.dateReportBegin}
@@ -939,8 +939,8 @@ function mapStateToProps(state) {
 
     return {
         dateReportBegin: state.datePickers.dateReportBegin,
-        dateReportEnd: state.datePickers.dateReportEnd
-
+        dateReportEnd: state.datePickers.dateReportEnd,
+        point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr,
     };
 }
 

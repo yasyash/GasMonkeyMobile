@@ -332,9 +332,10 @@ router.get('/get_monthly', authenticate, (req, resp) => {
     let obj = qs.parse(query);
     let data = JSON.parse(obj.data);
     let station_name = data.station_name;
+    let point_descr = data.point_descr;
 
     const between_date = [data.period_from, data.period_to];
-         //console.log('data ', between_date);
+    //console.log('data ', between_date);
 
     //console.log('time in =', Date.now());
     //var start1 = Date.now();
@@ -471,7 +472,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                             for (var elem = 0; elem < _meteo.length; elem++) {
                                 day_now = date.format(new Date(_meteo[elem].date_time), 'DD-MM-YYYY');
 
-                                if ((day_now == item) )
+                                if ((day_now == item))
                                     meteo.push(_meteo[elem]);
                             }
 
@@ -859,6 +860,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
         //values.push(measure);
         values.push({
+            point: point_descr,
             year: date.format(new Date(period_from), 'YYYY'),
             month: date.format(new Date(period_from), 'MM'), pollution: pollution
         });
@@ -894,6 +896,8 @@ router.get('/get_tza4', authenticate, (req, resp) => {
     let chemic = data.chemical;
     let meteo_add = data.checked_meteo;
     const between_date = [data.period_from, data.period_to];
+    let point_descr = data.point_descr;
+
     //console.log('chemical : ', chemic);
     //console.log('time in =', Date.now());
     //var start1 = Date.now();
@@ -1280,6 +1284,7 @@ router.get('/get_tza4', authenticate, (req, resp) => {
             //}
             //values.push(measure);
             values.push({
+                point: point_descr,
                 chemical: chemic,
                 year: date.format(new Date(period_from), 'YYYY'),
                 month: date.format(new Date(period_from), 'MM'), pollution: pollution,

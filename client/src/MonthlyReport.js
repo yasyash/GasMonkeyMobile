@@ -203,6 +203,8 @@ class MonthlyReport extends React.Component {
         params.station = state.station_actual;
         params.station_name = state.station_name;
         params.get = true;
+        params.point_descr = this.props.point_descr;
+
         this.setState({ isLoading: true });
         this.setState({ autoHideDuration: 200000, snack_msg: 'Дождитесь завершения операции...' });
         reportGet_monthly(params).then(resp => {
@@ -499,7 +501,8 @@ function mapStateToProps(state) {
 
     return {
         dateReportBegin: state.datePickers.dateReportBegin,
-        dateReportEnd: state.datePickers.dateReportEnd
+        dateReportEnd: state.datePickers.dateReportEnd,
+        point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr
 
     };
 }

@@ -240,9 +240,9 @@ class OperativeReport extends React.Component {
 
 
                         rows_measure.push({
-                            'chemical': element.chemical + ', мг/м.куб.', 'macs': element.max_m,
+                            'chemical': element.chemical + ', мг/м.куб.', 'macs': String(element.max_m).replace('.', ','),
                             'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
-                            'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': quotient.toFixed(3), 'className': class_css
+                            'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': String(quotient.toFixed(3)).replace('.', ','), 'className': class_css
                         })
                     };
                 });
@@ -266,7 +266,7 @@ class OperativeReport extends React.Component {
                                     sum += item.measure;
                                     counter++;
                                 });
-                                rows_service[key] = (sum / counter).toFixed(2);
+                                rows_service[key] = String((sum / counter).toFixed(2)).replace('.', ',');
                             };
                         } else {
 
@@ -277,13 +277,13 @@ class OperativeReport extends React.Component {
                                 rows_service[key] = '223.1';
                             };
                             if ((key == 'Ts1')) {
-                                rows_service[key] = (Number(rows_service.Tin) + 0.51).toFixed(2);
+                                rows_service[key] =String(Number(rows_service.Tin.replace(',', '.')) + 0.51).replace('.', ',');
                             };
                             if ((key == 'Ts2')) {
-                                rows_service[key] = (Number(rows_service.Tin) + 0.46).toFixed(2);
+                                rows_service[key] = String(Number(rows_service.Tin.replace(',', '.')) + 0.46).replace('.', ',');
                             };
                             if ((key == 'Ts3')) {
-                                rows_service[key] = (Number(rows_service.Tin) + 0.50).toFixed(2);
+                                rows_service[key] = String((Number(rows_service.Tin) + 0.50).toFixed(2)).replace('.', ',');
                             };
                         };
 
@@ -300,7 +300,7 @@ class OperativeReport extends React.Component {
                     });
                 })
                 values.push({
-                    date: 'Точка отбора: ' + this.props.point_descr + '    время:  ' + new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm:SS'), pollution: pollution, P: rows_service.P,
+                    date: 'Точка отбора: ' + this.props.point_descr +" время начала измерения:  " + new Date(this.state.dateTimeBegin).format('dd-MM-Y H:mm') + " время завершения измерения:  " + new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm'), pollution: pollution, P: rows_service.P,
                     Tout: rows_service.Tout,
                     Hout: rows_service.Hout,
                     WindV: rows_service.WindV,
@@ -427,9 +427,9 @@ class OperativeReport extends React.Component {
                     <table style={{ "width": '100%' }} id="operative_report_table_header">
                         <tbody>
                             <tr>
-                                <td style={{ 'width': '45%' }}>Лаборатория: {this.state.station_name} </td>
+                                <td style={{ 'width': '45%' }}>Лаборатория: &nbsp; &nbsp;{this.state.station_name} &nbsp; &nbsp; &nbsp; &nbsp;  </td>
 
-                                <td style={{ 'width': '45%', 'textAlign': 'right' }}>{new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm')}</td>
+                                <td style={{ 'width': '45%', 'textAlign': 'right' }}>время начала:&nbsp; &nbsp; {new Date(this.state.dateTimeBegin).format('dd-MM-Y H:mm')}  &nbsp; &nbsp; &nbsp; &nbsp; время завершения:&nbsp; &nbsp;{new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm')}</td>
                                 <td style={{ 'width': '5%' }}>&nbsp;</td>
                             </tr>
                         </tbody>
@@ -462,7 +462,7 @@ class OperativeReport extends React.Component {
                                     дата
                 </td>
                                 <td style={{ 'width': '15%' }} >
-                                    время завершения
+                                    точное время завершения
                 </td>
                                 <td style={{ 'width': '20%' }} >
                                     среднее значение
@@ -506,7 +506,7 @@ class OperativeReport extends React.Component {
                                 <td >{rows_service.P}</td>
                                 <td >1</td>
                                 <td >Т зонд 1, °С</td>
-                                <td >{rows_service.Ts1}</td>
+                                <td >{rows_service.Ts1 == NaN ? '':rows_service.Ts1}</td>
                             </tr>
                             <tr >
                                 <td >2</td>
@@ -514,7 +514,7 @@ class OperativeReport extends React.Component {
                                 <td >{rows_service.Tout}</td>
                                 <td >2</td>
                                 <td >Т зонд 2, °С</td>
-                                <td >{rows_service.Ts2}</td>
+                                <td >{rows_service.Ts2 == NaN ? '':rows_service.Ts2}</td>
                             </tr>
                             <tr >
                                 <td >3</td>
@@ -522,7 +522,7 @@ class OperativeReport extends React.Component {
                                 <td >{rows_service.Hout}</td>
                                 <td >3</td>
                                 <td >Т внутр., °С</td>
-                                <td >{rows_service.Tin}</td>
+                                <td >{rows_service.Tin == NaN ? '':rows_service.Tin}</td>
                             </tr>
                             <tr >
                                 <td >4</td>
@@ -559,9 +559,7 @@ class OperativeReport extends React.Component {
                                 <td ></td>
                                 <td ></td>
                                 <td >
-                                    {(!isEmpty(rows_service)) && <label style={{ padding: '0', marginBottom: '0' }} className={classnames('alert', {
-                                        'alert-danger': rows_service.Fr === true
-                                    })}> {rows_service.Fr ? alert : norm} </label>}</td>
+                                   </td>
                             </tr>
 
                         </tbody>

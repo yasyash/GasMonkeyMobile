@@ -960,7 +960,7 @@ class PointsForm extends React.Component {
                     if (resp.status == 200) {
                         this.setState({ snack_msg: 'Данные успешно добавлены...' });
                         this.setState({ isLoading: true });
-                        this.props.deleteActiveStationsList();
+                        deleteActiveStationsList();
                         this.map_load();
 
                     } else {

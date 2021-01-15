@@ -56,6 +56,9 @@ import * as _materialDashboardReact from "material-dashboard-react/assets/jss/ma
 
 import { queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
+import { getPoint, getActivePoint } from './actions/adminActions';
+import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
+
 //import { filter } from 'ramda';
 //import auth from './reducers/auth';
 import TextField from '@material-ui/core/TextField';
@@ -174,10 +177,6 @@ class DashBoard extends Component {
     }
   };
   renderData(_date) {
-
-
-
-
 
     if (!isEmpty(this.props.username)) {
       let params = {};
@@ -325,7 +324,40 @@ class DashBoard extends Component {
 
     };
   }
+
+  map_load() {
+    var inMeasure = false;
+    var iddMeasure = '';
+    this.props.getPoint().then(data => {
+
+      if (data.length > 0) {
+        data.forEach((item) => {
+
+          if ((item.date_time_end < item.date_time_begin) || (item.in_measure)) {
+            inMeasure = true;
+            iddMeasure = item.idd;
+
+          } else {
+
+          }
+
+        })
+
+      }
+    }).then(out => {
+      this.props.getActivePoint().then(_data => {
+        if ((_data.length > 0)) {
+          pointDeleteAction();
+          pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '' });
+
+          //this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
+        }
+      })
+    })
+  }
+
   componentWillMount() {
+    if (isEmpty(this.stationsList)) this.map_load();
     this.renderData();
     this.interval = setInterval(this.renderData.bind(this), 10000);
   }
@@ -814,5 +846,5 @@ DashBoard.propTypes = {
 
 
 
-export default connect(mapStateToProps, { addLogsList, deleteLogsList, queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
+export default connect(mapStateToProps, {pointAddAction, pointDeleteAction, getPoint, getActivePoint, addLogsList, deleteLogsList, queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
 

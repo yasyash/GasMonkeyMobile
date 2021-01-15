@@ -44,8 +44,8 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
-import { getPoint, updatePoint, deletePoint, insertPoint } from './actions/adminActions';
-
+import { getPoint, updatePoint, deletePoint, insertPoint, updatePointAll, changePoint, measureActivate, measureStop, getActivePoint } from './actions/adminActions';
+import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
 
 import pinAlert from './pin-alert.png';
 import pinGreen from './pin-green.png';
@@ -232,8 +232,9 @@ class MapsForm extends React.Component {
 
 
     map_load() {
+        var inMeasure = false;
+
         this.props.getPoint().then(data => {
-            var inMeasure = false;
             var iddMeasure = '';
             if (data.length > 0) {
                 data.forEach((item) => {
@@ -273,6 +274,14 @@ class MapsForm extends React.Component {
 
                 })
             }
+        }).then(out => {
+            this.props.getActivePoint().then(_data => {
+                if ((_data.length > 0)) {
+                    pointDeleteAction();
+                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '' });
+
+                }
+            })
         })
 
     }
@@ -643,4 +652,5 @@ MapsForm.contextType = {
     // router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint })(withRouter(withStyles(styles)(MapsForm)));
+export default connect(mapStateToProps, { queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint,updatePointAll, changePoint,
+    measureActivate, measureStop, getActivePoint, pointAddAction, pointDeleteAction })(withRouter(withStyles(styles)(MapsForm)));

@@ -875,7 +875,7 @@ class MenuReport extends Component {
                         {(this.state.report_type == 'operative') &&
                             <TextField
                                 id="dateReportBegin"
-                                label="период начала отчета"
+                                label="время завершения"
                                 type="datetime-local"
                                 value={new Date(this.props.dateReportEnd).format('Y-MM-ddTHH:mm')}
                                 className={classes.textFieldWide}
