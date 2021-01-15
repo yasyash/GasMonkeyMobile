@@ -236,14 +236,22 @@ class OperativeReport extends React.Component {
                         if (range_macs >= 5)
                             class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
                         if (range_macs >= 10)
-                            class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
+                            class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 timesreplace('.', ',')
 
 
-                        rows_measure.push({
-                            'chemical': element.chemical + ', мг/м.куб.', 'macs': String(element.max_m).replace('.', ','),
-                            'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
-                            'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': String(quotient.toFixed(3)).replace('.', ','), 'className': class_css
-                        })
+                        if (element.chemical == 'CO') {
+                            rows_measure.push({
+                                'chemical': element.chemical + ', мг/м.куб.', 'macs': String(element.max_m).replace('.', ','),
+                                'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
+                                'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': String(quotient.toFixed(1)).replace('.', ','), 'className': class_css
+                            })
+                        } else {
+                            rows_measure.push({
+                                'chemical': element.chemical + ', мг/м.куб.', 'macs': String(element.max_m).replace('.', ','),
+                                'date': new Date(filter[filter.length - 1].date_time).format('dd-MM-Y'),
+                                'time': new Date(filter[filter.length - 1].date_time).format('H:mm:SS'), 'value': String(quotient.toFixed(3)).replace('.', ','), 'className': class_css
+                            })
+                        }
                     };
                 });
 
@@ -277,13 +285,13 @@ class OperativeReport extends React.Component {
                                 rows_service[key] = '223.1';
                             };
                             if ((key == 'Ts1')) {
-                                rows_service[key] =String(Number(rows_service.Tin.replace(',', '.')) + 0.51).replace('.', ',');
+                                rows_service[key] = String((Number(rows_service.Tin.replace(',', '.')) + 0.51).toFixed(2)).replace('.', ',');
                             };
                             if ((key == 'Ts2')) {
-                                rows_service[key] = String(Number(rows_service.Tin.replace(',', '.')) + 0.46).replace('.', ',');
+                                rows_service[key] =  String((Number(rows_service.Tin.replace(',', '.')) + 0.46).toFixed(2)).replace('.', ',');
                             };
                             if ((key == 'Ts3')) {
-                                rows_service[key] = String((Number(rows_service.Tin) + 0.50).toFixed(2)).replace('.', ',');
+                                rows_service[key] =  String((Number(rows_service.Tin.replace(',', '.')) + 0.50).toFixed(2)).replace('.', ',');
                             };
                         };
 
@@ -300,7 +308,7 @@ class OperativeReport extends React.Component {
                     });
                 })
                 values.push({
-                    date: 'Точка отбора: ' + this.props.point_descr +" время начала измерения:  " + new Date(this.state.dateTimeBegin).format('dd-MM-Y H:mm') + " время завершения измерения:  " + new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm'), pollution: pollution, P: rows_service.P,
+                    date: 'Точка отбора: ' + this.props.point_descr + " время начала измерения:  " + new Date(this.state.dateTimeBegin).format('dd-MM-Y H:mm') + " время завершения измерения:  " + new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm'), pollution: pollution, P: rows_service.P,
                     Tout: rows_service.Tout,
                     Hout: rows_service.Hout,
                     WindV: rows_service.WindV,
@@ -506,7 +514,7 @@ class OperativeReport extends React.Component {
                                 <td >{rows_service.P}</td>
                                 <td >1</td>
                                 <td >Т зонд 1, °С</td>
-                                <td >{rows_service.Ts1 == NaN ? '':rows_service.Ts1}</td>
+                                <td >{rows_service.Ts1 == NaN ? '' : rows_service.Ts1}</td>
                             </tr>
                             <tr >
                                 <td >2</td>
@@ -514,7 +522,7 @@ class OperativeReport extends React.Component {
                                 <td >{rows_service.Tout}</td>
                                 <td >2</td>
                                 <td >Т зонд 2, °С</td>
-                                <td >{rows_service.Ts2 == NaN ? '':rows_service.Ts2}</td>
+                                <td >{rows_service.Ts2 == NaN ? '' : rows_service.Ts2}</td>
                             </tr>
                             <tr >
                                 <td >3</td>
@@ -522,7 +530,7 @@ class OperativeReport extends React.Component {
                                 <td >{rows_service.Hout}</td>
                                 <td >3</td>
                                 <td >Т внутр., °С</td>
-                                <td >{rows_service.Tin == NaN ? '':rows_service.Tin}</td>
+                                <td >{rows_service.Tin == NaN ? '' : rows_service.Tin}</td>
                             </tr>
                             <tr >
                                 <td >4</td>
@@ -559,7 +567,7 @@ class OperativeReport extends React.Component {
                                 <td ></td>
                                 <td ></td>
                                 <td >
-                                   </td>
+                                </td>
                             </tr>
 
                         </tbody>
