@@ -1197,7 +1197,6 @@ router.get('/dev_get', authenticate, (req, resp) => {
 
 });
 
-
 router.post('/dev_update', authenticate, (req, resp) => {
     //  
 
@@ -1205,9 +1204,18 @@ router.post('/dev_update', authenticate, (req, resp) => {
     // let obj = qs.parse(query);
     //let data = JSON.parse(obj.data);
     let data = req.body;
-    //console.log(data.address);
+    console.log(data);
 
     //   console.log(req.body);
+    var _ldc = Number(data.max_day_consentration);
+    var _lmc = Number(data.max_consentration);
+    console.log("PDK  ", _ldc, _lmc);
+
+    if (isNaN(_ldc) || (_ldc == 0))
+        _ldc = 1000;
+    if (isNaN(_lmc) || (_lmc == 0))
+        _lmc = 1000;
+    console.log("PDK  ", _ldc, _lmc);
 
     DEV.where({ id: data.id })
         .save({
@@ -1218,13 +1226,12 @@ router.post('/dev_update', authenticate, (req, resp) => {
             idd: data.idd,
             unit_name: data.unit_name,
             def_colour: data.def_colour,
-            max_consentration: data.max_consentration,
-            max_day_consentration: data.max_day_consentration
-
+            max_consentration: _lmc,
+            max_day_consentration: _ldc
             //  is_active: data.is_active,
             // is_admin: data.is_admin,
         }, { patch: true }).then(Macs.where({ chemical: data.typemeasure })
-            .save({ max_d: data.max_day_consentration, max_m: data.max_consentration }, { patch: true }))
+            .save({ max_d: _ldc, max_m: _lmc }, { patch: true }))
         .catch(err => resp.status(500).json({ error: err }))
         .then(result => {
             resp.json({ result });

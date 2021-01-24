@@ -590,8 +590,8 @@ export function getDev() {
                             date_time_out: new Date(element.date_time_out).format('dd-MM-Y HH:mm:SS'),
                             unit_name: element.unit_name,
                             def_colour: element.def_colour,
-                            max_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_m : '',
-                            max_day_consentration: !isEmpty(macs_filter) ? macs_filter[0].max_d : ''
+                            max_consentration: !isEmpty(macs_filter) ? ((macs_filter[0].max_m > 900) ? '' : Number(macs_filter[0].max_m)) : '',
+                            max_day_consentration: !isEmpty(macs_filter) ? ((macs_filter[0].max_d > 900) ? '' : Number(macs_filter[0].max_d)) : '' //for absend limits
                         })
 
                 });
@@ -601,6 +601,7 @@ export function getDev() {
             })
     };
 };
+
 
 export function updateDev(paramstr) {
 

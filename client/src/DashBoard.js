@@ -426,7 +426,7 @@ class DashBoard extends Component {
                             {filter[0].increase ? <Backup /> : <Backdown />}
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {(element.chemical == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
-                          <p className={classes.cardCategory}> {(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : (measure / element.max_m).toFixed(3)} долей ПДК</p>
+                          <p className={classes.cardCategory}> {(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : ((element.max_m > 900)? 'нет' : (measure / element.max_m).toFixed(3))} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
                           <p className={classes.cardCategory}>Мгновенное : {(element.chemical == 'CO') ? filter[0].momental_measure.toFixed(3) : filter[0].momental_measure.toFixed(5)} мг/м3</p>
@@ -689,7 +689,7 @@ class DashBoard extends Component {
                             {filter[0].increase ? <Backup /> : <Backdown />}
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {(element.chemical == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
-                          <p className={classes.cardCategory}>{(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : (measure / element.max_m).toFixed(3)} долей ПДК</p>
+                          <p className={classes.cardCategory}>{(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : ((element.max_m > 900)? 'нет' : (measure / element.max_m).toFixed(3))} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
                           <p className={classes.cardCategory}>Мгновенное : {(element.chemical == 'CO') ? filter[0].momental_measure.toFixed(3) : filter[0].momental_measure.toFixed(5)} мг/м3</p>
