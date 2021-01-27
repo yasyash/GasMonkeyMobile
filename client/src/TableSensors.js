@@ -172,6 +172,7 @@ class TableSensors extends React.Component {
     };
 
     toggleAll() {
+        //table sensors
         /*
           'toggleAll' is a tricky concept with any filterable table
           do you just select ALL the records that are in your data?
@@ -190,6 +191,8 @@ class TableSensors extends React.Component {
           That can then be iterrated to get all the currently visible records and set
           the selection state.
         */
+           let sensors_actual = [];
+
         const selectAll = this.state.selectAll ? false : true;
         const selection = [];
         if (selectAll) {
@@ -200,9 +203,11 @@ class TableSensors extends React.Component {
             // we just push all the IDs onto the selection array
             currentRecords.forEach(item => {
                 selection.push(item._original._id);
+                sensors_actual.push(item.serialnum);
+
             });
         }
-        this.setState({ selectAll, selection });
+        this.setState({ selectAll, selection, sensors_actual });
     };
 
     isSelected(key) {

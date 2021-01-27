@@ -500,7 +500,7 @@ class DailyReport extends React.Component {
                                 'counter_macs10': counter_macs10,
                                 's_index': Number(max / element.max_m).toFixed(1),
                                 'gre_repeatably': Number(sum_alert / counter * 100).toFixed(2),
-                                'pollut_ind': Number(quotient / element.max_d * coefficient).toFixed(1),
+                                'pollut_ind': Number(quotient / element.max_m * coefficient).toFixed(1),
                                 'className': class_css
                             })
                         };
