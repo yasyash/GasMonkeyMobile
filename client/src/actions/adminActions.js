@@ -591,7 +591,9 @@ export function getDev() {
                             unit_name: element.unit_name,
                             def_colour: element.def_colour,
                             max_consentration: !isEmpty(macs_filter) ? ((macs_filter[0].max_m > 900) ? '' : Number(macs_filter[0].max_m)) : '',
-                            max_day_consentration: !isEmpty(macs_filter) ? ((macs_filter[0].max_d > 900) ? '' : Number(macs_filter[0].max_d)) : '' //for absend limits
+                            max_day_consentration: !isEmpty(macs_filter) ? ((macs_filter[0].max_d > 900) ? '' : Number(macs_filter[0].max_d)) : '', //for absend limits
+                            min_range: element.max_consentration,
+                            max_range: element.max_day_consentration
                         })
 
                 });

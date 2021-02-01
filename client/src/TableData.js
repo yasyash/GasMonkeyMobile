@@ -584,7 +584,34 @@ function mapStateToProps(state, ownProps) {
         id: "unit_name",
         accessor: "unit_name"
     },
+    {
+        Header: "В диапазоне",
+        id: "is_range",
+        accessor: "is_range",
+        foldable: true,
+        folded: false,
+        Cell: _row => (
+            <div
+                style={{
 
+                    borderRadius: '2px'
+                }}
+            >
+                <div
+                    style={{
+
+                        backgroundColor:
+                            _row.value == 'вне диапазона' ? '#ffa500' : '    ',
+                        borderRadius: '2px',
+                        transition: 'all .2s ease-out',
+                        className: '-striped -highlight'
+                    }}>
+                    {_row.value}
+                </div>
+
+            </div>)
+
+    },
     {
         Header: "ID датчика",
         id: "serialnum",

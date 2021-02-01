@@ -393,16 +393,16 @@ class TableSensors extends React.Component {
                 filterable: true
             },
             {
-                Header: "ПДК м.р.",
-                id: "max_consentration",
-                accessor: "max_consentration",
+                Header: "Нижний диапазон",
+                id: "min_range",
+                accessor: "min_range",
                 foldable: true,
                 filterable: true
             },
             {
-                Header: "ПДК с.с.",
-                id: "max_day_consentration",
-                accessor: "max_day_consentration",
+                Header: "Верхний диапазон",
+                id: "max_range",
+                accessor: "max_range",
                 foldable: true,
                 filterable: true
             },

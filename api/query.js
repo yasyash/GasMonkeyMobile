@@ -54,7 +54,7 @@ router.get('/', authenticate, (req, resp) => {
                     .orderBy('date_time', 'ASC').fetchAll()
                     .catch(err => resp.status(500).json({ error: err })),
                 Sensors.query({
-                    select: ['serialnum', 'typemeasure', 'unit_name', 'def_colour'],
+                    select: ['serialnum', 'typemeasure', 'unit_name', 'def_colour', 'max_consentration', 'max_day_consentration'],
                     where: ({ is_present: true }),
                     andWhere: ({ idd: data.station }),
                 })
@@ -116,7 +116,7 @@ router.get('/many', authenticate, (req, resp) => {
                     .orderBy('date_time', 'ASC').fetchAll()
                     .catch(err => resp.status(500).json({ error: err })),
                 Sensors.query({
-                    select: ['serialnum', 'typemeasure', 'unit_name', 'def_colour'],
+                    select: ['serialnum', 'typemeasure', 'unit_name', 'def_colour', 'max_consentration', 'max_day_consentration'],
                     where: ({ is_present: true })
                     
                 })

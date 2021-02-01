@@ -25,7 +25,7 @@ import POINTS from '../models/points';
 import ftp_upload from './ftp_actions';
 import { exec } from 'child_process';
 
-import { isString } from 'util';
+import { isString, isNumber } from 'util';
 
 let router = express.Router();
 
@@ -1204,30 +1204,34 @@ router.post('/dev_update', authenticate, (req, resp) => {
     // let obj = qs.parse(query);
     //let data = JSON.parse(obj.data);
     let data = req.body;
-    console.log(data);
+    //console.log(data);
 
     //   console.log(req.body);
     var _ldc = Number(data.max_day_consentration);
     var _lmc = Number(data.max_consentration);
-    console.log("PDK  ", _ldc, _lmc);
+    var _min_r = Number(data.min_range);
+    var _max_r = Number(data.max_range);
 
     if (isNaN(_ldc) || (_ldc == 0))
         _ldc = 1000;
     if (isNaN(_lmc) || (_lmc == 0))
         _lmc = 1000;
-    console.log("PDK  ", _ldc, _lmc);
+        if (isEmpty(toString(data.min_range))||isNaN(data.min_range))
+        _min_r = null;
+    if (isEmpty(toString(data.min_range))||isNaN(data.max_range))
+        _max_r = null;
 
     DEV.where({ id: data.id })
         .save({
-            updateperiod: data.updateperiod,
+            //updateperiod: data.updateperiod,
             typemeasure: data.typemeasure,
             // date_time_out: new Date().format('dd-MM-Y HH:mm:SS'),
             serialnum: data.serialnum,
             idd: data.idd,
             unit_name: data.unit_name,
             def_colour: data.def_colour,
-            max_consentration: _lmc,
-            max_day_consentration: _ldc
+            max_consentration: _min_r,
+            max_day_consentration: _max_r
             //  is_active: data.is_active,
             // is_admin: data.is_admin,
         }, { patch: true }).then(Macs.where({ chemical: data.typemeasure })

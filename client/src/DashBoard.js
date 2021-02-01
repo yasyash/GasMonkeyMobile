@@ -58,6 +58,7 @@ import { queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEven
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 import { getPoint, getActivePoint } from './actions/adminActions';
 import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
+import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
 
 //import { filter } from 'ramda';
 //import auth from './reducers/auth';
@@ -504,7 +505,7 @@ class DashBoard extends Component {
                         <CardFooter stats>
                           <div className={classes.stats}>
                             <Place />
-                            {item.place} </div>
+                            {item.place} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <QueryBuilderIcon/>&nbsp;&nbsp; {filter[0].date_time}</div>
                         </CardFooter>
                       </Card>
 
@@ -765,7 +766,7 @@ class DashBoard extends Component {
                         <CardFooter stats>
                           <div className={classes.stats}>
                             <Place />
-                            {item.place} </div>
+                            {item.place}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <QueryBuilderIcon/>&nbsp;&nbsp; {filter[0].date_time} </div>
                         </CardFooter>
                       </Card>
 

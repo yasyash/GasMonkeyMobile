@@ -718,7 +718,22 @@ class EquipmentForm extends React.Component {
                         filterable: true
 
                     },
-                    
+                    {
+                        Header: "Нижний диапазон измерений",
+                        id: "min_range",
+                        accessor: "min_range",
+                        Cell: this.renderEditable,
+                        filterable: true
+
+                    },
+                    {
+                        Header: "Верхний диапазон измерений",
+                        id: "max_range",
+                        accessor: "max_range",
+                        Cell: this.renderEditable,
+                        filterable: true
+
+                    },
                     {
                         Header: "Время ближайшей загрузки данных",
                         id: "date_time_out",

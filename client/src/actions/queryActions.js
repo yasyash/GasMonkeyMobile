@@ -68,8 +68,8 @@ export function queryEvent(paramstr) {
                             unit_name: element.unit_name,
                             measure_class: element.measure_class,
                             is_wind_sensor: element.is_wind_sensor,
-                            max_consentration: element.max_consentration,
-                            max_day_consentration: element.max_day_consentration,
+                            min_range: element.max_consentration,
+                            max_range: element.max_day_consentration,
                             def_colour: element.def_colour
 
                         });
@@ -96,6 +96,8 @@ export function queryEvent(paramstr) {
                         var first_hour = new Date(first_date).format('Y-MM-dd HH:mm:SS');
                         var first_minute = new Date(first_date).format('Y-MM-dd HH:mm:SS');
                         var work_date = moment(first_date);
+                        var max_range = Number(sensors_list[0].max_day_consentration);
+
 
                         var _i = 0;
                         var _j = 0;
@@ -137,6 +139,7 @@ export function queryEvent(paramstr) {
                                 unit_name: unit_name,
                                 measure: element.measure.toFixed(3),
                                 is_alert: element.is_alert ? 'тревога' : 'нет',
+                                is_range: (Number(element.measure) > max_range) ? 'вне диапазона' : 'в диапазоне',
                             });
 
                         });
@@ -261,7 +264,8 @@ export function queryManyEvent(paramstr) {
                             date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
                             place: element.place,
                             latitude: element.latitude,
-                            longitude: element.longitude
+                            longitude: element.longitude,
+                           
 
                         });
                     });
@@ -283,8 +287,8 @@ export function queryManyEvent(paramstr) {
                             unit_name: element.unit_name,
                             measure_class: element.measure_class,
                             is_wind_sensor: element.is_wind_sensor,
-                            max_consentration: element.max_consentration,
-                            max_day_consentration: element.max_day_consentration,
+                            min_range: element.max_consentration,
+                            max_range: element.max_day_consentration,
                             def_colour: element.def_colour
 
                         });
@@ -312,6 +316,8 @@ export function queryManyEvent(paramstr) {
                             var first_hour = new Date(first_date).format('Y-MM-dd HH:mm:SS');
                             var first_minute = new Date(first_date).format('Y-MM-dd HH:mm:SS');
                             var work_date = moment(first_date);
+                            var max_range = sensors_list[0].max_day_consentration;
+
 
                             var _i = 0;
                             var _j = 0;
@@ -353,6 +359,7 @@ export function queryManyEvent(paramstr) {
                                     unit_name: unit_name,
                                     measure: element.measure.toFixed(3),
                                     is_alert: element.is_alert ? 'тревога' : 'нет',
+                                    is_range: (Number(element.measure) > max_range) ? 'вне диапазона' : 'в диапазоне'
                                 });
 
                             });

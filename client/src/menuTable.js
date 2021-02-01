@@ -219,8 +219,8 @@ class MenuTable extends Component {
             data[1].values[0].pollution.forEach(item => {
                 if (item.date_time.indexOf('Время') == -1) {
                     if (keys.length == 0) {
-                        str_body += item.date_time + ";" + item.typemeasure + ";" + item.measure + ";" + item.unit_name + ";" +
-                            item.is_alert + ";" + item.serialnum + ";" + "\r\n";
+                        str_body += item.date_time + ";" + item.typemeasure + ";" + item.measure.replace('.',',') + ";" + item.unit_name + ";" +
+                        ( item.is_range ? "вне диапазона" : "в диапазоне") + ";" +item.is_alert + ";" + item.serialnum + ";" + "\r\n";
                     }
                     else {
                         str_body += item.date_time;
