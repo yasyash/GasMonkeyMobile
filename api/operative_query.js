@@ -42,7 +42,7 @@ router.get('/', authenticate, (req, resp) => {
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
         Sensors.query({
-            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor'],
+            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor', 'max_consentration', 'max_day_consentration'],
             where: ({ is_present: true }),
             andWhere: ({ idd: data.station }),
         })
@@ -91,7 +91,7 @@ router.get('/all', authenticate, (req, resp) => {
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => resp.status(500).json({ error: err })),
         Sensors.query({
-            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor'],
+            select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor', 'max_consentration', 'max_day_consentration'],
             where: ({ is_present: true }),
 
         })

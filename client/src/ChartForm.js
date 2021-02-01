@@ -91,7 +91,9 @@ class ChartForm extends React.Component {
             barThickness: null,
             beginChartData: [],
             meteoOptions: [],
-            consentration: 0
+            consentration: 0,
+            max_range: '',
+            is_range: false
         };
 
 
@@ -121,26 +123,59 @@ class ChartForm extends React.Component {
         if (len > 0) {
             //var _obj =Object.create( _datasets[len - 1]);
             //_obj=_datasets[len-1];
-            if (_consentration != 0){
-            _datasets[len - 1].label = 'ПДВ: ' + _consentration;
-            _datasets[len - 1].hidden = false;
-            _datasets[len - 1].data = [];
-            _datasets[len - 1].borderColor = '#000000';
-            _datasets[len - 1].backgroundColor ='#000000';
-            _datasets[0].data.forEach((element, key) =>
-                _datasets[len - 1].data.push(_consentration));
-            }else {
+            if (_consentration != 0) {
+                _datasets[len - 1].label = 'ПДВ: ' + _consentration;
+                _datasets[len - 1].hidden = false;
+                _datasets[len - 1].data = [];
+                _datasets[len - 1].borderColor = '#000000';
+                _datasets[len - 1].backgroundColor = '#000000';
+                _datasets[0].data.forEach((element, key) =>
+                    _datasets[len - 1].data.push(_consentration));
+            } else {
                 _datasets[len - 1].label = ' ';
                 _datasets[len - 1].hidden = true;
                 _datasets[len - 1].data = [];
                 _datasets[len - 1].borderColor = '#FFFFFF';
-                _datasets[len - 1].backgroundColor ='#FFFFFF';
-              
+                _datasets[len - 1].backgroundColor = '#FFFFFF';
+
             }
 
         }
         this.setState({ chartData });
 
+    }
+
+    handleRangeChange() {
+        var _datasets = this.state.chartData.datasets;
+        var { chartData, is_range } = this.state;
+        var len = this.state.chartData.datasets.length;
+        var _consentration = 0;
+        if (!is_range) {
+            _consentration = Number(this.state.max_range);
+        }
+
+        if (len > 0) {
+            //var _obj =Object.create( _datasets[len - 1]);
+            //_obj=_datasets[len-1];
+            if (_consentration != 0) {
+                _datasets[len - 1].label = 'Гр.диапазона: ' + _datasets[0].label + ' = ' + _consentration;
+                _datasets[len - 1].hidden = false;
+                _datasets[len - 1].data = [];
+                _datasets[len - 1].borderColor = '#ffa500';
+                _datasets[len - 1].backgroundColor = '#ffa500';
+                _datasets[0].data.forEach((element, key) =>
+                    _datasets[len - 1].data.push(_consentration));
+            } else {
+                _datasets[len - 1].label = ' ';
+                _datasets[len - 1].hidden = true;
+                _datasets[len - 1].data = [];
+                _datasets[len - 1].borderColor = '#FFFFFF';
+                _datasets[len - 1].backgroundColor = '#FFFFFF';
+
+            }
+
+        }
+        this.setState({ chartData, 'is_range': !is_range });
     }
     ////////////    
     handleChangeToggle = (name, event) => {
@@ -364,7 +399,7 @@ class ChartForm extends React.Component {
                                             return _item.chemical === filter[0].typemeasure;
                                         });
                                         if (!isEmpty(_filter))
-                                            tmp.push(_prev_measure / _filter[0].max_m ); //normalize to fractional range of macs
+                                            tmp.push(_prev_measure / _filter[0].max_m); //normalize to fractional range of macs
                                     };
 
 
@@ -436,7 +471,7 @@ class ChartForm extends React.Component {
                             tmp.push(element.measure);
                         } else {
                             if (!isEmpty(_filter))
-                                tmp.push(element.measure / _filter[0].max_m ); //normalize to fractional range of macs
+                                tmp.push(element.measure / _filter[0].max_m); //normalize to fractional range of macs
                         };
                         _timeaxis.push(element['date_time']);
 
@@ -480,7 +515,7 @@ class ChartForm extends React.Component {
                     obj.push(emptydatasets);
                     counter = 1;
 
-
+                    this.setState({ 'max_range': filter[0].max_range });
                 };
 
 
@@ -721,6 +756,8 @@ class ChartForm extends React.Component {
                     hideLine={this.hideLine.bind(this)}
                     handleClickPdf={this.handleClickPdf.bind(this)}
                     handleClickExhaust={this.handleClickExhaust.bind(this)}
+                    handleRangeChange={this.handleRangeChange.bind(this)}
+                    value="is_range"
                     value="checkedLine"
                     valueMeteo="checkedMeteo"
                 />

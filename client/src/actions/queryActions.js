@@ -581,6 +581,8 @@ export function queryOperativeEvent(paramstr) {
                             serialnum: element.serialnum,
                             unit_name: element.unit_name,
                             is_wind_sensor: element.is_wind_sensor,
+                            min_range: element.max_consentration,
+                            max_range: element.max_day_consentration
                         });
                     });
 

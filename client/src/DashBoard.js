@@ -58,7 +58,7 @@ import { queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEven
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 import { getPoint, getActivePoint } from './actions/adminActions';
 import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
-import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
+import QueryBuilderIcon from '@material-ui/icons/QueryBuilderTwoTone';
 
 //import { filter } from 'ramda';
 //import auth from './reducers/auth';
