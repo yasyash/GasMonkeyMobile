@@ -1388,3 +1388,109 @@ export function queryDashBoardDataOperativeEvent(paramstr) {
 
     };
 };
+
+export function queryDashBoardAlertsHistory(paramstr) {
+    return dispatch => {
+        const data = JSON.stringify(paramstr);
+        //  console.log('parameters is ', data);
+
+        return Axios.get('/api/operative_query/alerts', { params: { data } })
+            .then(resp => resp.data)
+            .then(data => {
+                if (data.response) {
+
+                    let _logs_list = data.response[0];
+                    let unit_name = '';
+                    let prev = '';
+                    let i = 0;
+                    var
+                        alertsTable = [],
+                        systemTable = [],
+                        last = '';
+
+                    var iterator = [0, 100, 101, 102, 110, 111, 112, 113, 114, 115, 120, 200, 404, 500]; //all type error
+
+                    iterator.forEach((i, _ind) => {
+
+                        let logs_list = _logs_list.filter((item, _i, arr) => {
+                            return item.type == i;
+                        });
+
+                        logs_list.forEach((element, indx) => {
+                            if ((Number(element.type) >= 100) && (Number(element.type) <= 115)) {
+                                alertsTable.push({
+                                    date_time: new Date(element.date_time).format('Y-MM-dd HH:mm:SS'),
+                                    type: element.type,
+                                    descr: element.descr,
+                                    id: element.idd
+                                });
+                            }
+
+                            if (Number(element.type) == 0) {
+                                if (indx != logs_list.length - 1) {
+                                    if (last != element.descr)
+                                        systemTable.push({
+                                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                            type: element.type,
+                                            descr: element.descr,
+                                            is_visible: true
+
+                                        });
+                                } else {
+                                    systemTable.push({
+                                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                        type: element.type,
+                                        descr: element.descr,
+                                        is_visible: true
+                                    });
+                                }
+
+                            }
+                            if (Number(element.type) == 200) {
+                                systemTable.push({
+                                    date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                    type: element.type,
+                                    descr: element.descr,
+                                    is_visible: true
+
+                                });
+                            }
+
+                            if ((Number(element.type) == 500) || ((Number(element.type) == 404))) {
+                                if (indx != logs_list.length - 1) {
+                                    if (last != element.descr)
+                                        systemTable.push({
+                                            date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                            type: element.type,
+                                            descr: element.descr,
+                                            is_visible: true
+
+                                        });
+
+                                } else {
+                                    systemTable.push({
+                                        date_time: new Date(element.date_time).format('dd-MM-Y HH:mm:SS'),
+                                        type: element.type,
+                                        descr: element.descr,
+                                        is_visible: true
+                                    });
+                                }
+
+                            }
+
+                            last = element.descr;
+                        });
+                    });
+
+
+                }
+                return { alertsTable, systemTable };
+
+
+            });
+
+
+
+
+    };
+};

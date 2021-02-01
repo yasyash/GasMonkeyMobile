@@ -54,12 +54,12 @@ import dashboardStyle from "material-dashboard-react/assets/jss/material-dashboa
 
 import * as _materialDashboardReact from "material-dashboard-react/assets/jss/material-dashboard-react";
 
-import { queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
+import { queryDashBoardDataOperativeEvent, queryDashBoardAlertsHistory, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 import { getPoint, getActivePoint } from './actions/adminActions';
 import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
 import QueryBuilderIcon from '@material-ui/icons/QueryBuilderTwoTone';
-
+import HistoryToggleOffTwoToneIcon from './icons/HistoryToggleOffTwoTone';
 //import { filter } from 'ramda';
 //import auth from './reducers/auth';
 import TextField from '@material-ui/core/TextField';
@@ -127,13 +127,15 @@ class DashBoard extends Component {
       systemList: [],
       dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm:SS'),
       dateTimeEnd: new Date().format('Y-MM-ddTHH:mm:SS'),
-      dateTimeAlerts: new Date().format('Y-MM-dd'),
+      dateTimeAlerts: new Date(new Date() - 86400000).format('Y-MM-dd'),
       open: false,
       anchorEl: null,
       mobileOpen: true,
       door_alert: [],
       fire_alert: [],
-      time_frame: []
+      time_frame: [],
+      alertsHistoryList: [],
+      systemHistoryList: []
 
 
     }
@@ -144,7 +146,7 @@ class DashBoard extends Component {
     const id = event.target.id;
 
     this.setState({ dateTimeAlerts: value, dateTimeBegin: new Date(value).format('Y-MM-dd') + 'T00:00:00', dateTimeEnd: new Date(value).format('Y-MM-dd') + 'T23:59:59' });
-    this.renderData(value);
+    this.renderHistoricalData(value);
     //dateAddAction({ [id]: value });
   };
 
@@ -169,6 +171,15 @@ class DashBoard extends Component {
     //console.log(data);
     return data;
   };
+
+  async    load_history_data(params) {
+
+
+    let data = await (this.props.queryDashBoardAlertsHistory(params));
+    //console.log(data);
+    return data;
+  };
+
   onClose = indx => () => {
     const { systemList } = this.props;
     if (!isEmpty(systemList)) {
@@ -356,10 +367,116 @@ class DashBoard extends Component {
       })
     })
   }
+  //historical data rendering
+
+  ///historical data rendering 
+  renderHistoricalData(_date) {
+    if (!isEmpty(this.props.username)) {
+      let params = {};
+
+
+      params.period_from = new Date(_date).format('Y-MM-dd') + 'T00:00:00';
+      params.period_to = new Date(_date).format('Y-MM-dd') + 'T23:59:59';
+
+
+      this.load_history_data(params).then(data => {
+        if (data) {
+          //console.log("Time entry = ", Date.parse(new Date()));
+          //let dataList = data.dataTable;
+          //let sensorsList = data.sensorsTable;
+          //let macsList = data.macsTable;
+          let alertsList = data.alertsTable;
+          let systemList = data.systemTable;
+
+          var today = new Date(params.period_to);
+
+          let _door_alert = false;
+          let _fire_alert = false;
+          var door_alert = [];
+          var fire_alert = [];
+          let { stationsList } = this.state;
+          today -= 1200000;
+
+
+          //20 min averaging 
+
+
+
+          //packing alerts
+          //console.log('Date = ', alertsList);
+
+          var _time_frame = [];
+          var _date = new Date(params.period_to).format('Y-MM-dd');
+          var _array = [];
+          var _indx = [];
+          var _compressed = [];
+
+          for (var h = 23; h > -1; h--) {
+            for (var m = 59; m > -1; m -= 20) {
+
+
+              _time_frame.push(_date + ' ' + h.toString() + ':' + m.toString() + ':00');
+
+            };
+          };
+          _time_frame.push(_date + ' 00:00:00');
+
+
+
+          for (var _j = 1; _j < _time_frame.length; _j++) {
+            let _pack = alertsList.filter((_alerts, _i) => {
+
+
+              return ((new Date(_alerts.date_time) < new Date(_time_frame[_j - 1])) && (new Date(_alerts.date_time) > new Date(_time_frame[_j])))
+
+            })
+
+
+            if (_pack.length > 0)
+              var _flag = 0;
+            while (_flag < _pack.length) {
+              _indx = [];
+              _pack.map((_test, _i) => {
+                if ((_test.type == _pack[_flag].type) && (_test.id == _pack[_flag].id))
+                  _indx.push(_i);
+              })
+              _array = [];
+
+              if (_indx.length > 1) {
+                _array = [..._pack.slice(0, _indx[0] + 1)];
+                for (var _cnt = _indx[0] + 1; _cnt < _pack.length; _cnt++) {
+                  if (_indx.indexOf(_cnt) == -1)
+                    _array.push(_pack[_cnt]);
+
+                }
+                _pack = [];
+                Object.assign(_pack, _array);
+              }
+              _flag++;
+            }
+            // _array.push([..._pack]);
+
+            if (_pack.length > 0)
+              _compressed = [..._compressed, ..._pack];
+          };
+          //console.log("Time exit = ", Date.parse(new Date()));
+
+
+          this.setState({
+            alertsHistoryList: _compressed, systemHistoryList: systemList
+          });
+
+        };
+      });
+
+
+    };
+  }
 
   componentWillMount() {
     if (isEmpty(this.stationsList)) this.map_load();
     this.renderData();
+    this.renderHistoricalData(this.state.dateTimeAlerts);
     this.interval = setInterval(this.renderData.bind(this), 10000);
   }
   componentWillUnmount() {
@@ -371,7 +488,7 @@ class DashBoard extends Component {
     const { username, is_admin } = this.props;
 
     const { classes } = this.props;
-    const { stationsList, macsList, dataList, sensorsList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert, systemList } = this.state;
+    const { stationsList, macsList, dataList, sensorsList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert, systemList, alertsHistoryList, systemHistoryList } = this.state;
     var tabs = [];
     var filter = '';
     var _filter = '';
@@ -427,7 +544,7 @@ class DashBoard extends Component {
                             {filter[0].increase ? <Backup /> : <Backdown />}
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {(element.chemical == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
-                          <p className={classes.cardCategory}> {(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : ((element.max_m > 900)? 'нет' : (measure / element.max_m).toFixed(3))} долей ПДК</p>
+                          <p className={classes.cardCategory}> {(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : ((element.max_m > 900) ? 'нет' : (measure / element.max_m).toFixed(3))} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
                           <p className={classes.cardCategory}>Мгновенное : {(element.chemical == 'CO') ? filter[0].momental_measure.toFixed(3) : filter[0].momental_measure.toFixed(5)} мг/м3</p>
@@ -436,7 +553,7 @@ class DashBoard extends Component {
                         <CardFooter stats>
                           <div className={classes.stats}>
                             <Place />
-                            {item.place} </div>
+                            {item.place}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <QueryBuilderIcon />&nbsp;&nbsp; {filter[0].date_time} </div>
                         </CardFooter>
                       </Card>
 
@@ -505,7 +622,7 @@ class DashBoard extends Component {
                         <CardFooter stats>
                           <div className={classes.stats}>
                             <Place />
-                            {item.place} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <QueryBuilderIcon/>&nbsp;&nbsp; {filter[0].date_time}</div>
+                            {item.place} </div>
                         </CardFooter>
                       </Card>
 
@@ -594,19 +711,7 @@ class DashBoard extends Component {
               <h6>Тревоги </h6>
 
               <Divider />
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <TextField
-                  id="dateTimeAlerts"
-                  label="за "
-                  type="date"
-                  defaultValue={this.state.dateTimeAlerts}
-                  className={classes.textField}
-                  // selectProps={this.state.dateTimeBegin}
-                  onChange={(event) => { this.handlePickerChange(event) }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }} />
-              </div>
+
 
               <br />
               {(!isEmpty(alertsList)) &&
@@ -659,6 +764,74 @@ class DashBoard extends Component {
 
         )
       })
+
+      tabs.push({
+        tabName: 'История',
+        tabIcon: HistoryToggleOffTwoToneIcon,
+        tabContent: (
+
+          <GridContainer >
+            <GridItem xs={12} sm={5} md={5}>
+              <h6>Тревоги </h6>
+
+              <Divider />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <TextField
+                  id="dateTimeAlerts"
+                  label="за "
+                  type="date"
+                  defaultValue={this.state.dateTimeAlerts}
+                  className={classes.textField}
+                  // selectProps={this.state.dateTimeBegin}
+                  onChange={(event) => { this.handlePickerChange(event) }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }} />
+              </div>
+
+              <br />
+              {(!isEmpty(alertsHistoryList)) &&
+                alertsHistoryList.map((element, ind) => (
+                  <SnackbarContent
+                    color='danger'
+                    key={'alert_' + ind}
+                    message1={element.date_time}
+                    message2={element.descr}
+                    className={classes.message}
+                  />))
+              }
+            </GridItem>
+            <GridItem xs={12} sm={5} md={7}>
+              <h6>Системные события</h6>
+              <Divider />
+
+              <br />
+              {(!isEmpty(systemHistoryList)) &&
+                systemHistoryList.map((element, ind) => (
+
+                  <div style={{ display: element.is_visible ? 'block' : 'none' }} key={'sys_' + ind}>
+                    <SnackbarContent
+                      color={element.type == 200 ? 'info' : 'warning'}
+                      message1={element.date_time}
+                      message2={element.descr}
+                      action={[
+                        <IconButton
+                          key={ind}
+                          aria-label="Close"
+                          color="inherit"
+                          className={classes.close}
+                          onClick={this.onClose(ind)}
+                        >
+                          <CloseIcon className={classes.icon} />
+                        </IconButton>,
+                      ]}
+                      close
+                    />
+                  </div>))}
+            </GridItem>
+          </GridContainer>
+        )
+      })
     } else {
       if (stationsList) {// if not empty
         stationsList.map((item, i) => (
@@ -690,7 +863,7 @@ class DashBoard extends Component {
                             {filter[0].increase ? <Backup /> : <Backdown />}
                           </CardIcon>
                           <p className={classes.cardCategory}>Среднее (20 мин.) : {(element.chemical == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
-                          <p className={classes.cardCategory}>{(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : ((element.max_m > 900)? 'нет' : (measure / element.max_m).toFixed(3))} долей ПДК</p>
+                          <p className={classes.cardCategory}>{(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : ((element.max_m > 900) ? 'нет' : (measure / element.max_m).toFixed(3))} долей ПДК</p>
 
                           <h3 className={classes.cardTitle}>{element.chemical}</h3>
                           <p className={classes.cardCategory}>Мгновенное : {(element.chemical == 'CO') ? filter[0].momental_measure.toFixed(3) : filter[0].momental_measure.toFixed(5)} мг/м3</p>
@@ -699,7 +872,7 @@ class DashBoard extends Component {
                         <CardFooter stats>
                           <div className={classes.stats}>
                             <Place />
-                            {item.place} </div>
+                            {item.place} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <QueryBuilderIcon />&nbsp;&nbsp; {filter[0].date_time}</div>
                         </CardFooter>
                       </Card>
 
@@ -766,7 +939,7 @@ class DashBoard extends Component {
                         <CardFooter stats>
                           <div className={classes.stats}>
                             <Place />
-                            {item.place}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <QueryBuilderIcon/>&nbsp;&nbsp; {filter[0].date_time} </div>
+                            {item.place}</div>
                         </CardFooter>
                       </Card>
 
@@ -847,5 +1020,5 @@ DashBoard.propTypes = {
 
 
 
-export default connect(mapStateToProps, {pointAddAction, pointDeleteAction, getPoint, getActivePoint, addLogsList, deleteLogsList, queryDashBoardDataOperativeEvent, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
+export default connect(mapStateToProps, { pointAddAction, pointDeleteAction, getPoint, getActivePoint, addLogsList, deleteLogsList, queryDashBoardDataOperativeEvent, queryDashBoardAlertsHistory, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
 

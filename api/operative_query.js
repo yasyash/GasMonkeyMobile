@@ -244,4 +244,41 @@ router.get('/board', authenticate, (req, resp) => {
 
 });
 
+router.get('/alerts', authenticate, (req, resp) => {
+    //  
+
+    let query = url.parse(req.url).query;
+    let obj = qs.parse(query);
+    let data = JSON.parse(obj.data);
+    //  if (query) {
+    //    obj = JSON.parse(decodeURIComponent(query))
+    //}
+    const between_date = [data.period_from, data.period_to];
+    const between_wide_date = [new Date(data.period_from).format('Y-MM-ddT00:00'), data.period_to];// from begin of day
+    //console.log('data ', between_wide_date);
+
+
+
+    Logs.query('whereBetween', 'date_time', between_wide_date)
+        .orderBy('date_time', 'DESC').fetchAll().then(
+
+            (logs_list => {
+
+                //console.log('exit = ', data_list.length);
+                //console.log('data = ', data_list);
+
+                let response = [logs_list];
+                resp.json({ response });
+            })
+
+        ).catch(err => resp.status(500).json({ error: 'logs error' }))
+
+
+
+    //'whereIn', 'serialnum', data.sensors,
+
+
+});
+
+
 export default router;
