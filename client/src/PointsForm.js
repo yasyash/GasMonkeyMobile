@@ -397,9 +397,20 @@ class PointsForm extends React.Component {
                 data.forEach((item, index) => {
                     const { _map } = this.state;
 
+                    let arr_dt = item.date_time_end.split(' ');
+                    let arr_d = arr_dt[0].split('-');
+                    let arr_t = arr_dt[1].split(':');
 
 
-                    if ((item.date_time_end < item.date_time_begin) || (item.in_measure)) {
+                    let date_time_end = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+
+                     arr_dt = item.date_time_begin.split(' ');
+                     arr_d = arr_dt[0].split('-');
+                     arr_t = arr_dt[1].split(':');
+
+                    let date_time_begin = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+
+                    if ((date_time_end < date_time_begin) || (item.in_measure)) {
                         inMeasure = true;
                         iddMeasure = item.idd;
                         item.date_time_end = "";
