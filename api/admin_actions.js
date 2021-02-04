@@ -46,7 +46,7 @@ router.post('/point_delete', authenticate, (req, resp) => {
         }, { patch: true })
         .then(result => {
 
-            exec('systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
+            exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
                 if (error) {
                     console.error(`error: ${error.message}`);
                     resp.json({ result : error });
@@ -80,7 +80,7 @@ router.post('/point_measure_activate', authenticate, (req, resp) => {
     }, { patch: true })
     .then(result => {
 
-        exec('systemctl start fetcher-weather.service', (error, stdout, stderr) => {
+        exec('sudo systemctl start fetcher-weather.service', (error, stdout, stderr) => {
             if (error) {
                 console.error(`error: ${error.message}`);
                 resp.json({ result : error });
@@ -117,7 +117,7 @@ router.post('/point_measure_stop', authenticate, (req, resp) => {
     }, { patch: true })
     .then(result => {
 
-        exec('systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
+        exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
             if (error) {
                 console.error(`error: ${error.message}`);
                 resp.json({ result : error });
@@ -157,7 +157,7 @@ router.post('/point_update', authenticate, (req, resp) => {
             .then(result => {
 
                 ftp_upload();
-                exec('systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
+                exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
                     if (error) {
                         console.error(`error: ${error.message}`);
                         resp.json({ result : error });
@@ -306,7 +306,7 @@ router.post('/point_insert', authenticate, (req, resp) => {
 
                                             }, { patch: true })
                                             .then(result => {
-                                                exec('systemctl start fetcher-weather.service', (error, stdout, stderr) => {
+                                                exec('sudo systemctl start fetcher-weather.service', (error, stdout, stderr) => {
                                                     if (error) {
                                                         console.error(`error: ${error.message}`);
                                                         resp.json({ result : error });
