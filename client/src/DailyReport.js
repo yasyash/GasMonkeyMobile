@@ -54,6 +54,9 @@ const styles = theme => ({
     },
     alert_range: {
         backgroundColor: '#ffa500'
+    },
+    alert_empty: {
+        backgroundColor: '#a5a5cc'
     }
 
 
@@ -362,6 +365,8 @@ class DailyReport extends React.Component {
 
                                 let sum = 0;
                                 let local_cnt = 0;
+                                is_range = false;
+
                                 if (!isEmpty(obj)) {
                                     obj.forEach((unit => {
                                         sum += unit.measure;
@@ -370,9 +375,9 @@ class DailyReport extends React.Component {
                                         counter++;
 
                                         sum_all += unit.measure;
-
                                         if (unit.measure > max_range)
                                             is_range = true;
+
                                     }))
                                     sum = sum / local_cnt;
 
@@ -397,13 +402,16 @@ class DailyReport extends React.Component {
                                         dt[element.chemical] = sum.toFixed(3);
                                     }
 
-                                    if ((local_cnt < 15) || (is_range)) //data credit detection
+                                    if ((local_cnt < 10)) //data credit detection
                                     {
-                                        dt[element.chemical + '_err'] = true;
+                                        dt[element.chemical + '_err'] = 'alert_empty';
                                     } else {
-                                        dt[element.chemical + '_err'] = false;
-
+                                        if ((is_range)) //data credit detection
+                                            dt[element.chemical + '_err'] = 'alert_range';
+                                        else
+                                            dt[element.chemical + '_err'] = 'alert_success';
                                     }
+
 
                                     data_raw[ind] = dt;
 
@@ -521,8 +529,8 @@ class DailyReport extends React.Component {
                                 'counter_macs5': counter_macs5,
                                 'counter_macs10': counter_macs10,
                                 's_index': Number(max / element.max_m).toFixed(1),
-                                //'gre_repeatably': Number(sum_alert / counter * 100).toFixed(2),
-                                //'pollut_ind': Number(quotient / element.max_m * coefficient).toFixed(1),
+                                // 'gre_repeatably': Number(sum_alert / counter * 100).toFixed(2),
+                                // 'pollut_ind': Number(quotient / element.max_m * coefficient).toFixed(1),
                                 'className': class_css
                             })
                         };
@@ -590,8 +598,8 @@ class DailyReport extends React.Component {
                                 counter_macs5.push(element.counter_macs5);
                                 counter_macs10.push(element.counter_macs10);
                                 s_index.push(String(element.s_index).replace('.', ','));
-                                // gre_repeatably.push(String(element.gre_repeatably).replace('.', ','));
-                                // pollut_ind.push(String(element.pollut_ind).replace('.', ','));
+                                //gre_repeatably.push(String(element.gre_repeatably).replace('.', ','));
+                                //pollut_ind.push(String(element.pollut_ind).replace('.', ','));
                                 className.push(element.className);
                             } else {
                                 chemical.push(element.chemical);
@@ -605,8 +613,8 @@ class DailyReport extends React.Component {
                                 counter_macs5.push(element.counter_macs5);
                                 counter_macs10.push(element.counter_macs10);
                                 s_index.push(String(element.s_index).replace('.', ','));
-                                // gre_repeatably.push(String(element.gre_repeatably).replace('.', ','));
-                                // pollut_ind.push(String(element.pollut_ind).replace('.', ','));
+                                //gre_repeatably.push(String(element.gre_repeatably).replace('.', ','));
+                                //pollut_ind.push(String(element.pollut_ind).replace('.', ','));
                                 className.push(element.className);
                             }
 
@@ -624,8 +632,8 @@ class DailyReport extends React.Component {
                         counter_macs5.push('-');
                         counter_macs10.push('-');
                         s_index.push('-');
-                        // gre_repeatably.push('-');
-                        // pollut_ind.push('-');
+                        //gre_repeatably.push('-');
+                        //pollut_ind.push('-');
                         className.push('');
 
                     };
@@ -669,7 +677,7 @@ class DailyReport extends React.Component {
                 });
                 //values.push(measure);
                 values.push({
-                    date: 'Точка отбора: ' + this.props.point_descr + '  ' + new Date(this.props.dateReportBegin).format('dd-MM-Y'), pollution: pollution
+                    date: new Date(this.props.dateReportBegin).format('dd-MM-Y'), pollution: pollution
                 });
                 data.push({ station: this.state.station_name, values: values });
 
@@ -777,13 +785,17 @@ class DailyReport extends React.Component {
                 />
 
                 <Typography component="div" style={{ padding: 2 * 1 }} id="daily_report">
+
                     <div style={{ textAlign: '-webkit-center', position: 'center' }}>
-                        <table style={{ "width": '70%', textAlign: 'center' }} id="daily_report_table_legend">
+                        <table style={{ "width": '90%', textAlign: 'center' }} id="daily_report_table_legend">
                             <tbody>
                                 <tr>
                                     <td >Легенда:&nbsp;&nbsp;&nbsp; </td>
                                     <td className=
-                                        {classes['alert_range']}>Нарушена достоверность данных</td>
+                                        {classes['alert_empty']}>Нарушена достоверность - менее 75% данных</td>
+                                    <td >&nbsp;&nbsp;&nbsp; </td>
+                                    <td className=
+                                        {classes['alert_range']}>Нарушена достоверность - выход за диапазон прибора</td>
                                     <td >&nbsp;&nbsp;&nbsp; </td>
                                     <td className=
                                         {classes['alert_macs1_ylw']}>Превышение менее 5 ПДК</td>
@@ -799,7 +811,6 @@ class DailyReport extends React.Component {
                             </tbody>
                         </table>
                     </div>
-
                     <table style={{ "width": '100%' }} id="daily_report_table_header">
                         <tbody>
                             <tr>
@@ -911,45 +922,45 @@ class DailyReport extends React.Component {
                                         <td> {option.spd}</td>
                                         <td> {option.hum}</td>
                                         <td className=
-                                            {option.NO_err ? classes['alert_range'] : classes['alert_success']}> {option.NO}</td>
+                                            { classes[option.NO_err]}> {option.NO}</td>
                                         <td className=
-                                            {option.NO2_err ? classes['alert_range'] : classes['alert_success']}> {option.NO2}</td>
+                                            {classes[option.NO2_err]}> {option.NO2}</td>
                                         <td className=
-                                            {option.NH3_err ? classes['alert_range'] : classes['alert_success']}> {option.NH3}</td>
+                                            {classes[option.NH3_err]}> {option.NH3}</td>
                                         <td className=
-                                            {option.SO2_err ? classes['alert_range'] : classes['alert_success']}> {option.SO2}</td>
+                                            {classes[option.SO2_err]}> {option.SO2}</td>
                                         <td className=
-                                            {option.H2S_err ? classes['alert_range'] : classes['alert_success']}> {option.H2S}</td>
+                                            {classes[option.H2S_err]}> {option.H2S}</td>
                                         <td className=
-                                            {option.O3_err ? classes['alert_range'] : classes['alert_success']}> {option.O3}</td>
+                                            {classes[option.O3_err]}> {option.O3}</td>
                                         <td className=
-                                            {option.CO_err ? classes['alert_range'] : classes['alert_success']}> {option.CO}</td>
+                                            {classes[option.CO_err]}> {option.CO}</td>
                                         <td className=
-                                            {option.CH2O_err ? classes['alert_range'] : classes['alert_success']}> {option.CH2O}</td>
+                                            {classes[option.CH2O_err]}> {option.CH2O}</td>
                                         <td className=
-                                            {option.PM1_err ? classes['alert_range'] : classes['alert_success']}> {option.PM1}</td>
+                                            {classes[option.PM1_err]}> {option.PM1}</td>
                                         <td className=
-                                            {option['PM2.5_err'] ? classes['alert_range'] : classes['alert_success']}> {option['PM2.5']}</td>
+                                            {classes[option['PM2.5_err']]}> {option['PM2.5']}</td>
                                         <td className=
-                                            {option.PM10_err ? classes['alert_range'] : classes['alert_success']}> {option.PM10}</td>
+                                            {classes[option['PM10_err']]}> {option.PM10}</td>
                                         <td className=
-                                            {option['Пыль общая_err'] ? classes['alert_range'] : classes['alert_success']}> {option['Пыль общая']}</td>
+                                            {classes[option['Пыль общая_err']]}> {option['Пыль общая']}</td>
                                         <td className=
-                                            {option['бензол_err'] ? classes['alert_range'] : classes['alert_success']}>  {option['бензол']}</td>
+                                            {classes[option['бензол_err']]}>  {option['бензол']}</td>
                                         <td className=
-                                            {option['толуол_err'] ? classes['alert_range'] : classes['alert_success']}> {option['толуол']}</td>
+                                            {classes[option['толуол_err']]}> {option['толуол']}</td>
                                         <td className=
-                                            {option['этилбензол_err'] ? classes['alert_range'] : classes['alert_success']}> {option['этилбензол']}</td>
+                                            {classes[option['этилбензол_err']]}> {option['этилбензол']}</td>
                                         <td className=
-                                            {option['м,п-ксилол_err'] ? classes['alert_range'] : classes['alert_success']}> {option['м,п-ксилол']}</td>
+                                            {classes[option['м,п-ксилол_err']]}> {option['м,п-ксилол']}</td>
                                         <td className=
-                                            {option['о-ксилол_err'] ? classes['alert_range'] : classes['alert_success']}> {option['о-ксилол']}</td>
+                                            {classes[option['о-ксилол_err']]}> {option['о-ксилол']}</td>
                                         <td className=
-                                            {option['хлорбензол_err'] ? classes['alert_range'] : classes['alert_success']}> {option['хлорбензол']}</td>
+                                            {classes[option['хлорбензол_err']]}> {option['хлорбензол']}</td>
                                         <td className=
-                                            {option['стирол_err'] ? classes['alert_range'] : classes['alert_success']}> {option['стирол']}</td>
+                                            {classes[option['стирол_err']]}> {option['стирол']}</td>
                                         <td className=
-                                            {option['фенол_err'] ? classes['alert_range'] : classes['alert_success']}> {option['фенол']}</td>
+                                            {classes[option['фенол_err']]}> {option['фенол']}</td>
 
 
 
@@ -1003,8 +1014,8 @@ function mapStateToProps(state) {
 
     return {
         dateReportBegin: state.datePickers.dateReportBegin,
-        dateReportEnd: state.datePickers.dateReportEnd,
-        point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr,
+        dateReportEnd: state.datePickers.dateReportEnd
+
     };
 }
 

@@ -53,6 +53,12 @@ const styles = theme => ({
     alert_success: {
         color: '#000000',
         backgroundColor: '#ffffff'
+    },
+    alert_range: {
+        backgroundColor: '#ffa500'
+    },
+    alert_empty: {
+        backgroundColor: '#a5a5cc'
     }
 
 
@@ -322,7 +328,31 @@ class MonthlyReport extends React.Component {
                 />
 
                 <Typography component="div" style={{ padding: 2 * 1 }} id="monthly_report">
+                    <div style={{ textAlign: '-webkit-center', position: 'center' }}>
+                        <table style={{ "width": '90%', textAlign: 'center' }} id="daily_report_table_legend">
+                            <tbody>
+                                <tr>
+                                    <td >Легенда:&nbsp;&nbsp;&nbsp; </td>
+                                    <td className=
+                                        {classes['alert_empty']}>Нарушена достоверность - менее 75% данных</td>
+                                    <td >&nbsp;&nbsp;&nbsp; </td>
+                                    <td className=
+                                        {classes['alert_range']}>Нарушена достоверность - выход за диапазон прибора</td>
+                                    <td >&nbsp;&nbsp;&nbsp; </td>
+                                    <td className=
+                                        {classes['alert_macs1_ylw']}>Превышение менее 5 ПДК</td>
+                                    <td > &nbsp;&nbsp;&nbsp;</td>
+                                    <td className=
+                                        {classes['alert_macs5_orng']}>Превышение 5 и менее 10 ПДК</td>
+                                    <td >&nbsp;&nbsp;&nbsp; </td>
+                                    <td className=
+                                        {classes['alert_macs10_red']}>Превышение более 10 ПДК</td>
 
+
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <table style={{ "width": '100%' }} id="monthly_report_table_header">
                         <tbody>
                             <tr>
@@ -429,26 +459,46 @@ class MonthlyReport extends React.Component {
                                         <td> {option.dir}</td>
                                         <td> {option.spd}</td>
                                         <td> {option.hum}</td>
-                                        <td> {option.NO}</td>
-                                        <td> {option.NO2}</td>
-                                        <td> {option.NH3}</td>
-                                        <td> {option.SO2}</td>
-                                        <td> {option.H2S}</td>
-                                        <td> {option.O3}</td>
-                                        <td> {option.CO}</td>
-                                        <td> {option.CH2O}</td>
-                                        <td> {option.PM1}</td>
-                                        <td> {option['PM2.5']}</td>
-                                        <td> {option.PM10}</td>
-                                        <td> {option['Пыль общая']}</td>
-                                        <td> {option['бензол']}</td>
-                                        <td> {option['толуол']}</td>
-                                        <td> {option['этилбензол']}</td>
-                                        <td> {option['м,п-ксилол']}</td>
-                                        <td> {option['о-ксилол']}</td>
-                                        <td> {option['хлорбензол']}</td>
-                                        <td> {option['стирол']}</td>
-                                        <td> {option['фенол']}</td>
+                                        <td className=
+                                            {classes[option.NO_class]}> {option.NO}</td>
+                                        <td className=
+                                            {classes[option.NO2_class]}> {option.NO2}</td>
+                                        <td className=
+                                            {classes[option.NH3_class]}> {option.NH3}</td>
+                                        <td className=
+                                            {classes[option.SO2_class]} > {option.SO2}</td>
+                                        <td className=
+                                            {classes[option.H2S_class]}> {option.H2S}</td>
+                                        <td className=
+                                            {classes[option.O3_class]}> {option.O3}</td>
+                                        <td className=
+                                            {classes[option.CO_class]}> {option.CO}</td>
+                                        <td className=
+                                            {classes[option.CH2O_class]}> {option.CH2O}</td>
+                                        <td className=
+                                            {classes[option.PM1_class]}> {option.PM1}</td>
+                                        <td className=
+                                            {classes[option['PM2.5_class']]}> {option['PM2.5']}</td>
+                                        <td className=
+                                            {classes[option.PM10_class]}> {option.PM10}</td>
+                                        <td className=
+                                            {classes[option['Пыль общая_class']]}> {option['Пыль общая']}</td>
+                                        <td className=
+                                            {classes[option['бензол_class']]}> {option['бензол']}</td>
+                                        <td className=
+                                            {classes[option['толуол_class']]}> {option['толуол']}</td>
+                                        <td className=
+                                            {classes[option['этилбензол_class']]}> {option['этилбензол']}</td>
+                                        <td className=
+                                            {classes[option['м,п-ксилол_class']]}> {option['м,п-ксилол']}</td>
+                                        <td className=
+                                            {classes[option['о-ксилол_class']]}> {option['о-ксилол']}</td>
+                                        <td className=
+                                            {classes[option['хлорбензол_class']]}> {option['хлорбензол']}</td>
+                                        <td className=
+                                            {classes[option['стирол_class']]}> {option['стирол']}</td>
+                                        <td className=
+                                            {classes[option['фенол_class']]}> {option['фенол']}</td>
 
 
 
@@ -459,14 +509,19 @@ class MonthlyReport extends React.Component {
                             </tr>
                             {(avrg_measure) &&// if not empty
                                 avrg_measure.map((option, i) => (
-                                    (i > 0 && i < avrg_measure.length - 1) &&
+                                    (i > 0 && i < avrg_measure.length - 1 && i != 7) &&
                                     <tr key={'trm_' + i} style={{ 'fontSize': '11px' }}>
                                         <td colSpan="5"> {option[0]}</td>
-                                        <td> {option[1]}</td>
-                                        <td> {option[2]}</td>
-                                        <td> {option[3]}</td>
-                                        <td> {option[4]}</td>
-                                        <td> {option[5]}</td>
+                                        <td className=
+                                            {classes[option[1].className]}> {option[1]}</td>
+                                        <td className=
+                                            {classes[option[2].className]}> {option[2]}</td>
+                                        <td className=
+                                            {classes[option[3].className]}> {option[3]}</td>
+                                        <td className=
+                                            {classes[option[4].className]}> {option[4]}</td>
+                                        <td className=
+                                            {classes[option[3].className]}> {option[5]}</td>
                                         <td> {option[6]}</td>
                                         <td> {option[7]}</td>
                                         <td> {option[8]}</td>
@@ -482,7 +537,51 @@ class MonthlyReport extends React.Component {
                                         <td> {option[18]}</td>
                                         <td> {option[19]}</td>
                                         <td> {option[20]}</td>
+                                    </tr> ||
 
+                                    (i == 7) &&
+                                    <tr key={'trm_' + i} style={{ 'fontSize': '11px' }}>
+                                        <td colSpan="5"> {option[0]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][1]]}> {option[1]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][2]]}> {option[2]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][3]]}> {option[3]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][4]]}> {option[4]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][5]]}> {option[5]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][6]]}> {option[6]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][7]]}> {option[7]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][8]]}> {option[8]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][9]]}> {option[9]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][10]]}> {option[10]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][11]]}> {option[11]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][12]]}> {option[12]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][13]]}> {option[13]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][14]]}> {option[14]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][15]]}> {option[15]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][16]]}> {option[16]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][17]]}> {option[17]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][18]]}> {option[18]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][19]]}> {option[19]}</td>
+                                        <td className=
+                                            {classes[avrg_measure[15][20]]}> {option[20]}</td>
                                     </tr>
                                 ))}
 

@@ -202,14 +202,14 @@ function daysInMonth(month) {
 };
 
 async function loadData(station, between_date, station_name) {
-    var qry = "((date_time::varchar like '%:%0:%') or (date_time::varchar like '%:%2:%') or (date_time::varchar like '%:%4:%') or (date_time::varchar like '%:%6:%') or (date_time::varchar like '%:%8:%') ) AND sensors_data.typemeasure in (select equipments.typemeasure from equipments where idd = '" + station + "' and equipments.measure_class = 'data')";
+    //var qry = "((date_time::varchar like '%:%0:%') or (date_time::varchar like '%:%2:%') or (date_time::varchar like '%:%4:%') or (date_time::varchar like '%:%6:%') or (date_time::varchar like '%:%8:%') ) AND sensors_data.typemeasure in (select equipments.typemeasure from equipments where idd = '" + station + "' and equipments.measure_class = 'data')";
     //consoleconsole.log('loadData');
     let data = await Promise.join(
         Data.query('whereBetween', 'date_time', between_date)
             .query('where', 'idd', station)
-            .query({
-                andWhereRaw: (qry)
-            })
+            //.query({
+            //    andWhereRaw: (qry)
+            //})
             .orderBy('date_time', 'ASC').fetchAll()
             .catch(err => {
                 console.log(err);
@@ -261,7 +261,8 @@ async function loadMeteo(station, between_date) {
     let data = await Data.query('whereBetween', 'date_time', between_date)
         .query('where', 'idd', station)
         .query({
-            andWhereRaw: ("(date_time::varchar like  '%:%5:%' or  date_time::varchar like '%:%0:%')")
+            //  andWhereRaw: ("(date_time::varchar like  '%:%5:%' or  date_time::varchar like '%:%0:%')")
+            andWhereRaw: ("(date_time::varchar like  '%:%5:%' or  date_time::varchar like '%:%0:%' or  date_time::varchar like '%:%2%')")
         })
         .orderBy('date_time', 'ASC').fetchAll()
         .catch(err => {
@@ -325,6 +326,49 @@ async function loadData_tza(station, between_date, station_name, chemic) {
 
 };
 
+async function loadData_tza_auto(station, between_date, station_name, chemic) {
+    var qry = "typemeasure in (select equipments.typemeasure from equipments where idd = '" + station + "' and equipments.measure_class = 'data')";
+    // console.log(between_date, station, chemic);
+    let data = await Promise.join(
+        Data.query('whereBetween', 'date_time', between_date)
+            .query('where', 'idd', station)
+            .query('whereIn', 'typemeasure', chemic)
+            .query({
+                andWhereRaw: (qry)
+            })
+            .orderBy('date_time', 'ASC').fetchAll()
+            .catch(err => {
+                console.log(err);
+                return []
+            }),
+        Sensors.query({
+            select: ['serialnum', 'typemeasure', 'unit_name', 'measure_class'],
+            where: ({ is_present: true }),
+            andWhere: ({ idd: station }),
+        })
+            .fetchAll()
+            .catch(err => {
+                console.log(err);
+                return []
+            }),
+        Macs.fetchAll()
+            .catch(err => {
+                console.log(err);
+                return []
+            }),
+        ((data_list, data_sensors, consentration) => {
+            let data = [data_list, data_sensors, consentration];
+            return data;
+        })
+    )
+        .catch(err => {
+            console.log(err);
+            return []
+        });
+    return data;
+
+};
+
 router.get('/get_monthly', authenticate, (req, resp) => {
     //  
 
@@ -332,10 +376,9 @@ router.get('/get_monthly', authenticate, (req, resp) => {
     let obj = qs.parse(query);
     let data = JSON.parse(obj.data);
     let station_name = data.station_name;
-    let point_descr = data.point_descr;
 
     const between_date = [data.period_from, data.period_to];
-    //console.log('data ', between_date);
+    //console.log('between ', between_date);
 
     //console.log('time in =', Date.now());
     //var start1 = Date.now();
@@ -383,10 +426,12 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         let macsList = arr2;
         let avrg_measure = [];
         let data_raw = [];
+        let _data_raw = [];
         let times = 0;
         let time_frame = [];
         var last_day = '';
         let period_from = between_date[0];
+        let minute20_frame = [];
 
         if (new Date().getMonth() != new Date(period_from).getMonth()) {
             last_day = daysInMonth(new Date(period_from).getMonth());
@@ -399,10 +444,23 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
             time_frame.push(date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'));
             // console.log('date ', date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'));
-            data_raw.push({ 'time': date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY') });
+            _data_raw.push({ 'time': date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY') });
+
 
         }
-        //  console.log('macs', macsList.length);
+        //let i = 0;
+        for (var h = 0; h < 24; h++) {
+            for (var m = 19; m < 60; m += 20) {
+
+                minute20_frame.push(h.toString() + ':' + m.toString());
+                // data_raw.push({ 'time': date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'), 'minutes_20': i });
+
+                //i++;
+                //data_raw.push({ 'time': h.toString() + ':' + m.toString() });
+            };
+        };
+
+        //console.log('begin');
         macsList.forEach((element, indx) => {
             //    console.log('Macs list ', element);
             if ((element.chemical == 'NO') || (element.chemical == 'NO2') || (element.chemical == 'NH3') ||
@@ -413,9 +471,13 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 (element.chemical == 'толуол') || (element.chemical == 'этилбензол') || (element.chemical == 'м,п-ксилол') ||
                 (element.chemical == 'о-ксилол') || (element.chemical == 'хлорбензол') || (element.chemical == 'стирол') || (element.chemical == 'фенол')) {
 
+                let sensor = sensorsList.filter((item, i) => {
+                    return item.typemeasure == element.chemical;
 
+                })
 
                 let filter = dataList.filter((item, i, arr) => {
+                    // if (item.chemical == 'H2S') console.log('data raw ', item);
                     return item.typemeasure == element.chemical;
                 });
                 let sum_all = 0;
@@ -432,6 +494,8 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 let max_time_sum = '-';
                 let min_sum = 1000000;
                 let min_time_sum = '-';
+                let local_max_sum = 0;
+                let max_time_sum_momental = '-';
                 let counter_macs1 = 0;
                 let counter_macs5 = 0;
                 let counter_macs10 = 0;
@@ -439,6 +503,8 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 let tim_out = '';
                 let temp_raw = [];
                 let day_now = 0;
+                let time_from = 0;
+                let time_to = 0;
                 let sum_alert = 0;
                 var coefficient = 1.0;
                 let meteo_complete = false;
@@ -446,9 +512,13 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 let dir = -1000;
                 let spd = -1000;
                 let hum = -1000;
+                let is_range = false;
+                let range_out_counter = 0;
 
                 if (!isEmpty(filter)) {
 
+                    //console.logconsole.log('chemical ', element.chemical);
+                    //if (element.chemical == 'H2S') console.log('data raw ', filter);
 
                     time_frame.forEach((item, ind) => {
                         //         console.log('item ', item);
@@ -457,15 +527,10 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
                         // console.log('raw ' + up_sec);
 
-                        let obj = filter.filter((elem, i, arr) => {
-
-                            day_now = date.format(new Date(elem.date_time), 'DD-MM-YYYY');
-                            //            console.log('day now ' + day_now);
-
-
-                            return (day_now == item);
-                        });
                         //time_in = up_sec;
+
+                        //meteo calculation
+
                         if (!meteo_complete) {
                             const meteo = [];
 
@@ -520,49 +585,223 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                                     hum = _hum / _hum_cnt;
                             }
                         }
-                        let sum = 0;
-                        let local_cnt = 0;
-                        if (!isEmpty(obj)) {  //hour's list in day frame
 
-                            obj.forEach((unit => {
-                                //               console.log('unit ', unit);
+                        //pollution calculation
+                        let obj = filter.filter((elem, i, arr) => { //selection data by day frame
+
+                            day_now = date.format(new Date(elem.date_time), 'DD-MM-YYYY');
 
 
-                                sum += unit.measure;
-                                local_cnt++;
+                            return (day_now == item);
+                        });
+                        //console.log('data lenghth =', obj.length, 'day now ', obj.length > 0 ? date.format(new Date(obj[0].date_time), 'DD-MM-YYYY') : 'no data ', item);
+                        // if (element.chemical == 'H2S') console.log('data raw ', obj);
 
+
+                        let sum = 0; //day sum
+                        let day_counter = 0;
+                        let local_counter_macs1 = 0;
+                        let local_counter_macs5 = 0;
+                        let local_counter_macs10 = 0;
+
+                        minute20_frame.forEach((minutes_20, _inx) => {
+                            let time_now = 0;
+                            let tmp = minutes_20.split(':');
+                            time_from = tmp[0] * 3600 + tmp[1] * 60;
+
+                            let data_minute20 = obj.filter((elem, i, arr) => {
+
+
+                                time_now = new Date(elem.date_time).getHours() * 3600 +
+                                    new Date(elem.date_time).getMinutes() * 60 + new Date(elem.date_time).getSeconds();
+
+                                return ((time_from >= time_now) && (time_to <= time_now));
+                            });
+
+
+                            time_to = time_from + 1;
+                            let local_cnt = 0;
+                            let local_sum = 0;
+                            class_css = 'alert_success';
+                            range_out_counter = 0;
+
+                            if (!isEmpty(data_minute20)) {  //hour's list in day frame
+
+                                data_minute20.forEach((unit => {
+                                    //if (unit.typemeasure = 'H2S') console.log('unit ', unit);
+
+
+                                    sum += unit.measure;
+                                    local_cnt++;
+                                    local_sum += unit.measure;
+
+                                    sum_all += unit.measure;
+
+                                    //if (unit.measure < min) {
+                                    //   min = unit.measure;
+                                    //   min_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY HH:mm:SS');
+                                    // }
+
+                                    //if (unit.measure > max) {
+                                    //   max = unit.measure;
+                                    //  max_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY');
+                                    // }
+                                    if (sensor.max_day_consentration < unit.measure)
+                                        range_out_counter++;
+
+
+
+                                }))
+                                local_sum = local_sum / local_cnt;
+
+
+                                // console.log('index out', ind, 'raw ', data_raw[ind]);
+
+
+                                if (local_sum > max) {
+                                    max = local_sum;
+                                    max_time = item + ' ' + minutes_20;
+                                }
+
+
+
+                                if ((local_sum / 10) >= element.max_m) {
+                                    counter_macs10++;
+                                    local_counter_macs10++;
+
+                                } else {
+
+                                    if ((local_sum / 5) >= element.max_m) {
+
+
+                                        counter_macs5++;
+                                        local_counter_macs5++;
+
+                                    } else {
+                                        if (local_sum > element.max_m) //element.max_d may be changed to max_m on Krasnoyarsk demand
+                                        {
+                                            counter_macs1++;
+                                            local_counter_macs1++;
+
+                                        }
+                                    }
+                                }
+
+
+
+
+                            } //else {
+                            //  let dt = data_raw[_inx];
+                            // console.log('elem ', element.chemical, dt, ind, _inx, data_raw[0], data_raw[1]);
+
+                            //dt[element.chemical] = '-';
+                            //data_raw[_inx] = dt;
+                            //};
+                            if (local_cnt > 0) {
+                                frame_count++;
+                                day_counter++;
                                 counter++;
 
-                                sum_all += unit.measure;
-
-                                if (unit.measure < min) {
-                                    min = unit.measure;
-                                    min_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY');
-                                }
-
-                                if (unit.measure > max) {
-                                    max = unit.measure;
-                                    max_time = date.format(new Date(unit.date_time), 'DD-MM-YYYY');
-                                }
-
-                                if (unit.is_alert) {
-                                    sum_alert++;
-                                }
-
-                            }))
-                            sum = sum / local_cnt;
+                            }
 
 
-                            let dt = data_raw[ind];
+
+                        });
+
+                        // meteo calc.
+                        if (!meteo_complete) {
+                            if (dir > -1) {
+                                let dt = _data_raw[ind];
+                                dt['dir'] = dir.toFixed(0);
+                                _data_raw[ind] = dt;
+                                dir = -1000;
+
+
+                            } else {
+                                let dt = _data_raw[ind];
+
+                                dt['dir'] = '-';
+                                _data_raw[ind] = dt;
+
+                            }
+                            if (temp > -100) {
+                                let dt = _data_raw[ind];
+
+                                dt['temp'] = temp.toFixed(1);
+                                _data_raw[ind] = dt;
+                                temp = -1000;
+
+                            } else {
+                                let dt = _data_raw[ind];
+
+                                dt['temp'] = '-';
+                                _data_raw[ind] = dt;
+
+                            }
+                            if (spd > -1) {
+                                let dt = _data_raw[ind];
+
+                                dt['spd'] = spd.toFixed(0);
+                                _data_raw[ind] = dt;
+                                spd = -1000;
+
+                            } else {
+                                let dt = _data_raw[ind];
+
+                                dt['spd'] = '-';
+
+                                _data_raw[ind] = dt;
+
+                            }
+                            if (hum > -1) {
+                                let dt = _data_raw[ind];
+
+                                dt['hum'] = hum.toFixed(0);
+                                _data_raw[ind] = dt;
+                                hum = -1000;
+
+                            } else {
+                                let dt = _data_raw[ind];
+
+
+                                dt['hum'] = '-';
+                                _data_raw[ind] = dt;
+
+                            }
+
+                        }
+
+                        //pollution calculation
+                        if (day_counter > 1) {
+                            sum = sum / day_counter;
+                            let dt = _data_raw[ind];
+
                             if (element.chemical == 'CO') {
                                 dt[element.chemical] = sum.toFixed(1);
+                                class_css = 'alert_success';
+
 
                             } else {
                                 dt[element.chemical] = sum.toFixed(3);
                             }
 
-                            data_raw[ind] = dt;
-                            // console.log('index out', ind, 'raw ', data_raw[ind]);
+
+                            if (local_counter_macs1 > 0)
+                                class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
+                            if (local_counter_macs5 > 0)
+                                class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
+                            if (local_counter_macs10 > 0)
+                                class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
+                            if (day_counter < 54)
+                                class_css = 'alert_empty';
+
+                            if (range_out_counter > 4)
+                                class_css = 'alert_range';
+
+                            dt[element.chemical + '_class'] = class_css;
+                            //console.log(element.chemical, " - days", ind, " day count ", day_counter);
+
+                            _data_raw[ind] = dt;
 
 
                             if (sum < min_sum) {
@@ -574,96 +813,30 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                                 max_sum = sum;
                                 max_time_sum = item;
                             }
-
-                            if (sum > element.max_d)
-                                counter_macs1++;
-                            if ((sum / 5) >= element.max_d)
-                                counter_macs5++;
-                            if ((sum / 10) >= element.max_d)
-                                counter_macs10++;
-
                         } else {
-                            let dt = data_raw[ind];
+                            let dt = _data_raw[ind];
                             dt[element.chemical] = '-';
-                            data_raw[ind] = dt;
-                        };
-                        if (local_cnt > 0) {
-                            frame_count++;
-                        }
-                        if (!meteo_complete) {
-                            if (dir > -1) {
-                                let dt = data_raw[ind];
-                                dt['dir'] = dir.toFixed(0);
-                                data_raw[ind] = dt;
-                                dir = -1000;
 
+                            class_css = 'alert_success';
 
-                            } else {
-                                let dt = data_raw[ind];
+                            dt[element.chemical + '_class'] = class_css;
 
-                                dt['dir'] = '-';
-                                data_raw[ind] = dt;
-
-                            }
-                            if (temp > -100) {
-                                let dt = data_raw[ind];
-
-                                dt['temp'] = temp.toFixed(1);
-                                data_raw[ind] = dt;
-                                temp = -1000;
-
-                            } else {
-                                let dt = data_raw[ind];
-
-                                dt['temp'] = '-';
-                                data_raw[ind] = dt;
-
-                            }
-                            if (spd > -1) {
-                                let dt = data_raw[ind];
-
-                                dt['spd'] = spd.toFixed(0);
-                                data_raw[ind] = dt;
-                                spd = -1000;
-
-                            } else {
-                                let dt = data_raw[ind];
-
-                                dt['spd'] = '-';
-
-                                data_raw[ind] = dt;
-
-                            }
-                            if (hum > -1) {
-                                let dt = data_raw[ind];
-
-                                dt['hum'] = hum.toFixed(0);
-                                data_raw[ind] = dt;
-                                hum = -1000;
-
-                            } else {
-                                let dt = data_raw[ind];
-
-
-                                dt['hum'] = '-';
-                                data_raw[ind] = dt;
-
-                            }
-
+                            _data_raw[ind] = dt;
                         }
                     });
                     meteo_complete = true;
 
+                    //after all days
                     quotient = (sum_all / counter);
-                    range_macs = quotient / element.max_d;
+                    //range_macs = quotient / element.max_d;
                     class_css = 'alert_success';
                     times++;
 
-                    if (range_macs > 1)
+                    if (counter_macs1 > 0)
                         class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
-                    if (range_macs >= 5)
+                    if (counter_macs5 > 0)
                         class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
-                    if (range_macs >= 10)
+                    if (counter_macs10 > 0)
                         class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
 
                     if (chemical_classes[element.chemical] == 1) //coefficients for class dangerous
@@ -675,11 +848,22 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                     if (chemical_classes[element.chemical] == 4)
                         coefficient = 0.9;
 
+
+                    let sum_pow2 = 0;
+                    time_frame.forEach((item, ind) => {
+                        let dt = _data_raw[ind];
+                        if (!isNaN(Number(dt[element.chemical]))) {
+
+                            sum_pow2 += (Number(dt[element.chemical]) - quotient) * (Number(dt[element.chemical]) - quotient)
+                            //console.log("sigma", sum_pow2);
+                        }
+                    });
+
                     avrg_measure.push({
 
                         'chemical': element.chemical,
                         'value': quotient.toFixed(3),
-                        'counts': frame_count * 72,
+                        'counts': counter,
                         //'min': min, 'min_time': min_time,
                         'max': max, 'max_time': max_time,
                         'min_sum': min_sum, 'min_time_sum': min_time_sum,
@@ -687,15 +871,19 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                         'counter_macs1': counter_macs1,
                         'counter_macs5': counter_macs5,
                         'counter_macs10': counter_macs10,
-                        's_index': Number(element.max_d) < 900 ? Number(max / element.max_d).toFixed(1) : '-',
-                        'gre_repeatably': Number(element.max_d) < 900 ? Number(sum_alert / counter * 100).toFixed(2) : '-',
-                        'pollut_ind': Number(element.max_d) < 900 ? Number(quotient / element.max_d * coefficient).toFixed(1) : '-',
+                        's_index': Number(element.max_m) < 900 ? Number(max / element.max_m).toFixed(1) : '-',
+                        'gre_repeatably': Number(element.max_m) < 900 ? Number(Number(counter_macs1 + counter_macs5 + counter_macs10) / counter * 100).toFixed(2) : '-',
+                        'sigma': Math.sqrt(sum_pow2 / (counter - 1)).toFixed(3),
+                        //'pollut_ind': Number(element.max_d) < 900 ? Number(quotient / element.max_d * coefficient).toFixed(1) : '-',
                         'className': class_css
                     })
+
                 };
 
             };
         });
+        //console.log('data', avrg_measure);
+        //console.log('end');
         let name
         let chemical = [];
         let value = [];
@@ -714,7 +902,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         let className = [];
         let s_index = [];
         let gre_repeatably = [];
-        let pollut_ind = [];
+        let sigma = [];
 
 
         chemical.push('Наименование');
@@ -733,7 +921,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         counter_macs10.push('Количество превышений 10*ПДК');
         s_index.push('Стандартный индекс');
         gre_repeatably.push('Наибольшая повторяемость, %');
-        pollut_ind.push('ИЗА');
+        sigma.push('Ср. квадр. отклонение');
         className.push('ClassName');
 
         template_chemical.forEach(item => {
@@ -744,8 +932,8 @@ router.get('/get_monthly', authenticate, (req, resp) => {
             });
 
             if (isEmpty(filter)) {
-                data_raw.forEach((opt, indx) => {
-                    data_raw[indx] = { ...data_raw[indx], [item]: '-' };
+                _data_raw.forEach((opt, indx) => {
+                    _data_raw[indx] = { ..._data_raw[indx], [item]: '-' };
 
                 });
             }
@@ -769,7 +957,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                         counter_macs10.push(element.counter_macs10);
                         s_index.push(String(element.s_index).replace('.', ','));
                         gre_repeatably.push(String(element.gre_repeatably).replace('.', ','));
-                        pollut_ind.push(String(element.pollut_ind).replace('.', ','));
+                        sigma.push(String(element.sigma).replace('.', ','));
                         className.push(element.className);
                     }
                     else {
@@ -789,7 +977,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                         counter_macs10.push(element.counter_macs10);
                         s_index.push(String(element.s_index).replace('.', ','));
                         gre_repeatably.push(String(element.gre_repeatably).replace('.', ','));
-                        pollut_ind.push(String(element.pollut_ind).replace('.', ','));
+                        sigma.push(String(element.sigma).replace('.', ','));
                         className.push(element.className);
                     }
 
@@ -812,14 +1000,14 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                 counter_macs10.push('-');
                 s_index.push('-');
                 gre_repeatably.push('-');
-                pollut_ind.push('-');
+                sigma.push('-');
                 className.push('');
 
             };
         });
         let _avrg_measure = [];
         _avrg_measure.push(chemical, value, counts, max_sum, max_time_sum, min_sum, min_time_sum,
-            max, max_time, counter_macs1, counter_macs5, counter_macs10, s_index, gre_repeatably, pollut_ind, className);
+            max, max_time, counter_macs1, counter_macs5, counter_macs10, s_index, gre_repeatably, sigma, className);
 
 
         // rendering of array for docx template
@@ -827,14 +1015,14 @@ router.get('/get_monthly', authenticate, (req, resp) => {
         var pollution = [];
         var values = [];
         var data = [];
-        data_raw.forEach((element, ind) => {
+        _data_raw.forEach((element, ind) => {
             pollution.push({
-                time: element.time, valueNO: element.NO.replace('.', ','), valueNO2: element.NO2.replace('.', ','), valueNH3: element.NH3.replace('.', ','), valueSO2: element.SO2.replace('.', ','),
-                valueH2S: element.H2S.replace('.', ','), valueO3: element.O3.replace('.', ','), valueCO: element.CO.replace('.', ','), valueCH2O: element.CH2O.replace('.', ','), valuePM1: element.PM1.replace('.', ','),
-                valuePM25: element['PM2.5'].replace('.', ','), valuePM10: element.PM10.replace('.', ','), valueTSP: element['Пыль общая'].replace('.', ','),
-                valueC6H6: element['бензол'].replace('.', ','), valueC7H8: element['толуол'].replace('.', ','), valueC8H10: element['этилбензол'].replace('.', ','),
-                valueC8H10MP: element['м,п-ксилол'].replace('.', ','), valueC8H10O: element['о-ксилол'].replace('.', ','), valueC6H5Cl: element['хлорбензол'].replace('.', ','),
-                valueC8H8: element['стирол'].replace('.', ','), valueC6H5OH: element['фенол'].replace('.', ','), valueTemp: element['temp'].replace('.', ','), valueDir: element['dir'], valueSpd: element['spd'], valueHum: element['hum']
+                time: element.time, valueNO: String(element.NO).replace('.', ','), valueNO2: String(element.NO2).replace('.', ','), valueNH3: String(element.NH3).replace('.', ','), valueSO2: String(element.SO2).replace('.', ','),
+                valueH2S: String(element.H2S).replace('.', ','), valueO3: String(element.O3).replace('.', ','), valueCO: String(element.CO).replace('.', ','), valueCH2O: String(element.CH2O).replace('.', ','), valuePM1: String(element.PM1).replace('.', ','),
+                valuePM25: String(element['PM2.5']).replace('.', ','), valuePM10: String(element.PM10).replace('.', ','), valueTSP: String(element['Пыль общая']).replace('.', ','),
+                valueC6H6: String(element['бензол']).replace('.', ','), valueC7H8: String(element['толуол']).replace('.', ','), valueC8H10: String(element['этилбензол']).replace('.', ','),
+                valueC8H10MP: String(element['м,п-ксилол']).replace('.', ','), valueC8H10O: String(element['о-ксилол']).replace('.', ','), valueC6H5Cl: String(element['хлорбензол']).replace('.', ','),
+                valueC8H8: String(element['стирол']).replace('.', ','), valueC6H5OH: String(element['фенол']).replace('.', ','), valueTemp: String(element['temp']).replace('.', ','), valueDir: element['dir'], valueSpd: element['spd'], valueHum: element['hum']
             });
         })
         // values.push({
@@ -860,7 +1048,6 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
         //values.push(measure);
         values.push({
-            point: point_descr,
             year: date.format(new Date(period_from), 'YYYY'),
             month: date.format(new Date(period_from), 'MM'), pollution: pollution
         });
@@ -869,7 +1056,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
 
         let response = {};
 
-        response.data_raw = data_raw;
+        response.data_raw = _data_raw;
         response.avrg_measure = _avrg_measure;
         response.data = data;
         resp.json({ response });
@@ -1319,7 +1506,402 @@ router.get('/get_tza4', authenticate, (req, resp) => {
 
 //begin rendering
 
+router.get('/get_tza4_auto', authenticate, (req, resp) => {
+    //  
 
+    let query = url.parse(req.url).query;
+    let obj = qs.parse(query);
+    let data = JSON.parse(obj.data);
+    let station_name = data.station_name;
+    let chemic = data.chemic;
+    let meteo_add = data.checked_meteo;
+    const between_date = [data.period_from, data.period_to];
+    //console.log('time in =', Date.now());
+    //var start1 = Date.now();
+    loadMeteo(data.station, between_date).then(_result => {
+
+        //let _result_parse0 = JSON.stringify(_result);
+        let meteo_all = _result;
+
+        loadData_tza_auto(data.station, between_date, station_name, chemic).then(result => {
+            //console.log('time transaction =', Date.now() - start1);
+
+            var result_parse0 = JSON.stringify(result[0]);
+            var arr0 = JSON.parse(result_parse0);
+            var result_parse1 = JSON.stringify(result[1]);
+            var arr1 = JSON.parse(result_parse1);
+            var result_parse2 = JSON.stringify(result[2]);
+            var arr2 = JSON.parse(result_parse2);
+
+            const template_chemical = ['NO', 'NO2', 'NH3', 'SO2', 'H2S', 'O3', 'CO', 'CH2O', 'PM1', 'PM2.5', 'PM10', 'Пыль общая'];
+
+            var dataList = arr0;
+            var sensorsList = arr1;
+            var macsList = arr2;
+            var avrg_measure = [];
+            var data_raw = [];
+            var times = 0;
+            var time_frame = [];
+            var last_day = '';
+            var period_from = between_date[0];
+            var time_now = 0;
+            var Tq_sum = 0; //where Q > MAC moment
+            var n_monthly = 0;
+            var minute20_frame = [];
+
+
+
+            //var macs_one = macsList.filter((item, i, arr) => {
+            //      return (item.chemical == chemic);
+            // });
+
+            if (new Date().getMonth() != new Date(period_from).getMonth()) {
+                last_day = daysInMonth(new Date(period_from).getMonth());
+            } else {
+                last_day = new Date().getDate();
+            }
+
+
+            for (var ms = 1; ms < last_day + 1; ms++) {
+
+                time_frame.push(date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'));
+                // console.log('date ', date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'));
+
+            }
+
+            for (var h = 0; h < 24; h++) {
+                for (var m = 19; m < 60; m += 20) {
+
+                    minute20_frame.push(h.toString() + ':' + m.toString());
+                    // data_raw.push({ 'time': date.format(new Date(new Date(period_from).getFullYear(), new Date(period_from).getMonth(), ms), 'DD-MM-YYYY'), 'minutes_20': i });
+
+                    //i++;
+                    //data_raw.push({ 'time': h.toString() + ':' + m.toString() });
+                };
+            };
+
+            // macsList.forEach((macs_one, _indx) => {
+
+
+            var sumQc = 0;
+            var Qc = 0;
+            var counter = 0;
+            var Qmax = 0;
+            var Qmax_time = '-';
+            var QmaxC = 0;
+            var QmaxC_time = '-';
+            var maxQc = 0;
+            var maxQc_time = '-';
+            var counter_macs1 = 0;
+
+            var time_in = 0;
+            var time_out = 0;
+            var temp_day = [];
+            var one_day = [];
+            var one_day_chem = [];
+            var day_now = 0;
+            var up_sec = 0;
+            var Tq_day = 0;
+            var alert_macs = false;
+            var n_daily = 0;
+            var period_in = 0; //begin of period where Q > MACs
+            var M_sumQc = 0;
+            var tza4_templ = [];
+            var dataDayList = [];
+            let meteo_complete = false;
+            let tempr_day = [], dir_day = [], spd_day = [], hum_day = [], tza4_templ_meteo = [];
+            let time_from = 0;
+            let time_to = 0;
+            let range_out_counter = 0;
+
+
+            //console.log('between ', chemical_one[0]);
+            time_frame.forEach((element, indx) => { //step by day
+
+                let dataDayList = dataList.filter((item, i, arr) => {
+                    time_now = date.format(new Date(item.date_time), 'DD-MM-YYYY');
+
+
+                    return (element == time_now);
+                });
+
+                const meteo = [];
+                for (const elem in meteo_all) { // meteo from one day
+
+                    day_now = date.format(new Date(meteo_all[elem].date_time), 'DD-MM-YYYY');
+
+                    if ((day_now == element) && ((meteo_all[elem].typemeasure == 'Направление ветра') ||
+                        (meteo_all[elem].typemeasure == 'Скорость ветра') ||
+                        (meteo_all[elem].typemeasure == 'Влажность внеш.') || (meteo_all[elem].typemeasure == 'Темп. внешняя'))) {
+                        meteo.push(meteo_all[elem]);
+                    }
+
+
+                }
+
+
+                //temp_day.push('непр.');
+
+
+                minute20_frame.forEach((minutes_20, _inx) => {//step by 20 minutes in day
+
+
+
+
+                    // console.log(' day ' + element);
+
+                    let time_now = 0;
+                    let tmp = minutes_20.split(':');
+                    time_from = tmp[0] * 3600 + tmp[1] * 60;
+                    const meteo20 = [];
+
+                    let data_minute20 = dataDayList.filter((elem, i, arr) => {
+
+
+                        time_now = new Date(elem.date_time).getHours() * 3600 +
+                            new Date(elem.date_time).getMinutes() * 60 + new Date(elem.date_time).getSeconds();
+
+                        return ((time_from >= time_now) && (time_to <= time_now));
+                    });
+
+                    for (const elem in meteo) { // meteo  of 20 minutes 
+                        time_now = new Date(meteo[elem].date_time).getHours() * 3600 + new Date(meteo[elem].date_time).getMinutes() * 60 +
+                            new Date(meteo[elem].date_time).getSeconds();
+
+                        if ((time_from >= time_now) && (time_to <= time_now)) {
+                            meteo20.push(meteo_all[elem]);
+                        }
+                    }
+                    let temp = -1000;
+                    let dir = -1000;
+                    let spd = -1000;
+                    let hum = -1000;
+                    //20 minutes frame counters
+                    let _temp = -1000.0, _temp_cnt = 0;
+                    let _dir = -1000.0, _dir_cnt = 0;
+                    let _spd = -1000.0, _spd_cnt = 0;
+                    let _hum = -1000.0, _hum_cnt = 0;
+                    let weather = [];
+                    meteo_complete = false;
+                    time_to = time_from + 1;
+
+
+
+                    //if (!isEmpty(data_minute20)) {
+
+                    chemic.forEach((_chemic) => {
+                        // console.log('cheminc ', _chemic);
+                        var chemical_one = sensorsList.filter((item, i, arr) => {
+                            return (item.typemeasure == _chemic);
+                        });
+                        //console.log('chemincal_one', chemical_one);
+                        //if weather calculations
+                        if (chemical_one.length > 0) {
+                            if ((chemical_one[0].measure_class != 'data') || (_chemic == 'CO'))
+                                var signs = 1;
+                            else
+                                var signs = 3;
+                        }
+
+                        var macs_one = macsList.filter((item, i, arr) => {
+                            return (item.chemical == _chemic);
+                        });
+
+
+                        let data_minute20_one_chemical = data_minute20.filter((elem, i, arr) => {
+
+                            return (elem.typemeasure == _chemic);
+                        });
+
+                        if (!isEmpty(data_minute20_one_chemical)) {
+                            let local_cnt = 0;
+                            let local_sum = 0;    //    console.log('Macs list ', element);
+                            range_out_counter = 0;
+                            data_minute20_one_chemical.forEach(unit => {
+
+                                local_cnt++;
+                                local_sum += unit.measure;
+                                if (chemical_one.max_day_consentration < unit.measure)
+                                    range_out_counter++;
+
+                                if (!meteo_complete) {
+                                    //meteo avrg - one in 20 minutes frame
+                                    if (meteo.length > 0) {
+
+
+                                        meteo20.forEach(_meteo => {
+                                            if (_meteo.typemeasure == 'Направление ветра') {
+                                                if (_dir_cnt == 0) _dir = 0.0;
+                                                _dir += Number(_meteo.measure);
+                                                _dir_cnt++;
+                                            }
+                                            if (_meteo.typemeasure == 'Темп. внешняя') {
+                                                if (_temp_cnt == 0) _temp = 0.0;
+
+                                                _temp += Number(_meteo.measure);
+                                                _temp_cnt++;
+                                            }
+                                            if (_meteo.typemeasure == 'Скорость ветра') {
+                                                if (_spd_cnt == 0) _spd = 0.0;
+
+                                                _spd += Number(_meteo.measure);
+                                                _spd_cnt++;
+                                            }
+                                            if (_meteo.typemeasure == 'Влажность внеш.') {
+                                                if (_hum_cnt == 0) _hum = 0.0;
+
+                                                _hum += Number(_meteo.measure);
+                                                _hum_cnt++;
+                                            }
+
+                                        })
+
+                                    }
+
+                                }
+
+                            });//end of 20 minutes frame by one chemical
+
+                            if (!meteo_complete) {
+                                if (_dir_cnt > 0)
+                                    dir = _dir / _dir_cnt;
+                                if (_temp_cnt > 0)
+                                    temp = _temp / _temp_cnt;
+                                if (_spd_cnt > 0)
+                                    spd = _spd / _spd_cnt;
+                                if (_hum_cnt > 0)
+                                    hum = _hum / _hum_cnt;
+
+                                //one_day_chem.push({ weather });
+                            }
+                            meteo_complete = true;
+                            local_sum = local_sum / local_cnt;
+                            let class_css = 'alert_success';
+
+                            if (local_sum > (macs_one[0].max_m))
+                                class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
+                            if (local_sum / 5 > (macs_one[0].max_m))
+                                class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
+                            if (local_sum / 10 > (macs_one[0].max_m))
+                                class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
+
+                            if (local_cnt < 10)
+                                class_css = 'alert_empty'
+
+                            if (range_out_counter > 4)
+                                class_css = 'alert_range';
+
+                            one_day_chem.push({ [_chemic]: local_sum.toFixed(signs), [_chemic + '_class']: class_css })
+
+
+                            // console.log('index out', ind, 'raw ', data_raw[ind]);
+
+                            // if ((local_sum ) >= element.max_m) {
+                        } else  //    n_daily++;
+                        {
+                            one_day_chem.push({ [_chemic]: '-' });
+
+                        }
+
+                    });
+
+                    // after all chemical calculation
+                    if (dir > -1) {
+                        //weather.push({ dir: dir.toFixed(1) });
+                        dir = dir.toFixed(1);
+                        //dir = -1000;
+
+                    } else {
+                        dir = '-';
+
+                    }
+                    if (temp > -100) {
+                        //weather.push({ tempr: temp.toFixed(1) });
+                        temp = temp.toFixed(1);
+                        //temp = -1000;
+
+                    } else {
+                        temp = '-';
+                    }
+                    if (spd > -1) {
+                        //weather.push({ spd: spd.toFixed(0) });
+                        spd = spd.toFixed(0);
+                        //spd = -1000;
+
+                    } else {
+                        spd = '-';
+
+                    }
+                    if (hum > -1) {
+                        //weather.push({ hum: hum.toFixed(0) });
+                        hum = hum.toFixed(0);
+                        //hum = -1000;
+
+                    } else {
+                        hum = '-';
+
+                    }
+                    //}
+                    // } else {
+                    //  temp_day[1] = 'нет';
+                    //    temp_day.push('-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-');
+
+                    //    tempr_day.push('-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-');
+                    //    hum_day.push('-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-');
+                    //    dir_day.push('-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-');
+                    //   spd_day.push('-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-');
+
+                    // };
+
+                    one_day.push({ time: [minutes_20], tempr: temp, dir, spd, hum, ...one_day_chem });
+                    one_day_chem = [];
+                    //Tq_day = Tq_day.toFixed(0) ; 
+
+                });
+
+                tza4_templ.push({ [indx + 1]: one_day });
+                one_day = [];
+
+            });
+
+            //tza4_templ.push([...temp_day]);
+            // });
+            // M_sumQc, n_monthly, ...M(Qc) ~conter_macs1
+            // QmaxC, 
+            // QmaxC_time
+            //counter_macs1
+
+
+
+            // rendering of array for docx template
+
+            var pollution = [];
+            var values = [];
+            var data = [];
+            /*if (!meteo_add) {
+                tza4_templ.forEach((element, ind) => {
+                    pollution.push({
+                        time: element[0], P: element[1], h1: element[2].replace('.', ','), h2: element[3].replace('.', ','), h3: element[4].replace('.', ','), h4: element[5].replace('.', ','),
+                        h5: element[6].replace('.', ','), h6: element[7].replace('.', ','), h7: element[8].replace('.', ','), h8: element[9].replace('.', ','), h9: element[10].replace('.', ','), h10: element[11].replace('.', ','),
+                        h11: element[12].replace('.', ','), h12: element[13].replace('.', ','), h13: element[14].replace('.', ','), h14: element[15].replace('.', ','), h15: element[16].replace('.', ','), h16: element[17].replace('.', ','),
+                        h17: element[18].replace('.', ','), h18: element[19].replace('.', ','), h19: element[20].replace('.', ','), h20: element[21].replace('.', ','), h21: element[22].replace('.', ','),
+                        h22: element[23].replace('.', ','), h23: element[24].replace('.', ','), h24: element[25].replace('.', ','), SumQc: element[26].replace('.', ','), n: element[27], Qc: element[28].replace('.', ','),
+                        Qm: element[29].replace('.', ','), Tm: element[30], Tq: element[31]
+                    });
+                })
+            } else {*/
+            let key = '';
+
+            let response = {};
+
+            //console.log('time total =', Date.now() - start1);
+
+            response.tza4 = tza4_templ;
+            resp.json({ response });
+        });
+
+    });
+});
 
 
 

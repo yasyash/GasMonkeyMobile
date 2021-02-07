@@ -92,3 +92,13 @@ export function reportXGen(paramstr)
             .then(resp => resp.data.response);
 
     };
+
+    export function reportGet_tza4_auto(paramstr) {
+
+        const data = JSON.stringify(paramstr);
+        //  console.log('parameters is ', data);
+
+        return Axios.get('/api/operative_report/get_tza4_auto', { params: { data } })
+            .then(resp => resp.data.response);
+
+    }; 
