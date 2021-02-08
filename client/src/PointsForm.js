@@ -735,7 +735,7 @@ class PointsForm extends React.Component {
                                     this.setState({ isLoading: true });
                                     this.setState({ snack_msg: 'Наблюдения завершены. Иная точка наблюдения загружена...' });
                                     this.toggleSelection(this.state.point_actual, '', this.state.selection);
-                                    this.props.deleteActiveStationsList();
+                                    deleteActiveStationsList();
 
                                 } else {
                                     this.setState({ isLoading: true });
@@ -763,7 +763,7 @@ class PointsForm extends React.Component {
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Точка наблюдения загружена...' });
                         this.toggleSelection(this.state.point_actual, '', this.state.selection);
-                        this.props.deleteActiveStationsList();
+                        deleteActiveStationsList();
 
                     } else {
                         this.setState({ isLoading: true });

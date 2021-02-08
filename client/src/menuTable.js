@@ -148,7 +148,8 @@ class MenuTable extends Component {
             isEdit,
             isForceToggle,
             isData,
-            isTableStation
+            isTableStation,
+            selectAll
         } = props;
 
         if (isStation) { isNll = true }
