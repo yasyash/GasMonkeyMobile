@@ -402,13 +402,13 @@ class PointsForm extends React.Component {
                     let arr_t = arr_dt[1].split(':');
 
 
-                    let date_time_end = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+                    let date_time_end = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
-                     arr_dt = item.date_time_begin.split(' ');
-                     arr_d = arr_dt[0].split('-');
-                     arr_t = arr_dt[1].split(':');
+                    arr_dt = item.date_time_begin.split(' ');
+                    arr_d = arr_dt[0].split('-');
+                    arr_t = arr_dt[1].split(':');
 
-                    let date_time_begin = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+                    let date_time_begin = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
                     if ((date_time_end < date_time_begin) || (item.in_measure)) {
                         inMeasure = true;
@@ -772,7 +772,7 @@ class PointsForm extends React.Component {
                 })
             }
             if (filter.length > 0)
-                this.props.timeAddAction({ date_time_end: filter[0].date_time_end });
+                timeAddAction({ date_time_end: filter[0].date_time_end });
         } else {
             alert("Необходимо выбрать точку...");
         }
@@ -919,7 +919,7 @@ class PointsForm extends React.Component {
 
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Данные удалены...' });
-                        this.props.timeDeleteAction();
+                        timeDeleteAction();
                     } else {
                         this.setState({ isLoading: true });
                         this.setState({ snack_msg: 'Ошибка сервера...' });
