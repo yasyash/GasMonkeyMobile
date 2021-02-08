@@ -46,6 +46,7 @@ import { getStationsList } from './actions/stationsGetAction';
 import { queryEvent, queryOperativeEvent } from './actions/queryActions';
 import { getPoint, updatePoint, deletePoint, insertPoint, updatePointAll, changePoint, measureActivate, measureStop, getActivePoint } from './actions/adminActions';
 import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
+import { deleteActiveStationsList } from './actions/stationsAddAction';
 
 import pinAlert from './pin-alert.png';
 import pinGreen from './pin-green.png';
@@ -56,7 +57,7 @@ import ThumbUp from '@material-ui/icons/ThumbUp';
 import PointDialog from './stuff/PointDialog';
 import { TableRowColumn } from 'material-ui';
 import { updateSecurityUser } from './actions/adminActions';
-import { access } from 'fs';
+import { access, stat } from 'fs';
 
 //const pngs = require.context('../../tiles', true, /\.png$/);
 
@@ -245,15 +246,15 @@ class MapsForm extends React.Component {
                     let arr_t = arr_dt[1].split(':');
 
 
-                    let date_time_end = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+                    let date_time_end = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
-                     arr_dt = item.date_time_begin.split(' ');
-                     arr_d = arr_dt[0].split('-');
-                     arr_t = arr_dt[1].split(':');
+                    arr_dt = item.date_time_begin.split(' ');
+                    arr_d = arr_dt[0].split('-');
+                    arr_t = arr_dt[1].split(':');
 
-                    let date_time_begin = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+                    let date_time_begin = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
-                    if ((date_time_end < date_time_begin) ) {
+                    if ((date_time_end < date_time_begin)) {
                         inMeasure = true;
                         iddMeasure = item.idd;
 
@@ -262,8 +263,10 @@ class MapsForm extends React.Component {
                             iconUrl: pinAlert,
                             shadowUrl: markerShadow
                         });
-
-                        var marker = L.marker([item.lat, item.lon], { icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin, opacity: 1 }).addTo(_map);
+                        //point on map
+                        var marker = L.marker([item.lat, item.lon], { icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin, opacity: 1 }).on('click', (e) => {
+                            this.clickBubble(e, item.idd);
+                        }).addTo(_map);
 
                     } else {
 
@@ -274,6 +277,8 @@ class MapsForm extends React.Component {
                         var marker = L.marker([item.lat, item.lon], {
                             icon: _Icon, title: (item.place ? item.place : "") + "\n" + (item.descr ? item.descr : "") + "\n Время начала наблюдения: " + item.date_time_begin +
                                 "\n Время завершения наблюдения: " + item.date_time_end, opacity: 1
+                        }).on('click', (e) => {
+                            this.clickBubble(e, item.idd);
                         }).addTo(_map);
 
 
@@ -330,6 +335,166 @@ class MapsForm extends React.Component {
 
 
     }
+
+    clickBubble(e, idd) {
+        const { _map, _markers, inMeasure } = this.state;
+        //_markers[_markers.length-1].openPopup();
+        var popup = L.popup();
+
+        let _stop = (this.props.inMeasure && (this.props.point_actual == idd)) ? '<button type="button" class="btn-primary "id = "btn_stop" data = "measure" >Остановить</button> &nbsp;' : '';
+        let _measure = (!this.props.inMeasure && (this.props.point_actual == idd)) ? '<button type="button" class="btn-primary "id = "btn_measure" data = "measure" >Начать измерения</button> &nbsp;' : '';
+        popup
+            .setLatLng(e.latlng)
+            .setContent("Выбрать текущую точку для обработки?<br/><br/>" +
+                '<div align = "center"> <button type="button" class="btn-primary "id = "btn_set" data = "set" >Загрузить</button> &nbsp;' + _measure + _stop + '<button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>'
+            )
+            .openOn(_map);
+
+        //var dom = L.DomUtil.get('btn_add');
+
+        L.DomEvent.addListener(L.DomUtil.get('btn_set'), 'click', () => {
+            _map.closePopup();
+            this.handleActivate(e.latlng, idd);
+        });
+        if (!isEmpty(_measure))
+            L.DomEvent.addListener(L.DomUtil.get('btn_measure'), 'click', () => {
+                _map.closePopup();
+                this.handleActivate(e.latlng, idd, true);
+            });
+        if (!isEmpty(_stop))
+            L.DomEvent.addListener(L.DomUtil.get('btn_stop'), 'click', () => {
+                _map.closePopup();
+                this.handleActivate(e.latlng, idd, true, true);
+            });
+        L.DomEvent.addListener(L.DomUtil.get('btn_cancel'), 'click', () => {
+            _map.closePopup();
+        });
+
+
+
+    }
+
+    handleActivate(latlng, idd, isMeasure, isStop) {
+        var filter = [];
+        const { points_list } = this.state;
+        //change point
+        if (isStop && this.props.inMeasure && (this.props.point_actual == idd)) {
+            var isReal = confirm("Вы уверены, что хотите остановить сбор данных для данной точки наблюдения?...");
+
+            if (isReal) {
+                this.props.measureStop({ idd: this.state.iddMeasure }).then(resp => {
+                    if (resp.status == 200) {
+
+                        this.map_load();
+
+
+                        this.setState({ inMeasure: false });
+
+                        this.setState({ isLoading: true });
+                        this.setState({ snack_msg: 'Остановлен сбор данных для данной точки...' });
+
+
+
+                    } else {
+                        this.setState({ isLoading: true });
+                        this.setState({ snack_msg: 'Ошибка сервера...' });
+                    };
+                });
+            };
+        } else {
+            if (this.props.point_actual) {
+                if (this.props.inMeasure) {
+                    var isReal = confirm("Вы уверены, что хотите завершить текущее наблюдение и активировать другую точку?...");
+
+                    if (isReal) {
+                        this.props.updatePoint({ idd: this.state.iddMeasure }).then(resp => {
+                            if (resp.status == 200) {
+                                this.props.changePoint({ idd }).then(resp => {
+                                    if (resp.status == 200) {
+                                        this.map_load();
+
+                                        //filter = points_list.filter((item) => {
+                                        //    return item.idd == this.state.point_actual;
+                                        //});
+
+                                        this.setState({ point_actual: '', selection: '' });
+
+                                        this.setState({ isLoading: true });
+                                        this.setState({ snack_msg: 'Наблюдения завершены. Иная точка наблюдения загружена...' });
+                                        deleteActiveStationsList();
+
+                                        if (isMeasure) {
+                                            this.props.measureActivate({ idd }).then(resp => {
+                                                if (resp.status == 200) {
+
+                                                    this.map_load();
+
+
+                                                    this.setState({ snack_msg: 'Начат сбор данных для данной точки...' });
+
+                                                } else {
+                                                    this.setState({ isLoading: true });
+                                                    this.setState({ snack_msg: 'Ошибка сервера...' });
+                                                };
+                                            });
+
+                                        }
+
+                                    } else {
+                                        this.setState({ isLoading: true });
+                                        this.setState({ snack_msg: 'Ошибка сервера...' });
+                                    }
+                                })
+
+                            } else {
+                                this.setState({ isLoading: true });
+                                this.setState({ snack_msg: 'Ошибка сервера...' });
+                            };
+                        });
+                    };
+                } else {
+                    this.props.changePoint({ idd }).then(resp => {
+                        if (resp.status == 200) {
+                            this.map_load();
+
+                            // filter = points_list.filter((item) => {
+                            //  return item.idd == idd;
+                            //});
+
+                            this.setState({ point_actual: '', selection: '' });
+
+                            this.setState({ isLoading: true });
+                            this.setState({ snack_msg: 'Точка наблюдения загружена...' });
+                            deleteActiveStationsList();
+                            if (isMeasure) {
+                                this.props.measureActivate({ idd }).then(resp => {
+                                    if (resp.status == 200) {
+
+                                        this.map_load();
+
+
+                                        this.setState({ snack_msg: 'Начат сбор данных для данной точки...' });
+
+                                    } else {
+                                        this.setState({ isLoading: true });
+                                        this.setState({ snack_msg: 'Ошибка сервера...' });
+                                    };
+                                });
+
+                            }
+                        } else {
+                            this.setState({ isLoading: true });
+                            this.setState({ snack_msg: 'Ошибка сервера...' });
+                        }
+                    })
+                }
+                if (filter.length > 0)
+                    timeAddAction({ date_time_end: filter[0].date_time_end });
+            } else {
+                alert("Необходимо выбрать точку...");
+            }
+        }
+    };
 
     openMeasure(params) {
         if (!this.state.inMeasure) {
@@ -649,9 +814,10 @@ function mapStateToProps(state) {
 
     return {
         stationsList: state.stationsList,
-    };
+        point_actual: state.points[0].active_point.iddMeasure,
+        inMeasure: state.points[0].active_point.inMeasure
+    }
 }
-
 
 MapsForm.propTypes = {
     classes: PropTypes.object.isRequired,
@@ -663,5 +829,7 @@ MapsForm.contextType = {
     // router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint,updatePointAll, changePoint,
-    measureActivate, measureStop, getActivePoint, pointAddAction, pointDeleteAction })(withRouter(withStyles(styles)(MapsForm)));
+export default connect(mapStateToProps, {
+    queryEvent, queryOperativeEvent, getPoint, updatePoint, insertPoint, deletePoint, updatePointAll, changePoint,
+    measureActivate, measureStop, getActivePoint, pointAddAction, pointDeleteAction, deleteActiveStationsList
+})(withRouter(withStyles(styles)(MapsForm)));

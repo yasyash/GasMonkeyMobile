@@ -169,10 +169,10 @@ class DailyReport extends React.Component {
 
         return data;
     };
-
     handleReportChange = (state) => {
         this.setState({ station_actual: state.station_actual, station_name: state.station_name });
-
+        this.setState({ isLoading: true });
+        this.setState({ autoHideDuration: 200000, snack_msg: 'Дождитесь завершения операции...' });
         let params = {};
         //e.preventDefault();
         // this.setState({ dateReportBegin: this.props.dateReportBegin, dateReportEnd: this.props.dateReportEnd });
@@ -361,12 +361,11 @@ class DailyReport extends React.Component {
                                             hum = _hum / _hum_cnt;
                                     }
                                 }
-                                time_in = up_sec;
+                                time_in = up_sec +1 ;
 
                                 let sum = 0;
                                 let local_cnt = 0;
                                 is_range = false;
-
                                 if (!isEmpty(obj)) {
                                     obj.forEach((unit => {
                                         sum += unit.measure;
@@ -404,23 +403,38 @@ class DailyReport extends React.Component {
 
                                     if ((local_cnt < 10)) //data credit detection
                                     {
-                                        dt[element.chemical + '_err'] = 'alert_empty';
+                                        class_css = 'alert_empty';
                                     } else {
                                         if ((is_range)) //data credit detection
-                                            dt[element.chemical + '_err'] = 'alert_range';
+                                            class_css = 'alert_range';
                                         else
-                                            dt[element.chemical + '_err'] = 'alert_success';
+                                            class_css = 'alert_success';
                                     }
-
 
                                     data_raw[ind] = dt;
 
-                                    if (sum > element.max_m)
-                                        counter_macs1++;
-                                    if ((sum / 5) >= element.max_m)
-                                        counter_macs5++;
-                                    if ((sum / 10) >= element.max_m)
+
+
+                                    if ((sum / 10) >= element.max_m) {
+
                                         counter_macs10++;
+                                        class_css = 'alert_macs10_red'; //outranged of a macs in  more than 10 times
+                                    } else {
+                                        if ((sum / 5) >= element.max_m) {
+                                            counter_macs5++;
+                                            class_css = 'alert_macs5_orng'; //outranged of a macs in 5 times
+
+                                        } else {
+                                            if (sum >= element.max_m) {
+                                                counter_macs1++;
+                                                class_css = 'alert_macs1_ylw'; //outranged of a macs in 1 time
+
+                                            }
+                                        }
+
+                                    }
+
+                                    dt[element.chemical + '_err'] = class_css;
 
                                 } else {
                                     let dt = data_raw[ind];
