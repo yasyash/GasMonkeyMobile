@@ -285,13 +285,13 @@ class OperativeReport extends React.Component {
                                 rows_service[key] = '223.1';
                             };
                             if ((key == 'Ts1')) {
-                                rows_service[key] = String((Number(rows_service.Tin.replace(',', '.')) + 0.51).toFixed(2)).replace('.', ',');
+                                rows_service[key] = String((Number(String(rows_service.Tin).replace(',', '.')) + 0.51).toFixed(2)).replace('.', ',');
                             };
                             if ((key == 'Ts2')) {
-                                rows_service[key] = String((Number(rows_service.Tin.replace(',', '.')) + 0.46).toFixed(2)).replace('.', ',');
+                                rows_service[key] = String((Number(String(rows_service.Tin.replace(',', '.'))) + 0.46).toFixed(2)).replace('.', ',');
                             };
                             if ((key == 'Ts3')) {
-                                rows_service[key] = String((Number(rows_service.Tin.replace(',', '.')) + 0.50).toFixed(2)).replace('.', ',');
+                                rows_service[key] = String((Number(String(rows_service.Tin.replace(',', '.'))) + 0.50).toFixed(2)).replace('.', ',');
                             };
                         };
 
@@ -325,12 +325,13 @@ class OperativeReport extends React.Component {
                     Fr: rows_service.Fr ? 'пожар' : 'отсутствует'
                 });
 
-                data.push({ station: this.state.station_name, values: values, 
+                data.push({
+                    station: this.state.station_name, values: values,
                     place: this.props.point_descr,
                     lat: this.props.stationsList[0].latitude,
                     lon: this.props.stationsList[0].longitude,
                     date: "время начала измерения: " + new Date(this.state.dateTimeBegin).format('dd-MM-Y H:mm') + " время завершения измерения:  " + new Date(this.state.dateTimeEnd).format('dd-MM-Y H:mm')
-                 });
+                });
 
                 this.setState({ 'data_4_report': data });
 
