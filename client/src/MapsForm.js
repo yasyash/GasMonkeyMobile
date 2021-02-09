@@ -340,22 +340,22 @@ class MapsForm extends React.Component {
         const { _map, _markers, inMeasure } = this.state;
         //_markers[_markers.length-1].openPopup();
         var popup = L.popup();
-
+        let _open = ((this.props.point_actual != idd)) ? '<button type="button" class="btn-primary "id = "btn_set" data = "set" >Загрузить</button> &nbsp;' : '';
         let _stop = (this.props.inMeasure && (this.props.point_actual == idd)) ? '<button type="button" class="btn-primary "id = "btn_stop" data = "measure" >Остановить</button> &nbsp;' : '';
         let _measure = (!this.props.inMeasure && (this.props.point_actual == idd)) ? '<button type="button" class="btn-primary "id = "btn_measure" data = "measure" >Начать измерения</button> &nbsp;' : '';
         popup
             .setLatLng(e.latlng)
             .setContent("Выбрать текущую точку для обработки?<br/><br/>" +
-                '<div align = "center"> <button type="button" class="btn-primary "id = "btn_set" data = "set" >Загрузить</button> &nbsp;' + _measure + _stop + '<button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>'
+                '<div align = "center"> ' + _open + _measure + _stop + '<button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>'
             )
             .openOn(_map);
 
         //var dom = L.DomUtil.get('btn_add');
-
-        L.DomEvent.addListener(L.DomUtil.get('btn_set'), 'click', () => {
-            _map.closePopup();
-            this.handleActivate(e.latlng, idd);
-        });
+        if (!isEmpty(_open))
+            L.DomEvent.addListener(L.DomUtil.get('btn_set'), 'click', () => {
+                _map.closePopup();
+                this.handleActivate(e.latlng, idd);
+            });
         if (!isEmpty(_measure))
             L.DomEvent.addListener(L.DomUtil.get('btn_measure'), 'click', () => {
                 _map.closePopup();

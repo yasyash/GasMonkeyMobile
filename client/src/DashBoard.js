@@ -58,6 +58,7 @@ import { queryDashBoardDataOperativeEvent, queryDashBoardAlertsHistory, queryAll
 import { addLogsList, deleteLogsList } from './actions/logsAddActions';
 import { getPoint, getActivePoint } from './actions/adminActions';
 import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
+import { getSettings } from './actions/settingsAction';
 import QueryBuilderIcon from '@material-ui/icons/QueryBuilderTwoTone';
 import HistoryToggleOffTwoToneIcon from './icons/HistoryToggleOffTwoTone';
 //import { filter } from 'ramda';
@@ -135,7 +136,8 @@ class DashBoard extends Component {
       fire_alert: [],
       time_frame: [],
       alertsHistoryList: [],
-      systemHistoryList: []
+      systemHistoryList: [],
+      cards_order: []
 
 
     }
@@ -205,7 +207,7 @@ class DashBoard extends Component {
         this.setState({ stationsList: stations });
         this.load_data(params).then(data => {
           if (data) {
-            console.log("Time entry = ", Date.parse(new Date()));
+            //console.log("Time entry = ", Date.parse(new Date()));
             let dataList = data.dataTable;
             let sensorsList = data.sensorsTable;
             let macsList = data.macsTable;
@@ -315,7 +317,7 @@ class DashBoard extends Component {
               if (_pack.length > 0)
                 _compressed = [..._compressed, ..._pack];
             };
-            console.log("Time exit = ", Date.parse(new Date()));
+            //console.log("Time exit = ", Date.parse(new Date()));
 
 
             this.setState({
@@ -349,13 +351,13 @@ class DashBoard extends Component {
           let arr_t = arr_dt[1].split(':');
 
 
-          let date_time_end = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+          let date_time_end = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
-           arr_dt = item.date_time_begin.split(' ');
-           arr_d = arr_dt[0].split('-');
-           arr_t = arr_dt[1].split(':');
+          arr_dt = item.date_time_begin.split(' ');
+          arr_d = arr_dt[0].split('-');
+          arr_t = arr_dt[1].split(':');
 
-          let date_time_begin = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+          let date_time_begin = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
           if ((date_time_end < date_time_begin) || (item.in_measure)) {
             inMeasure = true;
@@ -486,6 +488,9 @@ class DashBoard extends Component {
   }
 
   componentWillMount() {
+    this.props.getSettings('dashboard', 'card').then(data => {
+      this.setState({ cards_order: data });
+    });
     if (isEmpty(this.stationsList)) this.map_load();
     this.renderData();
     this.renderHistoricalData(this.state.dateTimeAlerts);
@@ -500,19 +505,23 @@ class DashBoard extends Component {
     const { username, is_admin } = this.props;
 
     const { classes } = this.props;
-    const { stationsList, macsList, dataList, sensorsList, open, anchorEl, mobileOpen, alertsList, door_alert, fire_alert, systemList, alertsHistoryList, systemHistoryList } = this.state;
+    const { stationsList, macsList, dataList, sensorsList, open, anchorEl,
+      mobileOpen, alertsList, door_alert, fire_alert, systemList, alertsHistoryList, systemHistoryList, cards_order } = this.state;
     var tabs = [];
     var filter = '';
     var _filter = '';
+    var element = [];
     var _type_measure = '';
     var measure = 0;
     var door_alert_filter = '';
     var fire_alert_filter = '';
     var voltage;
     var weatherList = '';
+    var _cards_order = [];
 
-
-
+    for (var i in cards_order) {
+      _cards_order.push(cards_order[i]);
+    }
 
 
     if (is_admin) {
@@ -542,24 +551,26 @@ class DashBoard extends Component {
             tabIcon: StationIcon,
             tabContent: (
               < GridContainer style={{ padding: "2px" }} >
-                {(macsList) &&
-                  macsList.map((element, j) => (
+                {(_cards_order.length > 0) &&
+                  _cards_order.map((_element, j) => (
                     (dataList.length > 0) &&
                     (filter = dataList.filter((opt, k, arr) => {
-                      return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
+                      return ((opt.typemeasure == _element) && (opt.id == item.id));
+                    })), (element = macsList.filter((__item, _i) => {
+                      return (__item.chemical == _element);
                     })),
                     ((filter.length > 0) && (measure = filter[filter.length - 1].measure)),
-                    (filter.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_' + element.chemical}>
+                    (filter.length > 0) && (<GridItem xs={3} sm={3} md={3} key={item.namestation + '_' + _element}>
                       <Card>
                         <CardHeader stats icon >
                           <CardIcon color={filter[filter.length - 1].is_alert ? "danger" : "info"} style={{ padding: "5px" }} >
                             {filter[0].increase ? <Backup /> : <Backdown />}
                           </CardIcon>
-                          <p className={classes.cardCategory}>Среднее (20 мин.) : {(element.chemical == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
-                          <p className={classes.cardCategory}> {(element.chemical == 'CO') ? (measure / element.max_m).toFixed(1) : ((element.max_m > 900) ? 'нет' : (measure / element.max_m).toFixed(3))} долей ПДК</p>
+                          <p className={classes.cardCategory}>Среднее (20 мин.) : {(_element == 'CO') ? measure.toFixed(1) : measure.toFixed(3)} мг/м3</p>
+                          <p className={classes.cardCategory}> {(_element == 'CO') ? (measure / element[0].max_m).toFixed(1) : ((element[0].max_m > 900) ? 'нет' : (measure / element[0].max_m).toFixed(3))} долей ПДК</p>
 
-                          <h3 className={classes.cardTitle}>{element.chemical}</h3>
-                          <p className={classes.cardCategory}>Мгновенное : {(element.chemical == 'CO') ? filter[0].momental_measure.toFixed(3) : filter[0].momental_measure.toFixed(5)} мг/м3</p>
+                          <h3 className={classes.cardTitle}>{_element}</h3>
+                          <p className={classes.cardCategory}>Мгновенное : {(_element == 'CO') ? filter[0].momental_measure.toFixed(3) : filter[0].momental_measure.toFixed(5)} мг/м3</p>
 
                         </CardHeader>
                         <CardFooter stats>
@@ -574,16 +585,16 @@ class DashBoard extends Component {
 
                   ))}
 
-                {(macsList) &&
-                  macsList.map((element, j) => (
+                {(_cards_order.length > 0) &&
+                  _cards_order.map((_element, j) => (
                     (sensorsList.length > 0) && (
                       filter = sensorsList.filter((opt, k, arr) => {
-                        return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
+                        return ((opt.typemeasure == _element) && (opt.id == item.id));
                       })
                     ),
                     (filter.length > 0) && (
                       _filter = dataList.filter((opt, k, arr) => {
-                        return ((opt.typemeasure == element.chemical) && (opt.id == item.id));
+                        return ((opt.typemeasure == _element) && (opt.id == item.id));
                       })
                     ),
                     (_filter.length > 0) && (filter = []),
@@ -1032,5 +1043,8 @@ DashBoard.propTypes = {
 
 
 
-export default connect(mapStateToProps, { pointAddAction, pointDeleteAction, getPoint, getActivePoint, addLogsList, deleteLogsList, queryDashBoardDataOperativeEvent, queryDashBoardAlertsHistory, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent })(withStyles(styles)(DashBoard));
+export default connect(mapStateToProps, {
+  pointAddAction, pointDeleteAction, getPoint, getActivePoint, addLogsList, deleteLogsList, queryDashBoardDataOperativeEvent,
+  queryDashBoardAlertsHistory, queryAllDataOperativeEvent, queryEvent, queryMeteoEvent, getSettings
+})(withStyles(styles)(DashBoard));
 

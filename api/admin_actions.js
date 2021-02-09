@@ -23,11 +23,36 @@ import Macs from '../models/macs';
 import DATA from '../models/data';
 import POINTS from '../models/points';
 import ftp_upload from './ftp_actions';
+import Settings from '../models/settings';
+
 import { exec } from 'child_process';
 
 import { isString, isNumber } from 'util';
 
 let router = express.Router();
+
+//settings handling
+
+router.get('/settings_get', authenticate, (req, resp) => {
+    //  
+
+    let query = url.parse(req.url).query;
+    let obj = qs.parse(query);
+    let data = JSON.parse(obj.data);
+
+    Settings.query({
+        where: ({ bunch: data.bunch }),
+        andWhere: ({ type: data.type })
+    }).fetchAll().then(data => {
+        resp.json(data);
+    }).catch(err => {
+
+        resp.status(500).json({ error: err })
+    });
+    // write the result
+
+});
+
 
 //Points handling
 
@@ -49,17 +74,17 @@ router.post('/point_delete', authenticate, (req, resp) => {
             exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
                 if (error) {
                     console.error(`error: ${error.message}`);
-                    resp.json({ result : error });
+                    resp.json({ result: error });
                 }
-    
+
                 if (stderr) {
                     console.error(`stderr: ${stderr}`);
-                    resp.json({ result : stderr });
+                    resp.json({ result: stderr });
                 }
-    
-    
-                resp.json({ result : result });
-    
+
+
+                resp.json({ result: result });
+
             });
         }).catch(err => resp.status(500).json({ error: ' ' + err }));
     // write the result
@@ -75,29 +100,29 @@ router.post('/point_measure_activate', authenticate, (req, resp) => {
     let data = req.body;
     //console.log(data);
     POINTS.where({ idd: data.idd })
-    .save({
-        date_time_end: null , in_measure: true
-    }, { patch: true })
-    .then(result => {
+        .save({
+            date_time_end: null, in_measure: true
+        }, { patch: true })
+        .then(result => {
 
-        exec('sudo systemctl start fetcher-weather.service', (error, stdout, stderr) => {
-            if (error) {
-                console.error(`error: ${error.message}`);
-                resp.json({ result : error });
-            }
+            exec('sudo systemctl start fetcher-weather.service', (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`error: ${error.message}`);
+                    resp.json({ result: error });
+                }
 
-            if (stderr) {
-                console.error(`stderr: ${stderr}`);
-                resp.json({ result : stderr });
-            }
+                if (stderr) {
+                    console.error(`stderr: ${stderr}`);
+                    resp.json({ result: stderr });
+                }
 
 
-            resp.json({ result : result });
+                resp.json({ result: result });
 
-        });
+            });
 
-    }).catch(err => resp.status(500).json({ error: ' ' + err }));
-   
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+
 
 })
 
@@ -109,32 +134,32 @@ router.post('/point_measure_stop', authenticate, (req, resp) => {
     //let data = JSON.parse(obj.data);
     let data = req.body;
     //console.log(data);
-   var date_time_end = new Date().format('dd-MM-Y H:mm:SS'); //in case if measure close
+    var date_time_end = new Date().format('dd-MM-Y H:mm:SS'); //in case if measure close
 
     POINTS.where({ idd: data.idd })
-    .save({
-        date_time_end, in_measure: false
-    }, { patch: true })
-    .then(result => {
+        .save({
+            date_time_end, in_measure: false
+        }, { patch: true })
+        .then(result => {
 
-        exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
-            if (error) {
-                console.error(`error: ${error.message}`);
-                resp.json({ result : error });
-            }
+            exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`error: ${error.message}`);
+                    resp.json({ result: error });
+                }
 
-            if (stderr) {
-                console.error(`stderr: ${stderr}`);
-                resp.json({ result : stderr });
-            }
+                if (stderr) {
+                    console.error(`stderr: ${stderr}`);
+                    resp.json({ result: stderr });
+                }
 
 
-            resp.json({ result : result });
+                resp.json({ result: result });
 
-        });
+            });
 
-    }).catch(err => resp.status(500).json({ error: ' ' + err }));
-   
+        }).catch(err => resp.status(500).json({ error: ' ' + err }));
+
 
 
 })
@@ -160,16 +185,16 @@ router.post('/point_update', authenticate, (req, resp) => {
                 exec('sudo systemctl stop fetcher-weather.service', (error, stdout, stderr) => {
                     if (error) {
                         console.error(`error: ${error.message}`);
-                        resp.json({ result : error });
+                        resp.json({ result: error });
                     }
-        
+
                     if (stderr) {
                         console.error(`stderr: ${stderr}`);
-                        resp.json({ result : stderr });
+                        resp.json({ result: stderr });
                     }
-        
-        
-                    resp.json({ result : result });
+
+
+                    resp.json({ result: result });
                 });
 
             }).catch(err => resp.status(500).json({ error: ' ' + err }));
@@ -309,16 +334,16 @@ router.post('/point_insert', authenticate, (req, resp) => {
                                                 exec('sudo systemctl start fetcher-weather.service', (error, stdout, stderr) => {
                                                     if (error) {
                                                         console.error(`error: ${error.message}`);
-                                                        resp.json({ result : error });
+                                                        resp.json({ result: error });
                                                     }
-                                        
+
                                                     if (stderr) {
                                                         console.error(`stderr: ${stderr}`);
-                                                        resp.json({ result : stderr });
+                                                        resp.json({ result: stderr });
                                                     }
-                                        
-                                        
-                                                    resp.json({ result : result });
+
+
+                                                    resp.json({ result: result });
 
                                                 });
                                             }).catch(err => resp.status(500).json({ error: 'FTP update error' }))
@@ -576,7 +601,7 @@ router.post('/api_insert', authenticate, (req, resp) => {
             var result_parse0 = JSON.stringify(result);
             var arr = JSON.parse(result_parse0);
             let id = 1;
-           // console.log(String(Number(arr[0].id) + 1))
+            // console.log(String(Number(arr[0].id) + 1))
             if (!isEmpty(arr[0]))
                 id = String(Number(arr[0].id) + 1);
 
@@ -1216,9 +1241,9 @@ router.post('/dev_update', authenticate, (req, resp) => {
         _ldc = 1000;
     if (isNaN(_lmc) || (_lmc == 0))
         _lmc = 1000;
-        if (isEmpty(toString(data.min_range))||isNaN(data.min_range))
+    if (isEmpty(toString(data.min_range)) || isNaN(data.min_range))
         _min_r = null;
-    if (isEmpty(toString(data.min_range))||isNaN(data.max_range))
+    if (isEmpty(toString(data.min_range)) || isNaN(data.max_range))
         _max_r = null;
 
     DEV.where({ id: data.id })

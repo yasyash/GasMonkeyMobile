@@ -52,13 +52,13 @@ class NavigationBar extends React.Component {
           let arr_t = arr_dt[1].split(':');
 
 
-          let date_time_end = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+          let date_time_end = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
-           arr_dt = item.date_time_begin.split(' ');
-           arr_d = arr_dt[0].split('-');
-           arr_t = arr_dt[1].split(':');
+          arr_dt = item.date_time_begin.split(' ');
+          arr_d = arr_dt[0].split('-');
+          arr_t = arr_dt[1].split(':');
 
-          let date_time_begin = new Date(arr_d[2], arr_d[1]-1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
+          let date_time_begin = new Date(arr_d[2], arr_d[1] - 1, arr_d[0], arr_t[0], arr_t[1], arr_t[2]).getTime();
 
           if ((date_time_end < date_time_begin) || (item.in_measure)) {
             inMeasure = true;
@@ -115,7 +115,6 @@ class NavigationBar extends React.Component {
           <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
           <Link to="/stats">Статистика  &nbsp; &nbsp;</Link>
-          <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
           <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
           <Link to="/maps">Карты  &nbsp; &nbsp;</Link>
           <a href="https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon" target="_blank">GPS кабинет</a>
@@ -123,6 +122,7 @@ class NavigationBar extends React.Component {
           <a href="#" onClick={this.logout.bind(this)}>   Выход</a></li>
       </ul>
     );
+    //         <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
 
     const userLinks = (
       <ul className="nav navbar-nav navbar-right">
@@ -131,7 +131,6 @@ class NavigationBar extends React.Component {
         <li><Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
           <Link to="/stats">Статистика  &nbsp; &nbsp;</Link>
-          <Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
           <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
           <Link to="/maps">Карты  &nbsp; &nbsp;</Link>
 
@@ -139,7 +138,7 @@ class NavigationBar extends React.Component {
           <a href="#" onClick={this.logout.bind(this)}>   Выход</a></li>
       </ul>
     );
-
+    //<Link to="/meteo">Метеоданные  &nbsp; &nbsp;</Link>
     const guestLinks = (
       <ul className="nav navbar-nav navbar-right">
         <li><Link to="/signup">Регистрация</Link>{"           "}
@@ -162,8 +161,8 @@ class NavigationBar extends React.Component {
               </Link>&nbsp;&nbsp;&nbsp;&nbsp;
               {isAuthenticated && (this.props.inMeasure) && (<CloudDoneIcon fontSize="small" color="primary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}
               {(isAuthenticated && !this.props.inMeasure) && (<CloudOffIcon fontSize="small" color="secondary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}&nbsp;&nbsp;
-              {isAuthenticated &&( <Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
-              <b > измерения: </b> {this.props.inMeasure ? "проводятся" : "отключены"}</Link>)}
+              {isAuthenticated && (<Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
+                <b > измерения: </b> {this.props.inMeasure ? "проводятся" : "отключены"}</Link>)}
             </div>
 
             <div className="navbar-text">
