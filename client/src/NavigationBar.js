@@ -203,8 +203,8 @@ class NavigationBar extends React.Component {
               </Link>&nbsp;&nbsp;&nbsp;&nbsp;
               {isAuthenticated && (this.props.inMeasure) && (<CloudDoneIcon fontSize="small" color="primary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}
               {(isAuthenticated && !this.props.inMeasure) && (<CloudOffIcon fontSize="small" color="secondary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}&nbsp;&nbsp;
-              {isAuthenticated && (<Tooltip title={"Время начала наблюдения: " + this.props.begin_measure_time} classes={{ tooltip: styles.tooltip }} ><Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
-                <b > измерения: </b> {this.props.inMeasure ? "проводятся" : "отключены"}</Link></Tooltip>)}
+              {isAuthenticated && (<Tooltip title={"Время начала наблюдения: " + this.props.begin_measure_time}  ><Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
+                <b > измерения: </b> {this.props.inMeasure ? "проводятся с "+ new Date(this.props.begin_measure_time).format('HH:mm:SS') : "отключены"}</Link></Tooltip>)}
             </div>
 
             <div className="navbar-text">
