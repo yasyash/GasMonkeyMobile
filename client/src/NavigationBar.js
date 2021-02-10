@@ -15,14 +15,56 @@ import { logout } from './actions/loginActions';
 import isEmpty from 'lodash.isempty';
 
 import Divider from 'material-ui/Divider';
+import { withStyles } from '@material-ui/core/styles';
 
 import { getPoint, getActivePoint } from './actions/adminActions';
 import { pointAddAction, pointDeleteAction } from './actions/dataAddActions';
 import CloudDoneIcon from '@material-ui/icons/CloudQueue';
 import CloudOffIcon from '@material-ui/icons/CloudOff';
 //import Notifier from './stuff/Notifier';
+import Tooltip from '@material-ui/core/Tooltip';
+
+export const styles = theme => ({
+  root: {
+    flexGrow: 1,
+    width: '100%',
+    backgroundColor: theme.palette.background.paper,
+  },
+
+  cardIcon: {
+    
+      borderRadius: "3px",
+      backgroundColor: "#999",
+      padding: "5px",
+      marginTop: "-20px",
+      marginRight: "15px",
+      float: "left"
+    },
+
+  icon: {
+    fontSize: 20,
+  },
+  inactiveicon:
+  {
+    backgroundColor: 'grey'
+  },
+  message: {
+   maxWidth: 50,
+   backgroundColor: 'blue',
+
+  },
+  tooltip: {
+    backgroundColor: 'blue',
+   
+    padding: '4px 8px',
+
+    maxWidth: 300,
+    wordWrap: 'break-word',
+    fontWeight: '40',
+  },
 
 
+});
 
 class NavigationBar extends React.Component {
   constructor(props) {
@@ -75,7 +117,7 @@ class NavigationBar extends React.Component {
       this.props.getActivePoint().then(_data => {
         if ((_data.length > 0)) {
           pointDeleteAction();
-          pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '' });
+          pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in });
 
           //this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
         }
@@ -126,9 +168,9 @@ class NavigationBar extends React.Component {
 
     const userLinks = (
       <ul className="nav navbar-nav navbar-right">
-        <Link to="/points">Точки отбора &nbsp; &nbsp;</Link>
+        <li>  <Link to="/points">Точки отбора &nbsp; &nbsp;</Link>
 
-        <li><Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
+          <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
           <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
           <Link to="/stats">Статистика  &nbsp; &nbsp;</Link>
           <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
@@ -161,8 +203,8 @@ class NavigationBar extends React.Component {
               </Link>&nbsp;&nbsp;&nbsp;&nbsp;
               {isAuthenticated && (this.props.inMeasure) && (<CloudDoneIcon fontSize="small" color="primary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}
               {(isAuthenticated && !this.props.inMeasure) && (<CloudOffIcon fontSize="small" color="secondary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}&nbsp;&nbsp;
-              {isAuthenticated && (<Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
-                <b > измерения: </b> {this.props.inMeasure ? "проводятся" : "отключены"}</Link>)}
+              {isAuthenticated && (<Tooltip title={"Время начала наблюдения: " + this.props.begin_measure_time} classes={{ tooltip: styles.tooltip }} ><Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
+                <b > измерения: </b> {this.props.inMeasure ? "проводятся" : "отключены"}</Link></Tooltip>)}
             </div>
 
             <div className="navbar-text">
@@ -193,11 +235,12 @@ function mapStateToProps(state) {
   return {
     auth: state.auth,
     point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr,
-    inMeasure: state.points[0].active_point.inMeasure
+    inMeasure: state.points[0].active_point.inMeasure,
+    begin_measure_time: state.points[0].active_point.begin_measure_time
   };
 }
 
 
 
-export default connect(mapStateToProps, { pointAddAction, pointDeleteAction, getPoint, getActivePoint, logout })(NavigationBar);
+export default connect(mapStateToProps, { pointAddAction, pointDeleteAction, getPoint, getActivePoint, logout })(withStyles(styles)(NavigationBar));
 //export default (NavigationBar);           <Link to="/maps">Карты  &nbsp; &nbsp;</Link>

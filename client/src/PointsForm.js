@@ -430,9 +430,9 @@ class PointsForm extends React.Component {
             this.props.getActivePoint().then(_data => {
                 if ((_data.length > 0)) {
                     pointDeleteAction();
-                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '' });
+                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in  });
 
-                    this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
+                    this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd})
                 }
             })
         })

@@ -294,7 +294,7 @@ class MapsForm extends React.Component {
             this.props.getActivePoint().then(_data => {
                 if ((_data.length > 0)) {
                     pointDeleteAction();
-                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '' });
+                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in  });
 
                 }
             })

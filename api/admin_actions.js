@@ -117,7 +117,12 @@ router.post('/point_measure_activate', authenticate, (req, resp) => {
                 }
 
 
-                resp.json({ result: result });
+                SOAP.where({  idd: data.idd })
+                .save({
+                     date_time_in: new Date().format('dd-MM-Y H:mm:SS')
+                }, { patch: true })
+                .then(result =>
+                    resp.json({ result: result })).catch(err => resp.status(500).json({ error: ' ' + err }));
 
             });
 
