@@ -59,7 +59,7 @@ import { TableRowColumn } from 'material-ui';
 import { updateSecurityUser } from './actions/adminActions';
 import { access, stat } from 'fs';
 
-//const pngs = require.context('../../tiles', true, /\.png$/);
+const pngs = require.context('../../tiles', true, /\.png$/);
 
 
 //const pinAlert = require.context('./', true, /\.svg$/);
@@ -143,7 +143,9 @@ class MapsForm extends React.Component {
             idd: uuid(),
             isLoading: false,
             inMeasure: false,
-            iddMeasure: ''
+            iddMeasure: '',
+            active_layer: 0 ,
+            layers: []
         };
 
 
@@ -294,7 +296,7 @@ class MapsForm extends React.Component {
             this.props.getActivePoint().then(_data => {
                 if ((_data.length > 0)) {
                     pointDeleteAction();
-                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in  });
+                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in });
 
                 }
             })
@@ -529,6 +531,8 @@ class MapsForm extends React.Component {
 
         const { stationsList } = this.props;
         let params = {};
+        let _layers = [];
+
         this.props.queryEvent(params).then(data => {
             let lat, lng = 0;
             let params = {};
@@ -541,9 +545,18 @@ class MapsForm extends React.Component {
                 lat = data[0].latitude;
                 lng = data[0].longitude;
             }
-            var lmap = L.map('mapBox', { center: [lat, lng], zoom: 10 });
+            _layers.push(L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}));
+            _layers.push(L.tileLayer("./tiles/{z}/{x}/{y}.png", {}));
+
+            var lmap = L.map('mapBox', { center: [lat, lng], zoom: 10, layers: _layers });
             this.setState({ _map: lmap });
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {}).addTo(lmap);
+            var baseLayers = {
+                'Карта из Интернет': _layers[0],
+                'Локальная карта': _layers[1]
+            };
+            var control = L.control.layers(baseLayers)
+
+            control.addTo(lmap);
 
             lmap.on('contextmenu', this.onMapClick.bind(this));
             //var greenIcon = new LeafIcon({iconUrl: 'leaf-green.png'});
