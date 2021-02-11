@@ -66,7 +66,7 @@ import { TableRowColumn } from 'material-ui';
 import { timeAddAction, timeDeleteAction } from './actions/dateAddAction';
 import { access } from 'fs';
 
-//const pngs = require.context('../../tiles', true, /\.png$/);
+const pngs = require.context('../../tiles', true, /\.png$/);
 
 
 //const pinAlert = require.context('./', true, /\.svg$/);
@@ -196,7 +196,7 @@ class PointsForm extends React.Component {
 
                 },
                 {
-                    Header: "Время начала",
+                    Header: "Время создания",
                     id: "date_time_begin",
                     accessor: "date_time_begin",
                     Cell: null,
