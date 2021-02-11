@@ -32,14 +32,14 @@ export const styles = theme => ({
   },
 
   cardIcon: {
-    
-      borderRadius: "3px",
-      backgroundColor: "#999",
-      padding: "5px",
-      marginTop: "-20px",
-      marginRight: "15px",
-      float: "left"
-    },
+
+    borderRadius: "3px",
+    backgroundColor: "#999",
+    padding: "5px",
+    marginTop: "-20px",
+    marginRight: "15px",
+    float: "left"
+  },
 
   icon: {
     fontSize: 20,
@@ -49,20 +49,26 @@ export const styles = theme => ({
     backgroundColor: 'grey'
   },
   message: {
-   maxWidth: 50,
-   backgroundColor: 'blue',
+    maxWidth: 50,
+    backgroundColor: 'blue',
 
   },
   tooltip: {
     backgroundColor: 'blue',
-   
+
     padding: '4px 8px',
 
     maxWidth: 300,
     wordWrap: 'break-word',
     fontWeight: '40',
   },
-
+  selected:
+  {
+    fontWeight: "bold",
+    textDecorationLine: 'overline',
+    textDecorationColor: 'red',
+    textDecorationThickness: '105px !important'
+  },
 
 });
 
@@ -70,14 +76,17 @@ class NavigationBar extends React.Component {
   constructor(props) {
     super(props);
 
+    this.reportRef = React.createRef();
 
     this.state = {
-      point_descr: ''
+      point_descr: '',
+      class_report: { 'admin': false, 'points': false, 'reports': false, 'charts': false, 'stats': false, 'tables': false, 'maps': false }
     }
   }
 
 
   logout(e) {
+    this.setState({ class_report: { 'admin': false, 'points': false, 'reports': false, 'charts': false, 'stats': false, 'tables': false, 'maps': false } });
     e.preventDefault();
     this.props.logout();
   }
@@ -125,8 +134,16 @@ class NavigationBar extends React.Component {
     })
   }
 
+  click_menu(e) {
+    //console.log("navigator test", e.target.id);
+
+    this.setState({ class_report: { [e.target.id]: !this.state.class_report[e.target.id] } });
+  }
+
   componentWillMount() {
     this.map_load();
+    this.setState({ class_report: { 'admin': false, 'points': false, 'reports': false, 'charts': false, 'stats': false, 'tables': false, 'maps': false } });
+
     //doc.addEventListener('contextmenu', function () {
     // alert('sds')
     //});
@@ -137,6 +154,7 @@ class NavigationBar extends React.Component {
   }
 
   render() {
+    const { classes } = this.props;
     let { isAuthenticated } = false;
     let { username } = '';
     if (!isEmpty(sessionStorage.jwToken)) {
@@ -151,14 +169,13 @@ class NavigationBar extends React.Component {
     const AdminLinks = (
       <ul className="nav navbar-nav navbar-right">
 
-        <li><Link to="/admin">Администрирование  &nbsp; &nbsp;</Link>
-          <Link to="/points">Точки отбора &nbsp; &nbsp;</Link>
-
-          <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
-          <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
-          <Link to="/stats">Статистика  &nbsp; &nbsp;</Link>
-          <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
-          <Link to="/maps">Карты  &nbsp; &nbsp;</Link>
+        <li><Link to="/admin" id="admin" className={this.state.class_report.admin ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Администрирование </Link>&nbsp; &nbsp;
+          <Link to="/points" id="points" className={this.state.class_report.points ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Точки отбора </Link>&nbsp; &nbsp;
+          <Link to="/reports" id="reports" className={this.state.class_report.reports ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Отчеты  </Link>&nbsp; &nbsp;
+          <Link to="/charts" id="charts" className={this.state.class_report.charts ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Графики  </Link>&nbsp; &nbsp;
+          <Link to="/stats" id="stats" className={this.state.class_report.stats ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Статистика </Link> &nbsp; &nbsp;
+          <Link to="/tables" id="tables" className={this.state.class_report.tables ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Таблицы  </Link>&nbsp; &nbsp;
+          <Link to="/maps" id="maps" className={this.state.class_report.maps ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Карты  </Link>&nbsp; &nbsp;
           <a href="https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon" target="_blank">GPS кабинет</a>
 
           <a href="#" onClick={this.logout.bind(this)}>   Выход</a></li>
@@ -168,14 +185,12 @@ class NavigationBar extends React.Component {
 
     const userLinks = (
       <ul className="nav navbar-nav navbar-right">
-        <li>  <Link to="/points">Точки отбора &nbsp; &nbsp;</Link>
-
-          <Link to="/reports">Отчеты  &nbsp; &nbsp;</Link>
-          <Link to="/charts">Графики  &nbsp; &nbsp;</Link>
-          <Link to="/stats">Статистика  &nbsp; &nbsp;</Link>
-          <Link to="/tables">Таблицы  &nbsp; &nbsp;</Link>
-          <Link to="/maps">Карты  &nbsp; &nbsp;</Link>
-
+        <li>  <Link to="/points" id="points" className={this.state.class_report.points ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Точки отбора </Link>&nbsp; &nbsp;
+          <Link to="/reports" id="reports" className={this.state.class_report.reports ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Отчеты  </Link>&nbsp; &nbsp;
+          <Link to="/charts" id="charts" className={this.state.class_report.charts ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Графики  </Link>&nbsp; &nbsp;
+          <Link to="/stats" id="stats" className={this.state.class_report.stats ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Статистика </Link> &nbsp; &nbsp;
+          <Link to="/tables" id="tables" className={this.state.class_report.tables ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Таблицы  </Link>&nbsp; &nbsp;
+          <Link to="/maps" id="maps" className={this.state.class_report.maps ? classes.selected : ''} onClick={this.click_menu.bind(this)}>Карты  </Link>&nbsp; &nbsp;
 
           <a href="#" onClick={this.logout.bind(this)}>   Выход</a></li>
       </ul>
@@ -199,12 +214,12 @@ class NavigationBar extends React.Component {
           <div className="container-fluid">
             <div className="navbar-header">
 
-              <Link to="/" className="navbar-text">{isAuthenticated ? ("Пользователь: " + username) : "Не авторизовано"}
+              <Link to="/" className="navbar-text" id ='main' onClick={this.click_menu.bind(this)}>{isAuthenticated ? ("Пользователь: " + username) : "Не авторизовано"}
               </Link>&nbsp;&nbsp;&nbsp;&nbsp;
               {isAuthenticated && (this.props.inMeasure) && (<CloudDoneIcon fontSize="small" color="primary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}
               {(isAuthenticated && !this.props.inMeasure) && (<CloudOffIcon fontSize="small" color="secondary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}&nbsp;&nbsp;
               {isAuthenticated && (<Tooltip title={"Время начала наблюдения: " + this.props.begin_measure_time}  ><Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
-                <b > измерения: </b> {this.props.inMeasure ? "проводятся с "+ new Date(this.props.begin_measure_time).format('HH:mm:SS') : "отключены"}</Link></Tooltip>)}
+                <b > измерения: </b> {this.props.inMeasure ? "проводятся с " + new Date(this.props.begin_measure_time).format('HH:mm:SS') : "отключены"}</Link></Tooltip>)}
             </div>
 
             <div className="navbar-text">
