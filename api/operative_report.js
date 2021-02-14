@@ -47,7 +47,10 @@ router.get('/', authenticate, (req, resp) => {
         var filename = 'OperativeReport_station_' + data.station + '_' + data.date + '.docx';
         var filereport = 'operative_templ.docx'
     };
-
+    if (data.report == 'multi') {
+        var filename = 'Multi_Report_MEL_' + data.date + '.docx';
+        var filereport = 'multi_templ.docx'
+    };
     if (data.report == 'daily') {
         var filename = 'DailyReport_station_' + data.station + '_' + data.date + '.docx';
         var filereport = 'daily_templ.docx'
@@ -146,6 +149,11 @@ router.get('/report_excel', authenticate, (req, resp) => {
     if (data.report == 'operative') {
         var filename = 'OperativeReport_station_' + data.station + '_' + data.date + '.xlsx';
         var filereport = 'operative_templ.xlsx'
+    };
+
+    if (data.report == 'multi') {
+        var filename = 'Multi_Report_MEL_' + data.date + '.xlsx';
+        var filereport = 'multi_templ.xlsx'
     };
 
     if (data.report == 'daily') {

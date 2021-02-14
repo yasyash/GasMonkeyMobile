@@ -59,7 +59,7 @@ import { TableRowColumn } from 'material-ui';
 import { updateSecurityUser } from './actions/adminActions';
 import { access, stat } from 'fs';
 
-//const pngs = require.context('../../tiles', true, /\.png$/);
+const pngs = require.context('../../tiles', true, /\.png$/);
 
 
 //const pinAlert = require.context('./', true, /\.svg$/);
@@ -144,7 +144,7 @@ class MapsForm extends React.Component {
             isLoading: false,
             inMeasure: false,
             iddMeasure: '',
-            active_layer: 0 ,
+            active_layer: 0,
             layers: []
         };
 
@@ -296,9 +296,9 @@ class MapsForm extends React.Component {
             this.props.getActivePoint().then(_data => {
                 if ((_data.length > 0)) {
                     pointDeleteAction();
-                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in });
-
-                }
+                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: !isEmpty(_data[0].descr) ?_data[0].descr : '', begin_measure_time: _data[0].date_time_in,
+                    lat:  _data[0].latitude, lon: _data[0].longitude});
+                    }
             })
         })
 
@@ -342,13 +342,18 @@ class MapsForm extends React.Component {
         const { _map, _markers, inMeasure } = this.state;
         //_markers[_markers.length-1].openPopup();
         var popup = L.popup();
+        if ((this.props.point_actual != idd)) {
+            var _header = "Выбрать текущую точку для обработки?<br/><br/>";
+        } else {
+            var _header = "Текущая точка:<br/><br/>";
+        }
         let _open = ((this.props.point_actual != idd)) ? '<button type="button" class="btn-primary "id = "btn_set" data = "set" >Загрузить</button> &nbsp;' : '';
         let _stop = (this.props.inMeasure && (this.props.point_actual == idd)) ? '<button type="button" class="btn-primary "id = "btn_stop" data = "measure" >Остановить</button> &nbsp;' : '';
         let _measure = (!this.props.inMeasure && (this.props.point_actual == idd)) ? '<button type="button" class="btn-primary "id = "btn_measure" data = "measure" >Начать измерения</button> &nbsp;' : '';
         popup
             .setLatLng(e.latlng)
-            .setContent("Выбрать текущую точку для обработки?<br/><br/>" +
-                '<div align = "center"> ' + _open + _measure + _stop + '<button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>'
+            .setContent(
+                '<div align = "center"> ' + _header + _open + _measure + _stop + '<button type="button" class="btn-primary" id = "btn_cancel" data = "add" >Отмена</button></div>'
             )
             .openOn(_map);
 
@@ -384,7 +389,10 @@ class MapsForm extends React.Component {
             var isReal = confirm("Вы уверены, что хотите остановить сбор данных для данной точки наблюдения?...");
 
             if (isReal) {
-                this.props.measureStop({ idd: this.state.iddMeasure }).then(resp => {
+                this.props.measureStop({
+                    idd: this.state.iddMeasure, date_time_begin: this.props.active_point.begin_measure_time,
+                    place: this.props.active_point.place, descr: this.props.active_point.descr, lat: this.props.active_point.lat, lon: this.props.active_point.lon
+                }).then(resp => {
                     if (resp.status == 200) {
 
                         this.map_load();
@@ -828,7 +836,9 @@ function mapStateToProps(state) {
     return {
         stationsList: state.stationsList,
         point_actual: state.points[0].active_point.iddMeasure,
-        inMeasure: state.points[0].active_point.inMeasure
+        inMeasure: state.points[0].active_point.inMeasure,
+        active_point: state.points[0].active_point
+
     }
 }
 

@@ -613,8 +613,8 @@ function mapStateToProps(state) {
         macs: state.macsList,
         selectedSensors: state.sensorsList,
         checkedMeteo: tmp,
-        meteoList: state.meteoList
-
+        meteoList: state.meteoList,
+        point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr,
     };
 }
 
@@ -630,11 +630,7 @@ OperativeReport.contextType = {
     router: PropTypes.object.isRequired
 }
 
-function mapStateToProps(state) {
-    return {
-        point_descr: state.points[0].active_point.place + ' - ' + state.points[0].active_point.descr,
-    };
-}
+
 
 export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen })(withRouter(withStyles(styles)(OperativeReport)
 ));

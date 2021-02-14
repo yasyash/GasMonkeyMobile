@@ -24,6 +24,7 @@ import DATA from '../models/data';
 import POINTS from '../models/points';
 import ftp_upload from './ftp_actions';
 import Settings from '../models/settings';
+import PointsMeasure from '../models/points_measure';
 
 import { exec } from 'child_process';
 
@@ -117,12 +118,12 @@ router.post('/point_measure_activate', authenticate, (req, resp) => {
                 }
 
 
-                SOAP.where({  idd: data.idd })
-                .save({
-                     date_time_in: new Date().format('dd-MM-Y H:mm:SS')
-                }, { patch: true })
-                .then(result =>
-                    resp.json({ result: result })).catch(err => resp.status(500).json({ error: ' ' + err }));
+                SOAP.where({ idd: data.idd })
+                    .save({
+                        date_time_in: new Date().format('dd-MM-Y H:mm:SS')
+                    }, { patch: true })
+                    .then(result =>
+                        resp.json({ result: result })).catch(err => resp.status(500).json({ error: ' ' + err }));
 
             });
 
@@ -157,9 +158,25 @@ router.post('/point_measure_stop', authenticate, (req, resp) => {
                     console.error(`stderr: ${stderr}`);
                     resp.json({ result: stderr });
                 }
+                PointsMeasure.query('where', 'id', '>', '0').orderBy('id', 'DESC').fetchAll()
+                    .then(res => {
+                        var result_parse0 = JSON.stringify(res);
+                        var arr = JSON.parse(result_parse0);
+                        let id = 1;
+                        // console.log(String(Number(arr[0].id) + 1))
+                        if (!isEmpty(arr[0]))
+                            id = (Number(arr[0].id) + 1);
 
+                        PointsMeasure.forge({ id }).save({
+                            idd: data.idd,
+                            date_time_begin: data.date_time_begin, date_time_end: date_time_end, is_present: true, place: data.place, descr: data.descr,
+                            lat: data.lat, lon: data.lon
 
-                resp.json({ result: result });
+                        }, { method: 'insert' })
+                            .then(_resp => resp.json({ result: _resp })).catch(err => resp.status(500).json({ error: 'Error insert points measure table. ' + err }));
+
+                    }).catch(err => resp.status(500).json({ error: 'Error update points measure table. ' + err }));
+
 
             });
 

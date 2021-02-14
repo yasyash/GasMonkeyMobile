@@ -391,8 +391,8 @@ class DashBoard extends Component {
       this.props.getActivePoint().then(_data => {
         if ((_data.length > 0)) {
           pointDeleteAction();
-          pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in });
-
+          pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: !isEmpty(_data[0].descr) ?_data[0].descr : '', begin_measure_time: _data[0].date_time_in,
+            lat:  _data[0].latitude, lon: _data[0].longitude});
           //this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
         }
       })

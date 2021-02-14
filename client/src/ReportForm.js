@@ -7,20 +7,6 @@ import format from 'node.date-time';
 import { queryOperativeEvent, queryEvent } from './actions/queryActions';
 import { dateAddAction } from './actions/dateAddAction';
 
-import MenuTable from './menuTable';
-
-import FontIcon from 'material-ui/FontIcon';
-import MapsPersonPin from 'material-ui/svg-icons/maps/person-pin';
-import SensorsIcon from 'material-ui/svg-icons/action/settings-input-component';
-import StationsIcon from 'material-ui/svg-icons/action/account-balance';
-import DataIcon from 'material-ui/svg-icons/action/timeline';
-import IconButton from 'material-ui/IconButton';
-import Renew from 'material-ui/svg-icons/action/autorenew';
-import Snackbar from '@material-ui/core/Snackbar';
-import Slider from '@material-ui/core/Slide';
-import Switch from '@material-ui/core/Switch';
-import SvgIcon from '@material-ui/core/SvgIcon';
-
 import { withStyles } from '@material-ui/core/styles';
 
 import Paper from '@material-ui/core/Paper';
@@ -43,6 +29,7 @@ import MonthlyReport from './MonthlyReport';
 import Tza4Report from './Tza4Report';
 import Tza4ReportAnalyzers from './Tza4ReportAnalyzers';
 import ChartFormReport from './ChartFormReport';
+import MultiReportForm from './MultiReportForm';
 
 const styles = theme => ({
     root: {
@@ -280,6 +267,10 @@ class ReportForm extends React.Component {
                 <Tabs>
                     <Tab label="Оперативный" >
                         <OperativeReport {...this.state}
+                        />
+                    </Tab>
+                    <Tab label="Мультиформа" >
+                        <MultiReportForm {...this.state}
                         />
                     </Tab>
                     <Tab label="Суточный" >

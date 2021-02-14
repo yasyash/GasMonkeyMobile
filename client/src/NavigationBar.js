@@ -80,7 +80,8 @@ class NavigationBar extends React.Component {
 
     this.state = {
       point_descr: '',
-      class_report: { 'admin': false, 'points': false, 'reports': false, 'charts': false, 'stats': false, 'tables': false, 'maps': false }
+      class_report: { 'admin': false, 'points': false, 'reports': false, 'charts': false, 'stats': false, 'tables': false, 'maps': false },
+      actual_menu: ''
     }
   }
 
@@ -126,7 +127,10 @@ class NavigationBar extends React.Component {
       this.props.getActivePoint().then(_data => {
         if ((_data.length > 0)) {
           pointDeleteAction();
-          pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in });
+          pointAddAction({
+            iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: !isEmpty(_data[0].descr) ? _data[0].descr : '', begin_measure_time: _data[0].date_time_in,
+            lat: _data[0].latitude, lon: _data[0].longitude
+          });
 
           //this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
         }
@@ -136,8 +140,13 @@ class NavigationBar extends React.Component {
 
   click_menu(e) {
     //console.log("navigator test", e.target.id);
+    var _id = e.target.id;
 
-    this.setState({ class_report: { [e.target.id]: !this.state.class_report[e.target.id] } });
+    if (e.target.id == "_points")
+      _id = "points";
+    if (_id != this.state.actual_menu)
+      this.setState({ class_report: { [e.target.id]: !this.state.class_report[e.target.id] }, actual_menu: _id });
+
   }
 
   componentWillMount() {
@@ -157,6 +166,8 @@ class NavigationBar extends React.Component {
     const { classes } = this.props;
     let { isAuthenticated } = false;
     let { username } = '';
+    let _time = String(this.props.begin_measure_time).split(' ');
+
     if (!isEmpty(sessionStorage.jwToken)) {
       let { auth } = this.props;
       isAuthenticated = auth[0];
@@ -214,12 +225,12 @@ class NavigationBar extends React.Component {
           <div className="container-fluid">
             <div className="navbar-header">
 
-              <Link to="/" className="navbar-text" id ='main' onClick={this.click_menu.bind(this)}>{isAuthenticated ? ("Пользователь: " + username) : "Не авторизовано"}
+              <Link to="/" className="navbar-text" id='main' onClick={this.click_menu.bind(this)}>{isAuthenticated ? ("Пользователь: " + username) : "Не авторизовано"}
               </Link>&nbsp;&nbsp;&nbsp;&nbsp;
               {isAuthenticated && (this.props.inMeasure) && (<CloudDoneIcon fontSize="small" color="primary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}
               {(isAuthenticated && !this.props.inMeasure) && (<CloudOffIcon fontSize="small" color="secondary" style={{ verticalAlign: 'middle', paddingTop: '1px' }} />)}&nbsp;&nbsp;
-              {isAuthenticated && (<Tooltip title={"Время начала наблюдения: " + this.props.begin_measure_time}  ><Link to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
-                <b > измерения: </b> {this.props.inMeasure ? "проводятся с " + new Date(this.props.begin_measure_time).format('HH:mm:SS') : "отключены"}</Link></Tooltip>)}
+              {isAuthenticated && (<Tooltip title={"Время начала наблюдения: " + this.props.begin_measure_time}  ><Link id="points" to="/points" className="navbar-text" style={{ color: this.props.inMeasure ? "indigo" : "grey" }} onClick={this.click_menu.bind(this)}><b >точка отбора:</b>&nbsp;&nbsp; {this.props.point_descr.substr(0, 25)} &nbsp;&nbsp;
+                <b > измерения: </b> {this.props.inMeasure ? "проводятся с " + _time[1] : "отключены"}</Link></Tooltip>)}
             </div>
 
             <div className="navbar-text">

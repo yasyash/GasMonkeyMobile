@@ -482,6 +482,9 @@ class MenuReport extends Component {
         if (this.props.report_type == 'operative')
             date = new Date(dateReportEnd).format('dd-MM-Y_H:mm');
 
+        if (this.props.report_type == 'multi')
+            date = new Date(dateReportEnd).format('dd-MM-Y_H:mm');
+
         if (this.props.report_type == 'daily')
             date = new Date(dateReportEnd).format('dd-MM-Y');
 
@@ -496,7 +499,8 @@ class MenuReport extends Component {
 
             let { data_4_report } = this.props;
 
-            data_4_report[0].station = this.translit(data_4_report[0].station);
+            if (this.props.report_type != 'multi')
+                data_4_report[0].station = this.translit(data_4_report[0].station);
 
             this.props.reportGen({ report: this.props.report_type, station: this.translit(this.props.station_name), date: date, data_4_report: data_4_report, chemical: this.translit(chemical), checked_meteo: this.props.checked_meteo }).then(response => {
                 //var xhr = new XMLHttpRequest();
@@ -538,6 +542,9 @@ class MenuReport extends Component {
         if (this.props.report_type == 'operative')
             date = new Date(dateReportEnd).format('dd-MM-Y_H:mm');
 
+        if (this.props.report_type == 'multi')
+            date = new Date(dateReportEnd).format('dd-MM-Y_H:mm');
+
         if (this.props.report_type == 'daily')
             date = new Date(dateReportEnd).format('dd-MM-Y');
 
@@ -552,7 +559,8 @@ class MenuReport extends Component {
 
             let { data_4_report } = this.props;
 
-            data_4_report[0].station = this.translit(data_4_report[0].station);
+            if (this.props.report_type != 'multi')
+                data_4_report[0].station = this.translit(data_4_report[0].station);
 
             if (this.props.report_type != 'tza4') {
 
@@ -971,7 +979,7 @@ class MenuReport extends Component {
                             />
                         </form>}
 
-                        <div className={classes.root}>
+                        <div >
 
 
                             <Tooltip id="tooltip-charts-view4" title="Экспорт в Word">

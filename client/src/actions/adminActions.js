@@ -41,6 +41,7 @@ export function getActivePoint() {
                             date_time_in: new Date(element.date_time_in).format('dd-MM-Y HH:mm:SS'),
                             idd: element.idd,
                             place: element.place,
+                            descr: !isEmpty(element.descr) ? element.descr : '',
                             latitude: element.latitude,
                             longitude: element.longitude
                         })

@@ -51,10 +51,10 @@ import { deleteActiveStationsList } from './actions/stationsAddAction';
 import pinAlert from './pin-alert.png';
 import pinGreen from './pin-green.png';
 
-import Iframe from 'react-iframe';
-import ThumbUp from '@material-ui/icons/ThumbUp';
 
 import ReactTable from "react-table";
+import { useExpanded } from "react-table";
+
 import checkboxHOC from "react-table/lib/hoc/selectTable";
 const CheckboxTable = checkboxHOC(ReactTable);
 import FoldableTableHOC from '../foldableTable/index';
@@ -64,9 +64,8 @@ const FoldableTable = FoldableTableHOC(CheckboxTable);
 import PointDialog from './stuff/PointDialog';
 import { TableRowColumn } from 'material-ui';
 import { timeAddAction, timeDeleteAction } from './actions/dateAddAction';
-import { access } from 'fs';
 
-const pngs = require.context('../../tiles', true, /\.png$/);
+//const pngs = require.context('../../tiles', true, /\.png$/);
 
 
 //const pinAlert = require.context('./', true, /\.svg$/);
@@ -100,8 +99,11 @@ const styles = theme => ({
     },
     pin1: {
         color: '#000000',
-    }
+    },
 
+    // .rt-expander:after{content:'';position:absolute;width:0;height:0;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);border-left:5.04px solid transparent;border-right:5.04px solid transparent;border-top:7px solid rgba(0,0,0,0.8);transition:all .3s cubic-bezier(.175,.885,.32,1.275);cursor:pointer}.ReactTable 
+    // .rt-expander.-open:after{transform:translate(-50%,-50%) rotate(0)}.ReactTable
+    // .rt-expander{display:inline-block;position:relative;margin:0;color:transparent;margin:0 10px;}.ReactTable
 
 
 });
@@ -140,7 +142,8 @@ class PointsForm extends React.Component {
             errors: {},
             bounds: outer,
             stationsList,
-            selection: '',
+            selection: [],
+            selectAll: false,
             dateTimeBegin: new Date(today).format('Y-MM-ddTHH:mm'),
             dateTimeEnd: new Date().format('Y-MM-ddTHH:mm'),
             _map: {},
@@ -170,13 +173,15 @@ class PointsForm extends React.Component {
             height: '700px',
             defaultPageSize: 10,
             isForceToggle: false,
+            expanded: {},
             title: [
+
                 {
                     Header: "ID точки",
                     id: "idd",
                     accessor: "idd",
-                    filterable: true
-
+                    filterable: true,
+                    disableExpander: false,
                 },
                 {
                     Header: "Адрес",
@@ -235,6 +240,8 @@ class PointsForm extends React.Component {
         };
 
         this.renderEditable = this.renderEditable.bind(this);
+        // this.handleTableCellClick = this.handleTableCellClick.bind(this);
+        //this.onExpandedChange = this.onExpandedChange.bind(this);
 
     }
 
@@ -430,9 +437,11 @@ class PointsForm extends React.Component {
             this.props.getActivePoint().then(_data => {
                 if ((_data.length > 0)) {
                     pointDeleteAction();
-                    pointAddAction({ iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: '', begin_measure_time: _data[0].date_time_in  });
-
-                    this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd})
+                    pointAddAction({
+                        iddMeasure: _data[0].idd, inMeasure: inMeasure, place: _data[0].place, descr: !isEmpty(_data[0].descr) ? _data[0].descr : '', begin_measure_time: _data[0].date_time_in,
+                        lat: _data[0].latitude, lon: _data[0].longitude
+                    });
+                    this.setState({ iddMeasure: _data[0].idd, lat: _data[0].latitude, lon: _data[0].longitude, point_actual: _data[0].idd })
                 }
             })
         })
@@ -842,7 +851,10 @@ class PointsForm extends React.Component {
                 var isReal = confirm("Вы уверены, что хотите остановить сбор данных для данной точки наблюдения?...");
 
                 if (isReal) {
-                    this.props.measureStop({ idd: this.state.iddMeasure }).then(resp => {
+                    this.props.measureStop({
+                        idd: this.state.iddMeasure, date_time_begin: this.props.active_point.begin_measure_time,
+                        place: this.props.active_point.place, descr: this.props.active_point.descr, lat: this.props.active_point.lat, lon: this.props.active_point.lon
+                    }).then(resp => {
                         if (resp.status == 200) {
                             // this.props.changePoint({ idd: this.state.point_actual }).then(resp => {
                             // if (resp.status == 200) {
@@ -998,6 +1010,66 @@ class PointsForm extends React.Component {
         });
     };
 
+    handleTableCellClick(
+        state,
+        rowInfo,
+        column,
+        instance,
+        ...rest
+    ) {
+        if (typeof rowInfo !== "undefined") {
+            const needsExpander =
+                rowInfo.subRows && rowInfo.subRows.length > 1 ? true : false;
+            const expanderEnabled = !column.disableExpander;
+            const expandedRows = Object.keys(this.state.expanded)
+                .filter(expandedIndex => {
+                    return this.state.expanded[expandedIndex] !== false;
+                })
+                .map(Number);
+
+            const rowIsExpanded =
+                expandedRows.includes(rowInfo.nestingPath[0]) && needsExpander
+                    ? true
+                    : false;
+            const newExpanded = !needsExpander
+                ? this.state.expanded
+                : rowIsExpanded && expanderEnabled
+                    ? {
+                        ...this.state.expanded,
+                        [rowInfo.nestingPath[0]]: false
+                    }
+                    : {
+                        ...this.state.expanded,
+                        [rowInfo.nestingPath[0]]: {}
+                    };
+
+            return {
+                style:
+                    needsExpander && expanderEnabled
+                        ? { cursor: "pointer" }
+                        : { cursor: "auto" },
+                onClick: (e, handleOriginal) => {
+                    this.setState({
+                        expanded: newExpanded
+                    });
+                }
+            };
+        } else {
+            return {
+                onClick: (e, handleOriginal) => {
+                    if (handleOriginal) {
+                        handleOriginal();
+                    }
+                }
+            };
+        }
+    };
+
+    onExpandedChange(newExpanded) {
+        this.setState({
+            expanded: newExpanded
+        });
+    }
 
     render() {
         const { toggleSelection, toggleAll, isSelected } = this;
@@ -1039,7 +1111,8 @@ class PointsForm extends React.Component {
                 // someone asked for an example of a background color change
                 // here it is...
                 if (r) {
-                    selected = this.isSelected(r.original._id);
+                    if (r.original)
+                        selected = this.isSelected(r.original._id);
                 }
                 return {
                     style: {
@@ -1096,6 +1169,11 @@ class PointsForm extends React.Component {
 
                 <div >
                     <CheckboxTable
+                        //getTrProps={this.handleTableCellClick}
+                        //onExpandedChange={newExpanded => this.onExpandedChange(newExpanded)}
+                        //expanded={this.state.expanded}
+                        //pivotBy={["idd"]}
+
                         ref={r => (this.checkboxTable = r)}
                         {...checkboxProps}
                         data={points_list}
@@ -1131,6 +1209,7 @@ function mapStateToProps(state) {
 
     return {
         stationsList: state.stationsList,
+        active_point: state.points[0].active_point
     };
 }
 

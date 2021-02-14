@@ -20,6 +20,37 @@ function wrapData(data_in) {
     });
     return data;
 }
+export function getPointsMeasure() {
+
+    // const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.get('/api/query/point_measure_get')
+            .then(resp => {
+                let measure_list = [];
+                let data = resp.data.measure_list;
+                data.forEach(element => {
+                    measure_list.push({
+                        date_time_begin: new Date(element.date_time_begin).format('dd-MM-Y HH:mm:SS'),
+                        date_time_end: new Date(element.date_time_end).format('dd-MM-Y HH:mm:SS'),
+                        idd: String(element.idd),
+                        id: element.id,
+                        next: element.next,
+                        place: element.place,
+                        descr: element.descr,
+                        lat: element.lat,
+                        lon: element.lon,
+                        __id: shortid()
+
+                    })
+
+                });
+
+
+                return wrapData(measure_list);
+            })
+    };
+};
 
 export function queryEvent(paramstr) {
     return dispatch => {
@@ -265,7 +296,7 @@ export function queryManyEvent(paramstr) {
                             place: element.place,
                             latitude: element.latitude,
                             longitude: element.longitude,
-                           
+
 
                         });
                     });
@@ -1287,14 +1318,14 @@ export function queryDashBoardDataOperativeEvent(paramstr) {
                             unit_name: element.unit_name,
                             measure: element.measure,
                             is_alert: element.is_alert,
-                            momental_measure : element.momental_measure,
+                            momental_measure: element.momental_measure,
                             increase: element.increase
                         });
                     });
 
                     sensors_list.forEach(element => {
                         sensorsTable.push({
-                            id:  element.idd,
+                            id: element.idd,
                             typemeasure: element.typemeasure,
                             serialnum: element.serialnum,
                             unit_name: element.unit_name,
@@ -1492,5 +1523,20 @@ export function queryDashBoardAlertsHistory(paramstr) {
 
 
 
+    };
+};
+
+export function queryMultyReport(paramstr) {
+
+    const data = JSON.stringify(paramstr);
+    //  console.log('parameters is ', data);
+    return dispatch => {
+        return Axios.get('/api/query/multi_report_get', { params: { data: paramstr } })
+            .then(resp => {
+
+
+
+                return (resp);
+            })
     };
 };
