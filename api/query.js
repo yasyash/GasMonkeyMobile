@@ -17,8 +17,6 @@ import PointsMeasure from '../models/points_measure';
 
 import url from 'url';
 import qs from 'querystring';
-//import asyncify from 'express-asyncify';
-import asyncHandler from 'express-async-handler';
 import { filter } from 'ramda';
 let router = express.Router();
 //let router_acync = asyncify(router);
