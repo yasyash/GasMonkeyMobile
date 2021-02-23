@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import format from 'node.date-time';
 
-
 import MenuPoints from './menuPoints';
 
 import FontIcon from 'material-ui/FontIcon';
@@ -65,13 +64,7 @@ import PointDialog from './stuff/PointDialog';
 import { TableRowColumn } from 'material-ui';
 import { timeAddAction, timeDeleteAction } from './actions/dateAddAction';
 
-//const pngs = require.context('../../tiles', true, /\.png$/);
 
-
-//const pinAlert = require.context('./', true, /\.svg$/);
-//const keys = pngs.keys();
-
-//const pngsArray = keys.map(key => pngs(key));
 
 const styles = theme => ({
     root: {
@@ -203,16 +196,45 @@ class PointsForm extends React.Component {
                 {
                     Header: "Время создания",
                     id: "date_time_begin",
-                    accessor: "date_time_begin",
-                    Cell: null,
-                    filterable: true
+                    accessor: (row) => {
+                        if (!isEmpty(row.original)) {
+
+                            let hour_from = String(row.date_time_begin).split(' ');
+                            let date_from = hour_from[0].split('-');
+
+                            let _hour_from = hour_from[1].split(':');
+
+                            let date_time_begin = new Date(date_from[2], date_from[1] - 1, date_from[0], _hour_from[0], _hour_from[1], _hour_from[2]);
+                            return new Date(date_time_begin).format('Y-MM-dd HH:mm:SS');
+                        }
+                        else return null;
+                    },
+                    Cell: (row) => {
+                        return row.original.date_time_begin
+                    },
+
+                    filterAll: true,
+                    filterable: true,
 
                 },
                 {
                     Header: "Время завершения",
                     id: "date_time_end",
-                    accessor: "date_time_end",
-                    Cell: null,
+                    accessor: (row) => {
+                        if (!isEmpty(row.original)) {
+                            let hour_to = String(row.date_time_end).split(' ');
+                            let date_to = hour_to[0].split('-');
+
+                            let _hour_to = hour_to[1].split(':');
+
+                            let date_time_end = new Date(date_to[2], date_to[1] - 1, date_to[0], _hour_to[0], _hour_to[1], _hour_to[2]);
+                            return new Date(date_time_end).format('Y-MM-dd HH:mm:SS');
+                        } return null
+                    },
+                    Cell: (row) => {
+                        return row.original.date_time_end
+                    },
+                    filterAll: true,
                     filterable: true
 
                 },
