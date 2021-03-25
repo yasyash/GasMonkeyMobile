@@ -371,10 +371,12 @@ class TableForm extends React.Component {
                 }
             }
 
-            if (data.length == 1)
-            {
-                this.setState({ selection : data[0]._id});
-                this.setState({ station_actual: data[0].id });
+            if (data.length == 1) {
+                this.setState({ selection: [data[0]._id] });
+                this.setState({ station_actual: [data[0].id] });
+                this.setState({ station_names: [{ [data[0].id]: data[0].namestation }] });
+                if (this.props.station_actual.length == 0)
+                    this.handleClick();
             }
 
             this.setState({ stationsList: data });
