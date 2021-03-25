@@ -1621,9 +1621,7 @@ router.get('/get_tza4_auto', authenticate, (req, resp) => {
             var dataDayList = [];
             let meteo_complete = false;
             let tempr_day = [], dir_day = [], spd_day = [], hum_day = [], tza4_templ_meteo = [];
-            let time_from = 0;
-            let time_to = 0;
-            let range_out_counter = 0;
+                      let range_out_counter = 0;
 
 
             //console.log('between ', chemical_one[0]);
@@ -1637,6 +1635,9 @@ router.get('/get_tza4_auto', authenticate, (req, resp) => {
                 });
 
                 const meteo = [];
+                let time_from = 0;
+                let time_to = 0;
+                
                 for (const elem in meteo_all) { // meteo from one day
 
                     day_now = date.format(new Date(meteo_all[elem].date_time), 'DD-MM-YYYY');

@@ -191,7 +191,7 @@ class TableForm extends React.Component {
             // it does not exist so add it
             selection.push(row._id);
             station_actual.push(row.id);
-            station_names.push({[row.id]:row.namestation});
+            station_names.push({ [row.id]: row.namestation });
         }
         // update the state            
         this.setState({ station_actual });
@@ -271,7 +271,7 @@ class TableForm extends React.Component {
         });
     };
 
-   
+
     handleClose() {
         this.setState({ isLoading: false });
         this.setState({ isUpdated: false });
@@ -309,7 +309,7 @@ class TableForm extends React.Component {
             }
         });
 
-    
+
     };
 
     async    loadData(qtype) {
@@ -356,10 +356,10 @@ class TableForm extends React.Component {
         // this.loadData().then(data => this.setState({ stationsList: data }));
 
         //if (this.props.station_actual.length > 0) { deleteActiveStationsList(); };
-
+        //main table
+        
         this.loadData(0).then(data => {
             if (this.props.station_actual) {
-                let selection = [];
                 if (this.props.station_actual.length > 0) {
                     data.forEach(element => {
                         if (element.id == this.props.station_actual) {
@@ -370,6 +370,13 @@ class TableForm extends React.Component {
                     this.setState({ station_actual: this.props.station_actual });
                 }
             }
+
+            if (data.length == 1)
+            {
+                this.setState({ selection : data[0]._id});
+                this.setState({ station_actual: data[0].id });
+            }
+
             this.setState({ stationsList: data });
 
         });

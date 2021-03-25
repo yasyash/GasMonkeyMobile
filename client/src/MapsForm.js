@@ -221,7 +221,6 @@ class MapsForm extends React.Component {
 
     handleChange = (event, tab_no) => {
         this.setState({ tab_no });
-        //window.open("https://map.gpshome.ru/main/index.php?login=mosoblecomon&password=mosoblecomon");
     };
 
 

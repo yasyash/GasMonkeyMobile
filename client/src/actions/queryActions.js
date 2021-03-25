@@ -336,6 +336,7 @@ export function queryManyEvent(paramstr) {
                     let prev = '';
                     let i = 0;
 
+                   
                     if (sensors_list.length == 1) {
                         if (data_list.length > 0) {
                             var _data = [];
@@ -346,9 +347,9 @@ export function queryManyEvent(paramstr) {
                             var last_date = data_list[data_list.length - 1].date_time;
                             var first_hour = new Date(first_date).format('Y-MM-dd HH:mm:SS');
                             var first_minute = new Date(first_date).format('Y-MM-dd HH:mm:SS');
-                            var work_date = moment(first_date);
+                            var work_date = moment(first_date).format('Y-MM-DD HH:mm:00');
+                            work_date = moment(work_date);
                             var max_range = sensors_list[0].max_day_consentration;
-
 
                             var _i = 0;
                             var _j = 0;
@@ -365,7 +366,7 @@ export function queryManyEvent(paramstr) {
 
                                 if (counter) {
                                     data_list[_i].measure = _tmp / counter;
-                                    data_list[_i].date_time = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                    data_list[_i].date_time =  new Date(work_date).format('Y-MM-dd HH:mm:SS');//new Date(first_date).format('Y-MM-dd HH:mm:SS');
                                     _data.push(data_list[_i]);
                                 }
                                 _i = _j;
@@ -418,8 +419,8 @@ export function queryManyEvent(paramstr) {
                             var counter = 0;
                             var first_date = data_list[0].date_time;
                             var last_date = data_list[data_list.length - 1].date_time;
-                            var work_date = moment(first_date);
-
+                            var work_date = moment(first_date).format('Y-MM-DD HH:mm:00');
+                            work_date = moment(work_date);
 
                             var _i = 0;
                             var _j = 0;
@@ -437,7 +438,7 @@ export function queryManyEvent(paramstr) {
                                 if (counter) {
                                     _data_list_filter[_i].measure = _tmp / counter;
                                     if (units) {
-                                        let _find_date = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                        let _find_date = new Date(work_date).format('Y-MM-dd HH:mm:SS');
                                         _data.filter((__item, __i, __arr) => {
                                             if (__item.date_time == _find_date) {
                                                 let obj = {};
@@ -447,7 +448,7 @@ export function queryManyEvent(paramstr) {
                                         });
                                     } else {
                                         let obj = {};
-                                        obj['date_time'] = new Date(first_date).format('Y-MM-dd HH:mm:SS');
+                                        obj['date_time'] =  new Date(work_date).format('Y-MM-dd HH:mm:SS');//new Date(first_date).format('Y-MM-dd HH:mm:SS');
                                         obj[_data_list_filter[_i].serialnum] = _data_list_filter[_i].measure.toFixed(3);
                                         _data.push(obj);
                                     };
