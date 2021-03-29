@@ -883,7 +883,7 @@ router.get('/get_monthly', authenticate, (req, resp) => {
                         'counter_macs5': counter_macs5,
                         'counter_macs10': counter_macs10,
                         's_index': Number(element.max_m) < 900 ? Number(max / element.max_m).toFixed(1) : '-',
-                        'gre_repeatably': Number(element.max_m) < 900 ? Number(Number(counter_macs1 + counter_macs5 + counter_macs10) / counter * 100).toFixed(2) : '-',
+                        'gre_repeatably': Number(element.max_m) < 900 ? Number(Number(counter_macs1 + counter_macs5 + counter_macs10) / frame_count * 100).toFixed(2) : '-',
                         'sigma': Math.sqrt(sum_pow2 / (frame_count - 1)).toFixed(3),
                         //'pollut_ind': Number(element.max_d) < 900 ? Number(quotient / element.max_d * coefficient).toFixed(1) : '-',
                         'className': class_css

@@ -12,6 +12,7 @@ import TxtFieldGroup from './stuff/txtField';
 import { queryEvent } from './actions/queryActions';
 import { addDataList, deleteDataList } from './actions/dataAddActions';
 import { updateData } from './actions/adminActions';
+import { query4EditEvent } from './actions/queryActions';
 
 import MenuTable from './menuTable';
 import { Tabs, Tab } from 'material-ui/Tabs';
@@ -706,4 +707,4 @@ TableData.contextType = {
     router: PropTypes.object.isRequired
 }
 
-export default connect(mapStateToProps, { queryEvent, addDataList, deleteDataList, updateData, reportXGen })(withRouter(withStyles(styles)(TableData)));
+export default connect(mapStateToProps, { queryEvent, addDataList, deleteDataList, updateData, reportXGen, query4EditEvent })(withRouter(withStyles(styles)(TableData)));
