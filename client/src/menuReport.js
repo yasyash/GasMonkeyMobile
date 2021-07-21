@@ -693,6 +693,77 @@ class MenuReport extends Component {
         }
     };
 
+    handleCSVClick = (name) => {
+
+        const { dateReportEnd } = this.props;
+        var date = new Date(dateReportEnd).format('dd-MM-Y_H:mm');
+
+        var chemical = this.state.chemical;
+        var str_hdr = '';
+
+
+
+        if (!isEmpty(this.props.data_4_report)) {
+
+            let { data_4_report } = this.props;
+
+            if (this.props.report_type != 'multi')
+                data_4_report[0].station = this.translit(data_4_report[0].station);
+
+
+
+            // console.log("TZA")
+            var filename = 'CSV_report_station_' + this.translit(this.props.station_name) + '_' + date + '.csv';//TZA_4_Report_station_PNZ 1_Substance_CO_03-2020.xlsx"
+            var data = this.props.data_4_report;
+            data.forEach(_field => {
+
+                var _pollution = _field.pollution;
+                var _date = _field.date;
+                var _lat = _field.lat;
+                var _lon = _field.lon;
+                var _place = _field.place;
+
+
+                str_hdr += '1. Объект (наименование, координаты, адрес): ;' + _place + '; широта: ;' + _lat + '; долгота:  ;' + _lon + ';\r\n';
+
+                str_hdr += '2. Дата измерений: ;' + _date + ';\r\n 3. Результаты измерений:;\r\n ';
+                str_hdr += 'Концентрация, мг/м.куб.;\r\n';
+                str_hdr += 'Время;Темп., С;Напр. ветра, град.;Скор. ветра, м/с;Отн. влажность, %;Атм. Давление, мм.рт.ст.;NO;NO2;NH3;NOx;SO2;H2S;O3;CO;CH;CH4;HCH;CH2O;PM-1;PM-2.5;PM-10;Пыль общая;бензол;толуол;этилбензол;\r\n'
+                // var str_body = '';
+
+                var i = 0;
+
+                _pollution.forEach(item => {
+
+                    str_hdr += item.time + ';' + item.Tout + ';' + item.WindD + ';' + item.WindV + ';' + item.Hout +';'+ item.P + ';' + item.NO + ';' + item.NO2 + ';' + item.NH3 + ';' + item.NOx
+                        + ';' + item.SO2 + ';' + item.H2S + ';' + item.O3 + ';' + item.CO + ';' + item.CH + ';' + item.CH4 + ';' + item.HCH + ';' + item.CH2O + ';' + item.PM1 + ';' + item.PM25 + ';' + item.PM10
+                        + ';' + item.TSP + ';' + item.C6H6 + ';' + item.C7H8 + ';' + item.C8H10 + ';' + item.C8H10MP + ';' + item.C8H10O + ';' + item.C6H5Cl + ';' + item.C8H8 + ';' + item.C6H5OH
+                    str_hdr += '\r\n';
+
+
+                    str_hdr += '\r\n';
+                });
+            }
+
+            )
+
+
+
+
+            //'D – дата, P – признак непрерывности, SumQc – сумма концентраций за сутки, n – число случаев за сутки, Qc – средняя концентрация за сутки, Qm – максимальная концентрация за сутки, TQm – время наступления максимальной концентрации за сутки, Tq – продолжительность периода при Q > ПДК, М – число случаев за месяц (SumQc, n, Qc), Max Qc – максимальная среднесуточная концентрация за месяц, TmaxQc – дата наблюдения MaxQc, SumDcc – количество дней с Qс > ПДКсс.';
+
+
+            var file = [str_hdr];
+
+            var blob = new Blob([file], { type: "text/plain;charset=utf-8" });
+
+            saveAs(blob, filename);
+
+
+        }
+    };
+
+
     handleClose = () => {
         this.setState({ anchorEl: null });
 
@@ -1003,7 +1074,15 @@ class MenuReport extends Component {
                                 </IconButton>
 
                             </Tooltip>
+                            <Tooltip id="tooltip-charts-view5" title="Экспорт в CSV">
 
+                                <IconButton className={classes.button} onClick={this.handleCSVClick} aria-label="Экспорт в файл с разделителями">
+                                    <SvgIcon className={classes.icon}>
+                                        <path fill="currentColor" d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2M15 16L13 20H10L12 16H9V11H15V16M13 9V3.5L18.5 9H13Z" />
+                                    </SvgIcon>
+                                </IconButton>
+
+                            </Tooltip>
 
 
 
