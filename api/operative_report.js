@@ -29,12 +29,11 @@ let router = express.Router();
 
 
 
-router.get('/', authenticate, (req, resp) => {
+router.post('/', authenticate, (req, resp) => {
     //  
 
-    let query = url.parse(req.url).query;
-    let obj = qs.parse(query);
-    let data = JSON.parse(obj.data);
+    let data = req.body;
+
     //  if (query) {
     //    obj = JSON.parse(decodeURIComponent(query))
     //}
@@ -90,54 +89,16 @@ router.get('/', authenticate, (req, resp) => {
 
     });
 
-    /*  docx.generate(resp, {
-          'finalize': function () {
-              console.log('Finish to create a Docx file.\n');
-          },
-          'error': function (err) {
-              console.log(err);
-          }
-      }
-  
-  
-      );*/
-
-
-    //  ws.close;
-
-    //var filestream = fs.createReadStream(path.resolve(filepath + filename));
-    // console.log();
-    // filestream.pipe(resp);
-    // filestream.close;
-    //ws = createReadStream(path.resolve(filepath + filename));
-    //resp.attachment(path.resolve(filepath + filename));
-    //resp.download(path.resolve(filepath + filename));
-    //resp.download(filepath + filename);
-    /*resp.sendFile(path.resolve(filepath + filename), function (err) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log('Sent:', filename);
-        }
-    });*/
-
-
-    //let response = ['Ok'];
-    //resp.json({ response });
-    //}
-
-
-
+    
 
 });
 
-router.get('/report_excel', authenticate, (req, resp) => {
+router.post('/report_excel', authenticate, (req, resp) => {
     //  
 
-    let query = url.parse(req.url).query;
-    let obj = qs.parse(query);
-    let data = JSON.parse(obj.data);
-    let checked_meteo = data.checked_meteo;
+    //let query = url.parse(req.url).query;
+    //let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
     //  if (query) {
     //    obj = JSON.parse(decodeURIComponent(query))
     //}
@@ -146,6 +107,9 @@ router.get('/report_excel', authenticate, (req, resp) => {
     // console.log('sensors ', data.sensors[0]);
     //if (data.report == 'operative') {
     //console.log(data.html);
+    let data = req.body;
+    let checked_meteo = data.checked_meteo;
+    
     if (data.report == 'operative') {
         var filename = 'OperativeReport_station_' + data.station + '_' + data.date + '.xlsx';
         var filereport = 'operative_templ.xlsx'
@@ -175,6 +139,15 @@ router.get('/report_excel', authenticate, (req, resp) => {
             //console.log("WITH METEO")
 
         }
+    };
+
+    if (data.report == 'tza4_auto') {
+        var filename = 'TZA_4_2015_Report_station_' + data.station + '_' + data.date + '.xlsx';
+
+        var filereport = 'tza4_auto_templ.xlsx'
+        //console.log("WITH METEO")
+
+
     };
 
     if (data.report == 'table') {
@@ -1524,10 +1497,13 @@ router.get('/get_tza4_auto', authenticate, (req, resp) => {
     let obj = qs.parse(query);
     let data = JSON.parse(obj.data);
     let station_name = data.station_name;
+    let place = data.place;
+    let lat = data.lat;
+    let lon = data.lon;
     let chemic = data.chemic;
     let meteo_add = data.checked_meteo;
     const between_date = [data.period_from, data.period_to];
-    //console.log('time in =', Date.now());
+    //console.log('place = ', place, lat, lon, station_name);
     //var start1 = Date.now();
     loadMeteo(data.station, between_date).then(_result => {
 
@@ -1621,7 +1597,7 @@ router.get('/get_tza4_auto', authenticate, (req, resp) => {
             var dataDayList = [];
             let meteo_complete = false;
             let tempr_day = [], dir_day = [], spd_day = [], hum_day = [], tza4_templ_meteo = [];
-                      let range_out_counter = 0;
+            let range_out_counter = 0;
 
 
             //console.log('between ', chemical_one[0]);
@@ -1637,7 +1613,7 @@ router.get('/get_tza4_auto', authenticate, (req, resp) => {
                 const meteo = [];
                 let time_from = 0;
                 let time_to = 0;
-                
+
                 for (const elem in meteo_all) { // meteo from one day
 
                     day_now = date.format(new Date(meteo_all[elem].date_time), 'DD-MM-YYYY');
@@ -1905,10 +1881,39 @@ router.get('/get_tza4_auto', authenticate, (req, resp) => {
             let key = '';
 
             let response = {};
+            tza4_templ.forEach((time, i) => {
+                time[i + 1].map((element, j) => {
+                    pollution.push({
+                        day: i + 1,
+                        time: element.time, tempr: String(element.tempr).replace('.', ','), dir: String(element.dir).replace('.', ','), spd: String(element.spd).replace('.', ','), hum: String(element.hum).replace('.', ','),
+                        valueNO: String(element[0].NO).replace('.', ','), valueNO2: String(element[1].NO2).replace('.', ','), valueNH3: String(element[2].NH3).replace('.', ','), valueSO2: String(element[3].SO2).replace('.', ','),
+                        valueH2S: String(element[4].H2S).replace('.', ','), valueO3: String(element[5].O3).replace('.', ','), valueCO: String(element[6].CO).replace('.', ','), valueCH2O: String(element[7].CH2O).replace('.', ','), valuePM1: String(element[8].PM1).replace('.', ','),
+                        valuePM25: String(element[9]['PM2.5']).replace('.', ','), valuePM10: String(element[10].PM10).replace('.', ','), valueTSP: String(element[11]['Пыль общая']).replace('.', ','),
+                        valueC6H6: String(element[12]['бензол']).replace('.', ','), valueC7H8: String(element[13]['толуол']).replace('.', ','), valueC8H10: String(element[14]['этилбензол']).replace('.', ','),
+                        valueC8H10MP: String(element[15]['м,п-ксилол']).replace('.', ','), valueC8H10O: String(element[16]['о-ксилол']).replace('.', ','), valueC6H5Cl: String(element[17]['хлорбензол']).replace('.', ','),
+                        valueC8H8: String(element[18]['стирол']).replace('.', ','), valueC6H5OH: String(element[19]['фенол']).replace('.', ',')
+                    });
+                });
+            });
+            values.push({
+                place: place,
+                lat: lat,
+                lon: lon,
+                year: date.format(new Date(period_from), 'YYYY'),
+                month: date.format(new Date(period_from), 'MM'), pollution: pollution
+
+            });
+
+            //  console.log('values ' + values);
+
+
+            data.push({ station: station_name, values: values });
 
             //console.log('time total =', Date.now() - start1);
 
             response.tza4 = tza4_templ;
+            response.data = data;
+
             resp.json({ response });
         });
 

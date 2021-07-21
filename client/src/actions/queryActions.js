@@ -1529,10 +1529,10 @@ export function queryDashBoardAlertsHistory(paramstr) {
 
 export function queryMultyReport(paramstr) {
 
-    const data = JSON.stringify(paramstr);
+    //const data = JSON.stringify(paramstr);
     //  console.log('parameters is ', data);
     return dispatch => {
-        return Axios.get('/api/query/multi_report_get', { params: { data: paramstr } })
+        return Axios.post('/api/query/multi_report_get', paramstr)
             .then(resp => {
 
 

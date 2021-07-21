@@ -554,6 +554,8 @@ class MenuReport extends Component {
         if (this.props.report_type == 'tza4')
             date = new Date(dateReportEnd).format('MM-Y');
 
+        if (this.props.report_type == 'tza4_auto')
+            date = new Date(dateReportEnd).format('MM-Y')
 
         if (!isEmpty(this.props.data_4_report)) {
 
@@ -563,6 +565,25 @@ class MenuReport extends Component {
                 data_4_report[0].station = this.translit(data_4_report[0].station);
 
             if (this.props.report_type != 'tza4') {
+
+                /*this.props.reportXlsGen({ report: this.props.report_type, station: this.translit(this.props.station_name), date: date, data_4_report: data_4_report, chemical: this.translit(chemical), checked_meteo: this.props.checked_meteo }).then(response => {
+                    //var xhr = new XMLHttpRequest();
+
+                    var type = response.headers['content-type'];
+                    var filename = "";
+                    var disposition = response.headers['content-disposition'];
+
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        var matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                    }
+                    //var blob = new File([response], filename, { type: type });
+                    var blob = new Blob([response.data], { type: type });
+
+                    saveAs(blob, filename);
+
+                });*/
 
                 this.props.reportXlsGen({ report: this.props.report_type, station: this.translit(this.props.station_name), date: date, data_4_report: data_4_report, chemical: this.translit(chemical), checked_meteo: this.props.checked_meteo }).then(response => {
                     //var xhr = new XMLHttpRequest();
@@ -736,7 +757,7 @@ class MenuReport extends Component {
 
                 _pollution.forEach(item => {
 
-                    str_hdr += item.time + ';' + item.Tout + ';' + item.WindD + ';' + item.WindV + ';' + item.Hout +';'+ item.P + ';' + item.NO + ';' + item.NO2 + ';' + item.NH3 + ';' + item.NOx
+                    str_hdr += ((item.time == undefined) ? '-' : item.time) + ';' + ((item.Tout == undefined) ? '-' : item.Tout)  + ';' + ((item.WindD == undefined) ? '-' : item.WindD) + ';' + ((item.WindV == undefined) ? '-' : item.WindV) + ';' + ((item.Hout == undefined) ? '-' : item.Hout) + ';' + ((item.P == undefined) ? '-' : item.P) + ';' + item.NO + ';' + item.NO2 + ';' + item.NH3 + ';' + item.NOx
                         + ';' + item.SO2 + ';' + item.H2S + ';' + item.O3 + ';' + item.CO + ';' + item.CH + ';' + item.CH4 + ';' + item.HCH + ';' + item.CH2O + ';' + item.PM1 + ';' + item.PM25 + ';' + item.PM10
                         + ';' + item.TSP + ';' + item.C6H6 + ';' + item.C7H8 + ';' + item.C8H10 + ';' + item.C8H10MP + ';' + item.C8H10O + ';' + item.C6H5Cl + ';' + item.C8H8 + ';' + item.C6H5OH
                     str_hdr += '\r\n';
@@ -1075,7 +1096,7 @@ class MenuReport extends Component {
                                 </IconButton>
 
                             </Tooltip>
-                            <Tooltip id="tooltip-charts-view5" title="Экспорт в CSV">
+                            {(this.props.report_type == 'multi') && (<Tooltip id="tooltip-charts-view5" title="Экспорт в CSV">
 
                                 <IconButton className={classes.button} onClick={this.handleCSVClick} aria-label="Экспорт в файл с разделителями">
                                     <SvgIcon className={classes.icon}>
@@ -1083,7 +1104,7 @@ class MenuReport extends Component {
                                     </SvgIcon>
                                 </IconButton>
 
-                            </Tooltip>
+                            </Tooltip>)}
 
 
 

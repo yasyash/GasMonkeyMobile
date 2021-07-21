@@ -451,11 +451,11 @@ async function load_data(points_list, macsList) {
 
 };
 
-router.get('/multi_report_get', authenticate, function (req, resp) {
+router.post('/multi_report_get', authenticate, function (req, resp) {
     //  
-    let query = url.parse(req.url).query;
-    let obj = qs.parse(query);
-    let data = JSON.parse(obj.data);
+    //let query = url.parse(req.url).query;
+   // let obj = qs.parse(query);
+    let data = req.body;//JSON.parse(obj.data);
     let points_list = data.points;
     let macsList = [];
 

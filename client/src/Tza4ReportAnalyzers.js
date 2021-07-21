@@ -176,7 +176,7 @@ class Tza4ReportAnalyzers extends React.Component {
         // this.setState({ dateReportBegin: this.props.dateReportBegin, dateReportEnd: this.props.dateReportEnd });
         //this.loadData().then(data => this.setState({ sensorsList: data }));
 
-        //tza report
+        //tza auto report
         if (isEmpty(state.dateReportBegin)) {
             if (!isEmpty(this.props.dateReportBegin)) {
                 params.period_from = new Date(new Date(this.props.dateReportBegin).getFullYear(), new Date(this.props.dateReportBegin).getMonth(), 1, '0', '0').format('Y-MM-ddTHH:mm');

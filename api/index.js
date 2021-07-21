@@ -22,11 +22,11 @@ import cron_email from './emailer';
 import cors from 'cors';
 
 const app = express();
-//app.use(cors());
-app.use((req, res, next) => {
-    req.header('Access-Control-Allow-Origin', '*');
-    next();
-  });
+app.use(cors());
+//app.use((req, res, next) => {
+  //  req.header('Access-Control-Allow-Origin', '*');
+   // next();
+ // });
   
  // app.use((req, res, next) => {
   //  res.header('Access-Control-Allow-Origin', '*');
@@ -34,7 +34,10 @@ app.use((req, res, next) => {
  // });//var staticPath = path.join(__dirname, '/');
 //app.use(express.static(staticPath));
 
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
+
+app.use(bodyParser.json({limit: '10mb', extended: true}));
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 
 app.use('/api/users', users);
 app.use('/api/auth', auth);
