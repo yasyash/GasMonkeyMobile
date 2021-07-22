@@ -48,10 +48,9 @@ import ReactTable from "react-table";
 import { useExpanded } from "react-table";
 
 import checkboxHOC from "react-table/lib/hoc/selectTable";
-import treeTableHOC from 'react-table/lib/hoc/treeTable'
+import treeTableHOC from 'react-table/lib/hoc/treeTable';
 
-const CheckboxTable = checkboxHOC(treeTableHOC(ReactTable))
-    ;
+const CheckboxTable = checkboxHOC(treeTableHOC(ReactTable));
 import FoldableTableHOC from '../foldableTable/index';
 
 const FoldableTable = FoldableTableHOC(CheckboxTable);

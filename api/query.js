@@ -226,7 +226,7 @@ router.get('/point_measure_get', authenticate, (req, resp) => {
 
 });
 
-async function load_data(points_list, macsList) {
+export async function load_data(points_list, macsList) {
     let between_date = [];
     var dataList = [];
     var rows_measure = [];

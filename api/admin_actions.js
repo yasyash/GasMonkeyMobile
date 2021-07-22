@@ -25,6 +25,8 @@ import POINTS from '../models/points';
 import ftp_upload from './ftp_actions';
 import Settings from '../models/settings';
 import PointsMeasure from '../models/points_measure';
+import {ftp_end_measure_upload} from './ftp_actions';
+
 
 import { exec } from 'child_process';
 
@@ -141,6 +143,7 @@ router.post('/point_measure_stop', authenticate, (req, resp) => {
     let data = req.body;
     //console.log(data);
     var date_time_end = new Date().format('dd-MM-Y H:mm:SS'); //in case if measure close
+    data.date_time_end = date_time_end;
 
     POINTS.where({ idd: data.idd })
         .save({
@@ -173,7 +176,13 @@ router.post('/point_measure_stop', authenticate, (req, resp) => {
                             lat: data.lat, lon: data.lon
 
                         }, { method: 'insert' })
-                            .then(_resp => resp.json({ result: _resp })).catch(err => resp.status(500).json({ error: 'Error insert points measure table. ' + err }));
+                            .then(_resp => {
+                                
+                                        ftp_end_measure_upload(data).then (resp.json({ result: _resp }));
+                                    
+                                
+                                
+                            }).catch(err => resp.status(500).json({ error: 'Error insert points measure table. ' + err }));
 
                     }).catch(err => resp.status(500).json({ error: 'Error update points measure table. ' + err }));
 

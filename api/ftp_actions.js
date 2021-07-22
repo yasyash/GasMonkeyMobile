@@ -32,6 +32,8 @@ import LOGS from '../models/logs';
 import { Client } from 'basic-ftp';
 import { fromRenderProps } from 'recompose';
 import ftp from '../models/ftp';
+import { load_data } from './query';
+
 
 let router = express.Router();
 
@@ -593,5 +595,238 @@ async function insert_log(reason, host, user, namestation, err) {
     }).save();
 
 };
+
+
+function translit (_in)  {
+
+    var transl = new Array();
+    transl['А'] = 'A'; transl['а'] = 'a';
+    transl['Б'] = 'B'; transl['б'] = 'b';
+    transl['В'] = 'V'; transl['в'] = 'v';
+    transl['Г'] = 'G'; transl['г'] = 'g';
+    transl['Д'] = 'D'; transl['д'] = 'd';
+    transl['Е'] = 'E'; transl['е'] = 'e';
+    transl['Ё'] = 'Yo'; transl['ё'] = 'yo';
+    transl['Ж'] = 'Zh'; transl['ж'] = 'zh';
+    transl['З'] = 'Z'; transl['з'] = 'z';
+    transl['И'] = 'I'; transl['и'] = 'i';
+    transl['Й'] = 'J'; transl['й'] = 'j';
+    transl['К'] = 'K'; transl['к'] = 'k';
+    transl['Л'] = 'L'; transl['л'] = 'l';
+    transl['М'] = 'M'; transl['м'] = 'm';
+    transl['Н'] = 'N'; transl['н'] = 'n';
+    transl['О'] = 'O'; transl['о'] = 'o';
+    transl['П'] = 'P'; transl['п'] = 'p';
+    transl['Р'] = 'R'; transl['р'] = 'r';
+    transl['С'] = 'S'; transl['с'] = 's';
+    transl['Т'] = 'T'; transl['т'] = 't';
+    transl['У'] = 'U'; transl['у'] = 'u';
+    transl['Ф'] = 'F'; transl['ф'] = 'f';
+    transl['Х'] = 'X'; transl['х'] = 'x';
+    transl['Ц'] = 'C'; transl['ц'] = 'c';
+    transl['Ч'] = 'Ch'; transl['ч'] = 'ch';
+    transl['Ш'] = 'Sh'; transl['ш'] = 'sh';
+    transl['Щ'] = 'Sch'; transl['щ'] = 'sch';
+    transl['Ъ'] = ''; transl['ъ'] = '';
+    transl['Ы'] = 'Y'; transl['ы'] = 'y';
+    transl['Ь'] = ''; transl['ь'] = '';
+    transl['Э'] = 'E'; transl['э'] = 'e';
+    transl['Ю'] = 'Yu'; transl['ю'] = 'yu';
+    transl['Я'] = 'Ya'; transl['я'] = 'ya';
+    transl['№'] = 'No';
+
+    var out = '';
+
+    for (var i = 0; i < _in.length; i++) {
+        if (transl[_in[i]] != undefined) { out += transl[_in[i]]; }
+        else { out += _in[i]; }
+    }
+    if (isEmpty(out)) {
+        return _in;
+    }
+    else {
+        return out;
+    }
+
+};
+
+
+export async function ftp_end_measure_upload(_data) {
+    //  
+    var queryFields = {
+        'CO': 'CO',
+        'NO': 'NO',
+        'NO2': 'NO2',
+        'NOx': 'NOx',
+        'NH3': 'NH3',
+        'SO2': 'SO2',
+        'H2S': 'H2S',
+        'O3': 'O3',
+        'PM10': 'PM10',
+        'PM2.5': 'PM2.5',
+        'PM1': 'PM1',
+        'Пыль общая': 'Пыль общая',
+        'CH2O': 'CH2O',
+        'HCH': 'HCH',
+        'CH4': 'CH4',
+        'CH': 'CH',
+        'бензол': 'C6H6',
+        'толуол': 'C7H8',
+        'этилбензол': 'C8H10',
+        'хлорбензол': 'C6H5CL',
+        'о-ксилол': 'C8H10_O',
+        'м,п-ксилол': 'C8H10_MP',
+        'стирол': 'C8H8',
+        'фенол': 'C6H6O',
+        'P': 'Атм. давление',
+        'Tout': 'Темп. внешняя',
+        'Tin': 'Темп. внутренняя',
+        'Hout': 'Влажность внеш.',
+        'Hin': 'Влажность внутр.',
+        'WindV': 'Скорость ветра',
+        'WindD': 'Направление ветра',
+        'Rain': 'Интенс. осадков',
+
+    };
+    var keys =
+        ['CO', 'NO', 'NO2', 'NOx', 'NH3', 'SO2', 'H2S', 'O3',
+            'PM10', 'PM2.5', 'PM1', 'Пыль общая', 'CH2O',
+            'HCH', 'CH4', 'CH', 'C6H6',
+            'формальдегид', 'бензол', 'толуол', 'этилбензол',
+            'хлорбензол', 'о-ксилол', 'м,п-ксилол', 'стирол', 'фенол'];
+
+    //console.log("data is ", _data);
+
+    var points_list = [_data];
+    var macsList = [];
+
+    var data4report = [];
+    var _error = '';
+    var _idd ='';
+
+    Macs.fetchAll().then((result) => {
+        var result_parse0 = JSON.stringify(result);
+        macsList = JSON.parse(result_parse0);
+
+
+        load_data(points_list, macsList).then(_out => {
+            //console.log("responsed ", _out)
+
+            var str_hdr = '';
+            _out.forEach(_field => {
+
+                var _pollution = _field.pollution;
+                var _date = _field.date;
+                var _lat = _field.lat;
+                var _lon = _field.lon;
+                var _place = _field.place;
+                _idd = _field.idd;
+
+                str_hdr += '1. Объект (наименование, координаты, адрес): ;' + _place + '; широта: ;' + _lat + '; долгота:  ;' + _lon + ';\r\n';
+
+                str_hdr += '2. Дата измерений: ;' + _date + ';\r\n 3. Результаты измерений:;\r\n ';
+                str_hdr += 'Концентрация, мг/м.куб.;\r\n';
+                str_hdr += 'Время;Темп., С;Напр. ветра, град.;Скор. ветра, м/с;Отн. влажность, %;Атм. Давление, мм.рт.ст.;NO;NO2;NH3;NOx;SO2;H2S;O3;CO;CH;CH4;HCH;CH2O;PM-1;PM-2.5;PM-10;Пыль общая;бензол;толуол;этилбензол;';
+                str_hdr += 'м,п-ксилол;о-ксилол;хлорбензол;стирол;фенол\r\n'
+                // var str_body = '';
+
+
+                _pollution.forEach(item => {
+
+                    str_hdr += ((item.time == undefined) ? '-' : item.time) + ';' + ((item.Tout == undefined) ? '-' : item.Tout) + ';' + ((item.WindD == undefined) ? '-' : item.WindD) + ';' + ((item.WindV == undefined) ? '-' : item.WindV) + ';' + ((item.Hout == undefined) ? '-' : item.Hout) + ';' + ((item.P == undefined) ? '-' : item.P) + ';' + item.NO + ';' + item.NO2 + ';' + item.NH3 + ';' + item.NOx
+                        + ';' + item.SO2 + ';' + item.H2S + ';' + item.O3 + ';' + item.CO + ';' + item.CH + ';' + item.CH4 + ';' + item.HCH + ';' + item.CH2O + ';' + item.PM1 + ';' + item.PM25 + ';' + item.PM10
+                        + ';' + item.TSP + ';' + item.C6H6 + ';' + item.C7H8 + ';' + item.C8H10 + ';' + item.C8H10MP + ';' + item.C8H10O + ';' + item.C6H5Cl + ';' + item.C8H8 + ';' + item.C6H5OH
+                    str_hdr += '\r\n';
+
+
+                    str_hdr += '\r\n';
+                });
+            }
+
+            )
+
+            //console.log("STRING ", str_hdr);
+
+            FTP.where({ isdeleted: false }).fetchAll().then(
+                result => {
+                    let result_str = JSON.parse(JSON.stringify(result));
+
+                    result_str.forEach(item => {
+                        // if (!isEmpty(item.name) && !isEmpty(item.indx)) {
+                        // if ((item.remained_time - 1) > 0) {
+                        //console.log('remained ', item.remained_time - 1);
+                        //    FTP.where({ id: item.id })
+                        //       .save({
+                        //           remained_time: item.remained_time - 1,
+                        //           last_time: new Date().format('Y-MM-dd HH:mm:SS')
+
+                        //       }, { patch: true })
+
+                        //} else {
+                        //   FTP.where({ id: item.id })
+                        //       .save({
+                        //           remained_time: item.periods,
+                        //          last_time: new Date().format('Y-MM-dd HH:mm:SS')
+                        //      }, { patch: true }).then(res => {
+                        Stations.query({
+                            where: ({ is_present: true })
+                        }).fetchAll().then(stations => {
+
+                            let _stations = JSON.parse(JSON.stringify(stations));
+                            console.log('STATIONS ',_stations);
+                            let tmp_nm = 'CSV_report_'+translit(_stations[0].namestation)+'_measure_at_' + new Date().format('YMMdd_HHmmSS') + '.csv';
+                            let filename = "./reports/ftp/" + tmp_nm;
+                            fs.writeFile(filename, str_hdr, function (error) {
+
+                                if (!error) {
+
+                                    let temp = fs.createReadStream(filename, "utf8");
+                                    let options = {
+                                        host: item.address,
+                                        port: 21025,
+                                        user: item.username,
+                                        password: item.pwd,
+                                        secure: false
+                                        //secureOptions: undefined,
+                                        //connTimeout: undefined,
+                                        //pasvTimeout: undefined,
+                                        //aliveTimeout: undefined
+                                    };
+
+
+                                    let _folder = tmp_nm;
+                                    if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
+                                    //console.log('Folder: ', _folder);
+
+                                    //console.log('file: ', filename);
+                                    try_ftp(options, temp, _folder, _idd);
+                                }
+                                else {
+                                    //console.log('File creation error: ', error);
+                                    insert_log('File creation error', 'server', '', '', error + ' or local folder: ./reports/ftp/ does not exist');
+
+                                }
+                            })
+
+
+
+                        }).catch(err => {
+                            insert_log('SQL select from server DB error', 'server', '', '', err);
+                        });
+                        // });
+                        // };
+                        //};
+                    });
+                }).catch(err => { insert_log('SQL update server DB error', 'server', '', '', err); });
+            return 0;
+        })
+
+    })
+        .catch(err => { return { error: 'Macs fetching error: ' + err } });
+
+
+
+
+}
 
 export default ftp_upload;
