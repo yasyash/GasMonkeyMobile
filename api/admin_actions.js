@@ -25,7 +25,7 @@ import POINTS from '../models/points';
 import ftp_upload from './ftp_actions';
 import Settings from '../models/settings';
 import PointsMeasure from '../models/points_measure';
-import {ftp_end_measure_upload} from './ftp_actions';
+import { ftp_end_measure_upload } from './ftp_actions';
 
 
 import { exec } from 'child_process';
@@ -177,11 +177,11 @@ router.post('/point_measure_stop', authenticate, (req, resp) => {
 
                         }, { method: 'insert' })
                             .then(_resp => {
-                                
-                                        ftp_end_measure_upload(data).then (resp.json({ result: _resp }));
-                                    
-                                
-                                
+
+                                ftp_end_measure_upload(data).then(resp.json({ result: _resp }));
+
+
+
                             }).catch(err => resp.status(500).json({ error: 'Error insert points measure table. ' + err }));
 
                     }).catch(err => resp.status(500).json({ error: 'Error update points measure table. ' + err }));
@@ -267,13 +267,27 @@ router.post('/point_update_all', authenticate, (req, resp) => {
                     let descr = data.descr;
                     let lon = data.lon;
                     let lat = data.lat;
+                    let _idd = data.idd;
+
                     POINTS.where({ idd: data.idd })
                         .save({
                             date_time_begin, place, descr, lat, lon
                         }, { patch: true })
                         .then(
+                            PointsMeasure.where({ idd: _idd }).save({
+                                place: place, descr: descr, lat: lat, lon: lon
 
-                        ).catch(err => resp.status(500).json({ error: 'Update all points error on ID = ' + data.idd + err }));
+                            }, { patch: true })
+                                .then(
+                                    SOAP.where({ idd: _idd }).save({
+                                        place: place + ' ' + descr
+
+                                    }, { patch: true })
+                                        .then(
+                                            //
+                                        ).catch(err => console.log('ERROR in station update : ', err))
+                                ).catch(err => console.log('ERROR in reports update: ', err))
+                        ).catch(err => resp.status(500).json({ error: 'Update all points error on ID = ' + _idd + err }))
 
                 } else {
                     let place = data.place;
@@ -281,22 +295,38 @@ router.post('/point_update_all', authenticate, (req, resp) => {
                     let lon = data.lon;
                     let lat = data.lat;
                     let is_present = true;
+                    let _idd = data.idd;
 
                     POINTS.where({ idd: data.idd })
                         .save({
                             date_time_begin, date_time_end, place, descr, lat, lon
                         }, { patch: true })
                         .then(
-                        ).catch(err => resp.status(500).json({ error: 'Update all points error on ID = ' + data.idd + err }));
+                            PointsMeasure.where({ idd: _idd }).save({
+                                place: place, descr: descr, lat: lat, lon: lon
+
+                            }, { patch: true })
+                                .then(
+                                    SOAP.where({ idd: _idd }).save({
+                                        place: place + ' ' + descr
+
+                                    }, { patch: true })
+                                        .then(
+                                            //
+                                        ).catch(err => console.log('ERROR in station update: ', err))
+                                ).catch(err => console.log('ERROR in reports update: ', err))
+                        ).catch(err => resp.status(500).json({ error: 'Update all points error on ID = ' + _idd + err }));
 
                 }
                 // write the result
+                resp.status(200).json({ err: 'Update all points OK.' })
+
             })
         }
-        resp.status(200).json({ err: 'Update all points OK.' })
     }
     catch (err) {
-        return resp.status(500).json({ error: 'Update all points error on ID = ' + data.idd + err })
+        err => console.log('ERROR ALL: ', err);
+        return 0;
     }
 })
 

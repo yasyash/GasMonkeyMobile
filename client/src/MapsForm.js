@@ -59,7 +59,7 @@ import { TableRowColumn } from 'material-ui';
 import { updateSecurityUser } from './actions/adminActions';
 import { access, stat } from 'fs';
 
-//const pngs = require.context('../../tiles', true, /\.png$/);
+const pngs = require.context('../../tiles', true, /\.png$/);
 
 
 //const pinAlert = require.context('./', true, /\.svg$/);
