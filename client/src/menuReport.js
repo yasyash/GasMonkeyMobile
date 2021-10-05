@@ -757,7 +757,7 @@ class MenuReport extends Component {
 
                 _pollution.forEach(item => {
 
-                    str_hdr += ((item.time == undefined) ? '-' : item.time) + ';' + ((item.Tout == undefined) ? '-' : item.Tout)  + ';' + ((item.WindD == undefined) ? '-' : item.WindD) + ';' + ((item.WindV == undefined) ? '-' : item.WindV) + ';' + ((item.Hout == undefined) ? '-' : item.Hout) + ';' + ((item.P == undefined) ? '-' : item.P) + ';' + item.NO + ';' + item.NO2 + ';' + item.NH3 + ';' + item.NOx
+                    str_hdr += ((item.time == undefined) ? '-' : item.time) + ';' + ((item.Tout == undefined) ? '-' : item.Tout) + ';' + ((item.WindD == undefined) ? '-' : item.WindD) + ';' + ((item.WindV == undefined) ? '-' : item.WindV) + ';' + ((item.Hout == undefined) ? '-' : item.Hout) + ';' + ((item.P == undefined) ? '-' : item.P) + ';' + item.NO + ';' + item.NO2 + ';' + item.NH3 + ';' + item.NOx
                         + ';' + item.SO2 + ';' + item.H2S + ';' + item.O3 + ';' + item.CO + ';' + item.CH + ';' + item.CH4 + ';' + item.HCH + ';' + item.CH2O + ';' + item.PM1 + ';' + item.PM25 + ';' + item.PM10
                         + ';' + item.TSP + ';' + item.C6H6 + ';' + item.C7H8 + ';' + item.C8H10 + ';' + item.C8H10MP + ';' + item.C8H10O + ';' + item.C6H5Cl + ';' + item.C8H8 + ';' + item.C6H5OH
                     str_hdr += '\r\n';
@@ -785,6 +785,9 @@ class MenuReport extends Component {
         }
     };
 
+    handleSendClick = (name) => {
+        this.props.reportOperative_upload(this.props.station_actual, this.props.dateReportEnd);
+    };
 
     handleClose = () => {
         this.setState({ anchorEl: null });
@@ -1073,7 +1076,13 @@ class MenuReport extends Component {
                         </form>}
 
                         <div >
-
+                           {(!isEmpty(this.props.data_4_report)) && (<Tooltip id="tooltip-send" title="Отправить на сервер">
+                                <IconButton className={classes.button} onClick={this.handleSendClick} aria-label="Отправить на сервер">
+                                    <SvgIcon className={classes.icon}>
+                                        <path d="M11 17.5C11 13.9 13.9 11 17.5 11C18.4 11 19.2 11.2 20 11.5V8L14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H12.8C11.7 20.8 11 19.2 11 17.5M13 3.5L18.5 9H13V3.5M17 12V13.5C19.2 13.5 21 15.3 21 17.5C21 18.3 20.8 19.1 20.3 19.7L19.2 18.6C19.4 18.3 19.5 17.9 19.5 17.5C19.5 16.1 18.4 15 17 15V16.5L14.8 14.3L17 12M17 23V21.5C14.8 21.5 13 19.7 13 17.5C13 16.7 13.2 15.9 13.7 15.3L14.8 16.4C14.6 16.7 14.5 17.1 14.5 17.5C14.5 18.9 15.6 20 17 20V18.5L19.2 20.7L17 23Z" />
+                                    </SvgIcon>
+                                </IconButton>
+                            </Tooltip>)}
 
                             <Tooltip id="tooltip-charts-view4" title="Экспорт в Word">
                                 <IconButton className={classes.button} onClick={this.handleWordClick} aria-label="Экспорт в Word">

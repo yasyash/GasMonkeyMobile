@@ -31,7 +31,7 @@ import classnames from 'classnames';
 import MenuReport from './menuReport';
 
 import { queryOperativeEvent, queryEvent, queryMeteoEvent } from './actions/queryActions';
-import { reportGen, reportXlsGen } from './actions/genReportActions';
+import { reportGen, reportXlsGen, reportOperative_upload } from './actions/genReportActions';
 import { dateAddAction } from './actions/dateAddAction';
 import { dateAddReportAction } from './actions/dateAddAction';
 
@@ -430,6 +430,7 @@ class OperativeReport extends React.Component {
                 <MenuReport
                     {...this.props} snack_msg={snack_msg} isLoading={isLoading}
                     station_name={this.state.station_name}
+                    station_actual={this.state.station_actual}
                     dateReportBegin={this.state.dateTimeBegin}
                     dateReportEnd={this.state.dateTimeEnd}
                     report_type='operative'
@@ -632,5 +633,5 @@ OperativeReport.contextType = {
 
 
 
-export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen })(withRouter(withStyles(styles)(OperativeReport)
+export default connect(mapStateToProps, { queryOperativeEvent, queryMeteoEvent, reportGen, reportXlsGen, reportOperative_upload })(withRouter(withStyles(styles)(OperativeReport)
 ));

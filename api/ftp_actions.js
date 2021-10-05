@@ -226,6 +226,276 @@ function operative_report(station_actual) {
     });
 
 };
+function operative_report(station_actual, _time) {
+    return new Promise(function (resolve) {
+
+        var queryFields = {
+            'Tout': 'Темп. внешняя',
+            'WindD': 'Направление ветра', 'WindV': 'Скорость ветра', 'Hout': 'Влажность внеш.', 'P': 'Атм. давление',
+            'NO': 'NO', 'NO2': 'NO2', 'NH3': 'NH3', 'NOx': 'NOx', 'SO2': 'SO2', 'H2S': 'H2S', 'O3': 'O3', 'CO': 'CO', 'CH2O': 'CH2O', 'CH': 'CH', 'CH4': 'CH4', 'HCH': 'HCH', 'PM1': 'PM1', 'PM2.5': 'PM25', 'PM10': 'PM10', 'Пыль общая': 'TSP', 'бензол': 'C6H6', 'толуол': 'C7H8', 'этилбензол': 'C8H10', 'м-ксилол': 'C8H10M', 'п-ксилол': 'C8H10P', 'о-ксилол': 'C8H10O', 'хлорбензол': 'C6H5Cl', 'стирол': 'C8H8', 'фенол': 'C6H5OH'
+        };
+        
+        let today = new Date(_time);
+        let today_begin = today - 1200000;//20 min in milliseconds
+        let ret = {};
+
+
+        const between_date = [new Date(today_begin).format('Y-MM-ddTHH:mm'), new Date(today).format('Y-MM-ddTHH:mm')];
+        Promise.join(
+            Data.query('whereBetween', 'date_time', between_date)
+                .query('where', 'idd', station_actual)
+                .orderBy('date_time', 'ASC').fetchAll()
+                .catch(err => resp.status(500).json({ error: err })),
+            Sensors.query({
+                select: ['serialnum', 'typemeasure', 'unit_name', 'is_wind_sensor'],
+                where: ({ is_present: true }),
+                andWhere: ({ idd: station_actual }),
+            })
+                .fetchAll()
+                .catch(err => resp.status(500).json({ error: err })),
+            Macs.fetchAll()
+                .catch(err => resp.status(500).json({ error: err })),
+            ((_data_list, _sensors_list, _macsList) => {
+                //let response = [data_list, data_sensors, consentration];
+                var data_list = JSON.parse(JSON.stringify(_data_list));
+                var sensors_list = JSON.parse(JSON.stringify(_sensors_list));
+                var macsList = JSON.parse(JSON.stringify(_macsList));
+
+
+
+                if (!isEmpty(data_list)) {
+
+                    //let data_list = data.response[0];
+                    //let sensors_list = data.response[1];
+                    //var macsTable = data.response[2];
+                    let unit_name = '';
+                    let prev = '';
+                    let i = 0;
+                    var dataTable = [];
+                    var sensorsTable = [];
+                    // let macsTable = [];
+
+                    data_list.forEach(element => {
+                        dataTable.push({
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            date_time: new Date(element.date_time).format('Y-MM-dd HH:mm:SS'),
+                            unit_name: unit_name,
+                            measure: element.measure,
+                            is_alert: element.is_alert ? 'тревога' : 'нет',
+                        });
+                    });
+                    //console.log('data_list');
+                    //console.log(data_list);
+                    sensors_list.forEach(element => {
+                        sensorsTable.push({
+                            typemeasure: element.typemeasure,
+                            serialnum: element.serialnum,
+                            unit_name: element.unit_name,
+                            is_wind_sensor: element.is_wind_sensor,
+                        });
+                    });
+
+                    var rows_measure = {};
+
+
+
+                    macsList.forEach((element, indx) => {
+                        let filter = data_list.filter((item, i, arr) => {
+                            return item.typemeasure == element.chemical;
+                        });
+                        let sum = 0;
+                        let counter = 0;
+                        let class_css;
+                        let quotient = 0;
+                        let range_macs = 0; // range of macs surplus
+
+                        if (!isEmpty(filter)) {
+                            filter.forEach(item => {
+                                sum += item.measure;
+                                counter++;
+                            });
+                            quotient = (sum / counter);
+                            range_macs = quotient / element.max_m;
+
+                            rows_measure[element.chemical] = quotient.toFixed(3)
+                            
+                        };
+                    });
+
+
+                    // for service rows
+
+
+
+                    //console.log('measure ', rows_measure);
+                    //console.log('service ', rows_service);
+                    ret = { rows_measure };
+                    //console.log('ret', ret);
+
+                    resolve(ret);
+
+                } else {
+                    //console.log('nothing');
+                    resolve(0);
+                };
+
+            })
+
+        ).catch(err => {
+            console.log('error');
+
+            resolve(-1);
+        });
+    });
+
+};
+
+router.post('/operative_upload', authenticate, (req, resp) => {
+    //  
+    var queryFields = {
+        'Tout': 'Темп. внешняя',
+        'WindD': 'Направление ветра', 'WindV': 'Скорость ветра', 'Hout': 'Влажность внеш.', 'P': 'Атм. давление',
+        'NO': 'NO', 'NO2': 'NO2', 'NH3': 'NH3', 'NOx': 'NOx', 'SO2': 'SO2', 'H2S': 'H2S', 'O3': 'O3', 'CO': 'CO', 'CH2O': 'CH2O', 'CH': 'CH', 'CH4': 'CH4', 'HCH': 'HCH', 'PM1': 'PM1', 'PM2.5': 'PM25', 'PM10': 'PM10', 'Пыль общая': 'TSP', 'бензол': 'C6H6', 'толуол': 'C7H8', 'этилбензол': 'C8H10', 'м-ксилол': 'C8H10M', 'п-ксилол': 'C8H10P', 'о-ксилол': 'C8H10O', 'хлорбензол': 'C6H5Cl', 'стирол': 'C8H8', 'фенол': 'C6H5OH'
+    };
+
+    // let query = url.parse(req.url).query;
+    // let obj = qs.parse(query);
+    //let data = JSON.parse(obj.data);
+    let data = req.body;
+
+    Stations.query({
+        where: ({ idd: data.idd })
+    }).fetchAll().then(stations => {
+
+        let _stations = JSON.parse(JSON.stringify(stations));
+        //console.log(_stations);
+
+        var dataTable = [];
+        // deleteDataList(); // add with id for table element
+        //  deleteSensorsList();
+        if (_stations) {
+            //deleteActiveStationsList();
+            // deleteActiveSensorsList();
+
+            // let stations = _stations.stations;
+            _stations.forEach(element => {
+                dataTable.push({
+                    id: element.idd,
+                    code: element.code,
+                    namestation: element.namestation,
+                    date_time_in: new Date(element.date_time_in).format('Y-MM-dd HH:mm:SS'),
+                    date_time_out: new Date(element.date_time_out).format('Y-MM-dd HH:mm:SS'),
+                    place: element.place,
+                    latitude: element.latitude,
+                    longitude: element.longitude
+
+                });
+                //console.log(element.idd);
+                operative_report(element.idd, data.time).then(report => {
+                    FTP.where({ isdeleted: false }).fetchAll().then(
+                        result => {
+                            let result_str = JSON.parse(JSON.stringify(result));
+                            //console.log('result', result_str);
+
+                            result_str.forEach(item => {
+                                //console.log('result ', result_str[0].name);
+                                let tmp_nm = 'operative_report_' + element.namestation + '_' + element.place + '_' + new Date().format('Y-MM-dd_HH:mm') + '.csv';
+                                let filename = "./reports/ftp/" + tmp_nm;
+                                let str_hdr = '1. Объект (наименование, координаты, адрес): ;' + element.place + '; широта: ;' + element.latitude + '; долгота:  ;' + element.longitude + ';\r\n';
+
+                                str_hdr += '2. Дата измерений: ;' + new Date(data.time).format('dd-MM-Y HH:mm') + ';\r\n 3. Результаты измерений:;\r\n ';
+                                str_hdr += 'Концентрация, мг/м.куб.;\r\n';
+                                str_hdr += 'Время;Темп., С;Напр. ветра, град.;Скор. ветра, м/с;Отн. влажность, %;Атм. Давление, мм.рт.ст.;NO;NO2;NH3;NOx;SO2;H2S;O3;CO;CH;CH4;HCH;CH2O;PM-1;PM-2.5;PM-10;Пыль общая;бензол;толуол;этилбензол;';
+                                str_hdr += 'м-ксилол;п-ксилол;о-ксилол;хлорбензол;стирол;фенол\r\n';
+
+                                let str_body = new Date(data.time).format('dd-MM-Y HH:mm');
+
+                                for (var key in queryFields) {
+                                 
+                                    str_body += ';' + ((report.rows_measure[key] == undefined) ? '-' : report.rows_measure[key]);
+
+                                };
+                               
+
+
+                                fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
+
+                                    if (!error) {
+
+                                        let temp = fs.createReadStream(filename, "utf8");
+                                        let options = {
+                                            host: item.address,
+                                            port: 21025,
+                                            user: item.username,
+                                            password: item.pwd,
+                                            secure: false
+                                            //secureOptions: undefined,
+                                            //connTimeout: undefined,
+                                            //pasvTimeout: undefined,
+                                            //aliveTimeout: undefined
+                                        };
+    
+    
+                                        let _folder = tmp_nm;
+                                        if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
+                                        //console.log('Folder: ', _folder);
+    
+                                        //console.log('file: ', filename);
+                                        try_ftp(options, temp, _folder, data.idd).then(resp.status(200).json({ error: "successful upload" }));
+                                    }
+                                    else {
+                                        //console.log('File creation error: ', error);
+                                        insert_log('File creation error', 'server', '', '', error + ' or local folder: ./reports/ftp/ does not exist');
+    
+                                    }
+
+
+
+                                })
+                            });
+                        }
+                    ).catch(err => resp.status(500).json({ error: err }));
+
+                    // console.log('result', data);
+                    //resp.json(data);
+                })
+
+
+
+            });
+            //resp.json({ OK: 'OK' });
+
+            // resp.json({ dataTable });
+
+
+        };
+
+    }).catch(err => resp.status(500).json({ error: err }));
+    /* 
+     FTP.where({ id: data.id }).fetchAll().then(
+         result => {
+             let result_str = JSON.parse(JSON.stringify(result));
+             console.log('result ', result_str[0].name);
+             let filename = "./reports/ftp/" + result_str[0].name + '_' + new Date().format('ddMMY_HHmm') + '.csv';
+             fs.writeFile(filename, "Hello мир!", function (error) {
+ 
+                 if (error) throw resp.status(500).json({ error: error }); // если возникла ошибка
+                 console.log("Асинхронная запись файла завершена. Содержимое файла:");
+                 let data = fs.readFileSync(filename, "utf8");
+                 console.log(data);  // выводим считанные данные
+                 resp.json({ data });
+ 
+             })
+         }
+     ).catch(err => resp.status(500).json({ error: err }));*/
+
+
+
+    // write the result
+
+
+})
 
 router.post('/ftp_send', authenticate, (req, resp) => {
     //  
@@ -249,8 +519,6 @@ router.post('/ftp_send', authenticate, (req, resp) => {
     // let obj = qs.parse(query);
     //let data = JSON.parse(obj.data);
     let data = req.body;
-
-    //console.log(data.address);
 
     //console.log('id ', data.id);
 
@@ -404,7 +672,8 @@ async function ftp_upload() {
         'этилбензол': 'C8H10',
         'хлорбензол': 'C6H5CL',
         'о-ксилол': 'C8H10_O',
-        'м,п-ксилол': 'C8H10_MP',
+        'м-ксилол': 'C8H10_M',
+        'п-ксилол': 'C8H10_P',
         'стирол': 'C8H8',
         'фенол': 'C6H6O',
         'P': 'Атм. давление',
@@ -597,7 +866,7 @@ async function insert_log(reason, host, user, namestation, err) {
 };
 
 
-function translit (_in)  {
+function translit(_in) {
 
     var transl = new Array();
     transl['А'] = 'A'; transl['а'] = 'a';
@@ -675,7 +944,8 @@ export async function ftp_end_measure_upload(_data) {
         'этилбензол': 'C8H10',
         'хлорбензол': 'C6H5CL',
         'о-ксилол': 'C8H10_O',
-        'м,п-ксилол': 'C8H10_MP',
+        'м-ксилол': 'C8H10_M',
+        'п-ксилол': 'C8H10_P',
         'стирол': 'C8H8',
         'фенол': 'C6H6O',
         'P': 'Атм. давление',
@@ -702,7 +972,7 @@ export async function ftp_end_measure_upload(_data) {
 
     var data4report = [];
     var _error = '';
-    var _idd ='';
+    var _idd = '';
 
     Macs.fetchAll().then((result) => {
         var result_parse0 = JSON.stringify(result);
@@ -773,8 +1043,8 @@ export async function ftp_end_measure_upload(_data) {
                         }).fetchAll().then(stations => {
 
                             let _stations = JSON.parse(JSON.stringify(stations));
-                            console.log('STATIONS ',_stations);
-                            let tmp_nm = 'CSV_report_'+translit(_stations[0].namestation)+'_measure_at_' + new Date().format('YMMdd_HHmmSS') + '.csv';
+                            console.log('STATIONS ', _stations);
+                            let tmp_nm = 'CSV_report_' + translit(_stations[0].namestation) + '_measure_at_' + new Date().format('YMMdd_HHmmSS') + '.csv';
                             let filename = "./reports/ftp/" + tmp_nm;
                             fs.writeFile(filename, str_hdr, function (error) {
 
@@ -829,4 +1099,6 @@ export async function ftp_end_measure_upload(_data) {
 
 }
 
-export default ftp_upload;
+
+
+export default router;
