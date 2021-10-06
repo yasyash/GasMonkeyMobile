@@ -230,11 +230,14 @@ function operative_report(station_actual, _time) {
     return new Promise(function (resolve) {
 
         var queryFields = {
-            'Tout': 'Темп. внешняя',
-            'WindD': 'Направление ветра', 'WindV': 'Скорость ветра', 'Hout': 'Влажность внеш.', 'P': 'Атм. давление',
+
             'NO': 'NO', 'NO2': 'NO2', 'NH3': 'NH3', 'NOx': 'NOx', 'SO2': 'SO2', 'H2S': 'H2S', 'O3': 'O3', 'CO': 'CO', 'CH2O': 'CH2O', 'CH': 'CH', 'CH4': 'CH4', 'HCH': 'HCH', 'PM1': 'PM1', 'PM2.5': 'PM25', 'PM10': 'PM10', 'Пыль общая': 'TSP', 'бензол': 'C6H6', 'толуол': 'C7H8', 'этилбензол': 'C8H10', 'м-ксилол': 'C8H10M', 'п-ксилол': 'C8H10P', 'о-ксилол': 'C8H10O', 'хлорбензол': 'C6H5Cl', 'стирол': 'C8H8', 'фенол': 'C6H5OH'
         };
-        
+        var queryWeather = {
+            'Tout': 'Темп. внешняя',
+            'WindD': 'Направление ветра', 'WindV': 'Скорость ветра', 'Hout': 'Влажность внеш.', 'P': 'Атм. давление'
+        };
+
         let today = new Date(_time);
         let today_begin = today - 1200000;//20 min in milliseconds
         let ret = {};
@@ -319,15 +322,37 @@ function operative_report(station_actual, _time) {
                             range_macs = quotient / element.max_m;
 
                             rows_measure[element.chemical] = quotient.toFixed(3)
-                            
+
                         };
                     });
 
 
                     // for service rows
+                    var rows_service = {};
+                    if (!isEmpty(data_list)) {
+                        for (var key in queryWeather) {
+                            let filter = data_list.filter((item, i, arr) => {
+                                return item.typemeasure == queryFields[key];
+                            });
+                            if (!isEmpty(filter)) {
+
+                                let sum = 0;
+                                let counter = 0;
+                                filter.forEach(item => {
+                                    sum += item.measure;
+                                    counter++;
+                                });
+                                rows_measure.push({
+                                    'chemical': key, 'value': (sum / counter).toFixed(0)
+                                })
 
 
 
+                            } 
+                        };
+                    };
+
+                    rows_measure = [...rows_measure, ...rows_service];
                     //console.log('measure ', rows_measure);
                     //console.log('service ', rows_service);
                     ret = { rows_measure };
@@ -412,11 +437,11 @@ router.post('/operative_upload', authenticate, (req, resp) => {
                                 let str_body = new Date(data.time).format('dd-MM-Y HH:mm');
 
                                 for (var key in queryFields) {
-                                 
+
                                     str_body += ';' + ((report.rows_measure[key] == undefined) ? '-' : report.rows_measure[key]);
 
                                 };
-                               
+
 
 
                                 fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
@@ -435,19 +460,19 @@ router.post('/operative_upload', authenticate, (req, resp) => {
                                             //pasvTimeout: undefined,
                                             //aliveTimeout: undefined
                                         };
-    
-    
+
+
                                         let _folder = tmp_nm;
                                         if (!isEmpty(item.folder)) _folder = item.folder + '/' + _folder;
                                         //console.log('Folder: ', _folder);
-    
+
                                         //console.log('file: ', filename);
                                         try_ftp(options, temp, _folder, data.idd).then(resp.status(200).json({ error: "successful upload" }));
                                     }
                                     else {
                                         //console.log('File creation error: ', error);
                                         insert_log('File creation error', 'server', '', '', error + ' or local folder: ./reports/ftp/ does not exist');
-    
+
                                     }
 
 
