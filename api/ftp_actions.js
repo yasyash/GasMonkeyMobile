@@ -332,7 +332,7 @@ function operative_report(station_actual, _time) {
                     if (!isEmpty(data_list)) {
                         for (var key in queryWeather) {
                             let filter = data_list.filter((item, i, arr) => {
-                                return item.typemeasure == queryFields[key];
+                                return item.typemeasure == queryWeather[key];
                             });
                             if (!isEmpty(filter)) {
 
@@ -342,16 +342,15 @@ function operative_report(station_actual, _time) {
                                     sum += item.measure;
                                     counter++;
                                 });
-                                rows_measure.push({
-                                    'chemical': key, 'value': (sum / counter).toFixed(0)
-                                })
+                                rows_measure[key] = (sum / counter).toFixed(0);
 
 
 
-                            } 
+
+                            }
                         };
                     };
-                    
+
                     ret = { rows_measure };
 
                     resolve(ret);
@@ -364,7 +363,7 @@ function operative_report(station_actual, _time) {
             })
 
         ).catch(err => {
-            console.log('error');
+            console.log('error', err);
 
             resolve(-1);
         });
@@ -421,13 +420,13 @@ router.post('/operative_upload', authenticate, (req, resp) => {
 
                             result_str.forEach(item => {
                                 //console.log('result ', result_str[0].name);
-                                let tmp_nm = 'operative_report_' + element.namestation + '_' + element.place + '_' + new Date().format('Y-MM-dd_HH:mm') + '.csv';
+                                let tmp_nm = 'operative_report_' + element.namestation + '_' + element.place.substring(0, 40) + '_' + new Date().format('Y-MM-dd_HH:mm') + '.csv';
                                 let filename = "./reports/ftp/" + tmp_nm;
                                 let str_hdr = '1. Объект (наименование, координаты, адрес): ;' + element.place + '; широта: ;' + element.latitude + '; долгота:  ;' + element.longitude + ';\r\n';
 
                                 str_hdr += '2. Дата измерений: ;' + new Date(data.time).format('dd-MM-Y HH:mm') + ';\r\n 3. Результаты измерений:;\r\n ';
                                 str_hdr += 'Концентрация, мг/м.куб.;\r\n';
-                                str_hdr += 'Время;Темп., С;Напр. ветра, град.;Скор. ветра, м/с;Отн. влажность, %;Атм. Давление, мм.рт.ст.;NO;NO2;NH3;NOx;SO2;H2S;O3;CO;CH;CH4;HCH;CH2O;PM-1;PM-2.5;PM-10;Пыль общая;бензол;толуол;этилбензол;';
+                                str_hdr += 'Время;Темп., С;Напр. ветра, град.;Скор. ветра, м/с;Отн. влажность, %;Атм. Давление, мм.рт.ст.;NO;NO2;NH3;NOx;SO2;H2S;O3;CO;CH2O;CH;CH4;HCH;CH2O;PM-1;PM-2.5;PM-10;Пыль общая;бензол;толуол;этилбензол;';
                                 str_hdr += 'м-ксилол;п-ксилол;о-ксилол;хлорбензол;стирол;фенол\r\n';
 
                                 let str_body = new Date(data.time).format('dd-MM-Y HH:mm');
@@ -437,7 +436,6 @@ router.post('/operative_upload', authenticate, (req, resp) => {
                                     str_body += ';' + ((report.rows_measure[key] == undefined) ? '-' : report.rows_measure[key]);
 
                                 };
-
 
 
                                 fs.writeFile(filename, str_hdr + '\r\n' + str_body, function (error) {
@@ -466,7 +464,7 @@ router.post('/operative_upload', authenticate, (req, resp) => {
                                         try_ftp(options, temp, _folder, data.idd).then(resp.status(200).json({ error: "successful upload" }));
                                     }
                                     else {
-                                        //console.log('File creation error: ', error);
+                                        console.log('File creation error: ', error);
                                         insert_log('File creation error', 'server', '', '', error + ' or local folder: ./reports/ftp/ does not exist');
 
                                     }
