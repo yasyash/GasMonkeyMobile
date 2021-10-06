@@ -351,12 +351,8 @@ function operative_report(station_actual, _time) {
                             } 
                         };
                     };
-
-                    rows_measure = [...rows_measure, ...rows_service];
-                    //console.log('measure ', rows_measure);
-                    //console.log('service ', rows_service);
+                    
                     ret = { rows_measure };
-                    //console.log('ret', ret);
 
                     resolve(ret);
 
